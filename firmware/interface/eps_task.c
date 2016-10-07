@@ -8,6 +8,7 @@ void prvEPSTask( void *pvParameters )
     {
         sprintf(eps_data, "EPS DATA: %d", cont);
         cont = (cont+1)%10;
+
         //F = 1Hz
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }

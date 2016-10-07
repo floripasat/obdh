@@ -8,6 +8,7 @@ void prvTTCTask( void *pvParameters )
     {
         sprintf(ttc_data, "TT&C DATA: %d", cont);
         cont = 20 + (cont+1)%10;
+
         //F = 1Hz
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }

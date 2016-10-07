@@ -21,6 +21,7 @@
 #include "interface/imu_task.h"
 #include "interface/ttc_task.h"
 #include "interface/uart_task.h"
+#include "interface/wdt_task.h"
 
 #include "msp430.h"
 

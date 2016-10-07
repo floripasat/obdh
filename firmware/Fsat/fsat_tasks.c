@@ -7,6 +7,9 @@ void vSetupHardware( void )
     /* Disable the watchdog. */
     WDTCTL = WDTPW + WDTHOLD;
 
+    P5DIR |= BIT4;
+    P5OUT |= BIT4;
+
     uart_setup(9600);
 
     adc_setup_temp();
