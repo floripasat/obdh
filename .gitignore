@@ -31,3 +31,13 @@
 # Debug files
 *.dSYM/
 *.su
+*.map
+*.mk
+/firmware/Debug/*
+
+# Settings files
+/firmware/.settings/*
+
+# Tracealyzer files
+/firmware/GenericRecorderLibSrc/*
+
