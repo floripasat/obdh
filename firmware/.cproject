@@ -53,9 +53,11 @@
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/FreeRTOS/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/FreeRTOS/portable/MemMang&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/FreeRTOS/portable/CCS/MSP430X/&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/Fsat/&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/hal/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/interface/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/include/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/util/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/src/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/driver/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/GenericRecorderLibSrc/Include&quot;"/>
 								</option>

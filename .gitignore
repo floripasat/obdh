@@ -40,3 +40,6 @@
 # Tracealyzer files
 /firmware/GenericRecorderLibSrc/
 
+# Doc files
+/doc/
+
