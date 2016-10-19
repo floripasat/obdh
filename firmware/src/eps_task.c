@@ -1,16 +1,23 @@
-#include "eps_task.h"
+/*
+ * eps_task.c
+ *
+ *  Created on: 18 de out de 2016
+ *      Author: elder
+ */
 
-void prvEPSTask( void *pvParameters )
+#include "../include/eps_task.h"
+
+void prvEpsTask( void *pvParameters )
 {
-    static int cont = 0;
+    volatile TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
 
     while(1)
     {
-        eps_read(epsData);
-        sprintf(epsData, "EPS DATA: %d", cont);
-        cont = (cont+1)%10;
+        //TODO: TASK ROUTINE
 
-        //F = 1Hz
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        vTaskDelayUntil( &xLastWakeTime, EPS_TASK_PERIOD_TICKS );
     }
+
+    vTaskDelete( NULL );
 }

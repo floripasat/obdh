@@ -34,12 +34,8 @@
 /firmware/Debug/
 /firmware/.launches
 
-# Settings files
-/firmware/.settings/
-
 # Tracealyzer files
 /firmware/GenericRecorderLibSrc/
 
 # Doc files
 /doc/
-

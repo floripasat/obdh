@@ -1,15 +1,24 @@
-#include "ttc_task.h"
+/*
+ * ttc_task.c
+ *
+ *  Created on: 18 de out de 2016
+ *      Author: elder
+ */
 
-void prvTTCTask( void *pvParameters )
+#include "../include/ttc_task.h"
+
+void prvTtcTask( void *pvParameters )
 {
-    static int cont = 20;
+    volatile TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
 
     while(1)
     {
-        sprintf(ttcData, "TT&C DATA: %d", cont);
-        cont = 20 + (cont+1)%10;
+        //TODO: TASK ROUTINE
 
-        //F = 1Hz
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        vTaskDelayUntil( &xLastWakeTime, TTC_TASK_PERIOD_TICKS );
     }
+
+    vTaskDelete( NULL );
 }
+

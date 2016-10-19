@@ -9,9 +9,9 @@
 #define INTERFACE_IMU_H_
 
 #include "../driver/i2c.h"
-#include "../interface/fsat_globals.h"
+#include "../include/obdh_def.h"
 #include "../util/misc.h"
-#include "../util/debug.h"
+//#include "../util/debug.h"
 //#include "../util/codecs.h"
 
 #define MPU9150_SELF_TEST_X        0x0D   // R/W
@@ -116,9 +116,9 @@
 
 
 
-//char imuData[MPU_DATA_LENGTH];
 
-void imu_config(void);
+void vImuRead(uint8_t *pucImu1Data, uint8_t ucImuSelect);
+void vImuConfig(void);
 void imu_read(char* imuData);
 
 char* imu_data2string(char* stringBuffer, char* imuData, float accRange, float gyrRange);

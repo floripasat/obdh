@@ -1,25 +1,24 @@
-#include <debug_task.h>
+/*
+ * debug_task.c
+ *
+ *  Created on: 18 de out de 2016
+ *      Author: elder
+ */
+
+#include "../include/debug_task.h"
 
 void prvDebugTask( void *pvParameters )
 {
+    volatile TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+
     while(1)
     {
-        /* assemble the package */
-        //sprintf(debugPackage, "%s\n%s\n%s\n%s\n\n", epsData, imuData, ttcData, tempSensData);
+        //TODO: TASK ROUTINE
 
-        /* send the package */
-        uart_tx(epsData);
-        uart_tx("\n");
-        uart_tx(imuData);
-        uart_tx("\n");
-        uart_tx(ttcData);
-        uart_tx("\n");
-        uart_tx(tempSensData);
-        uart_tx("\n\n");
-
-
-        //F = 0.5Hz
-        vTaskDelay( 500 / portTICK_PERIOD_MS );
+uart_tx("")
+        vTaskDelayUntil( &xLastWakeTime, DEBUG_TASK_PERIOD_TICKS );
     }
-}
 
+    vTaskDelete( NULL );
+}

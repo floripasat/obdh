@@ -1,18 +1,29 @@
-#include "imu_task.h"
+/*
+ * imu_task.c
+ *
+ *  Created on: 18 de out de 2016
+ *      Author: elder
+ */
 
+#include "../include/imu_task.h"
 
-void prvIMUTask( void *pvParameters )
+void prvImuTask( void *pvParameters )
 {
-    static int cont = 10;
+    static uint8_t pucImu1Data[IMU_DATA_LENGTH];
+    static uint8_t pucImu2Data[IMU_DATA_LENGTH];
+    volatile TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
 
     while(1)
     {
+        //TODO: TASK ROUTINE
+        vImuRead(pucImu1Data, IMU1);
+        //vTaskDelay(5 / portTICK_PERIOD_MS); //delay between reads
+        vImuRead(pucImu2Data, IMU2);
 
-        sprintf(imuData, "IMU DATA: %d", cont++);
-        cont = 10 + (cont+1)%10;
-        //vPrintEvent("dados da IMU enviados");
-
-        //F = 1Hz
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        vTaskDelayUntil( &xLastWakeTime, IMU_TASK_PERIOD_TICKS );
     }
+
+    vTaskDelete( NULL );
 }
+

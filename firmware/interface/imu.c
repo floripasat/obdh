@@ -7,19 +7,45 @@
 
 #include <interface/imu.h>
 
-unsigned char Debug_MPU_Data[] = {"0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00"};//TODO rm
-char imuTmpStr[100];
+uint8_t pucImuTmpData[40];
 
 
-void imu_config(void){
-	imu_i2c_write(MPU9150_PWR_MGMT_1, 0x00);
+void vImuConfig(void){
+	//imu_i2c_write(MPU9150_PWR_MGMT_1, 0x00);
+    pucImuTmpData[0] = MPU9150_PWR_MGMT_1;   //reg address
+    pucImuTmpData[1] = 0x00;                 //data
 
-	if (IMU_ACC_RANGE == 2.0) {
-		imu_i2c_write(MPU9150_ACCEL_CONFIG, 0x00);   // config for +-2g range
-	} else {
-		imu_i2c_write(MPU9150_ACCEL_CONFIG, 0x18);   // config for +-16g range
-	}
+    //device, data address, bytes
+    vI2cWrite(MPU1_I2C_SLAVE_ADRESS, pucImuTmpData, 1);
 
+
+//	if (IMU_ACC_RANGE == 2.0) {
+//		imu_i2c_write(MPU9150_ACCEL_CONFIG, 0x00);   // config for +-2g range
+//	} else {
+//		imu_i2c_write(MPU9150_ACCEL_CONFIG, 0x18);   // config for +-16g range
+//	}
+
+}
+
+
+
+
+void vImuRead(uint8_t *pucImuData, uint8_t ucImuSelect)
+{
+    volatile uint8_t ucSlaveAddress = 0x00;
+    switch(ucImuSelect)
+    {
+        case IMU1:
+            ucSlaveAddress = MPU1_I2C_SLAVE_ADRESS;
+            break;
+        case IMU2:
+            ucSlaveAddress = MPU2_I2C_SLAVE_ADRESS;
+            break;
+    }
+
+    vI2cSetSlave( IMU_BASE_ADDRESS, ucSlaveAddress);
+
+    vI2cRead(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, pucImuData, IMU_DATA_LENGTH);
 }
 
 
@@ -37,7 +63,7 @@ void imu_read(char* imuData){
 char* imu_data2string(char* stringBuffer, char* imuData, float accRange,
         float gyrRange) {
 
-    if (DEBUG_LOG_ENABLE) {
+
 
         //	IMU MPU6050 response:
         //	[accXH][accXL][accYH][accYL][accZH][accZL][tempH][tempL][gyrXH][gyrXL][gyrYH][gyrYL][gyrZH][gyrZL]
@@ -74,7 +100,7 @@ char* imu_data2string(char* stringBuffer, char* imuData, float accRange,
                 "\t\tGyr (X,Y,Z):\t%.3f\t%.3f\t%.3f g/S", temp, accX, accY,
                 accZ, gyrX, gyrY, gyrZ);
 
-    }
+
 
     return stringBuffer;
 }

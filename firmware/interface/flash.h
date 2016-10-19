@@ -6,8 +6,8 @@
  */
 
 #include <msp430.h>
+#include "../driver/obdh_hal.h"
 #include "debug.h"
-#include "../driver/hal.h"
 
 #ifndef UTIL_FLASH_H_
 #define UTIL_FLASH_H_

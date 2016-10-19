@@ -1,56 +1,108 @@
 #include <driver/i2c.h>
 
-void i2c_setup(unsigned int device){
+//void i2c_setup(unsigned int device){
+//
+//	switch(device){
+//	case EPS:
+//
+//		Port_Mapping_UCB0();
+//
+//		P2SEL |= 0x06;                            // Assign P2.1 to UCB0SDA and...
+//		P2DIR |= 0x06;                            // P2.2 to UCB0SCL
+//
+//		UCB0CTL1 |= UCSWRST;                      // Enable SW reset
+//		UCB0CTL0 = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
+//		UCB0CTL1 = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
+//		UCB0BR0 = 12;                             // fSCL = SMCLK/12 = ~100kHz
+//		UCB0BR1 = 0;
+//		UCB0I2CSA = EPS_I2C_ADRESS;                         // Slave Address
+//		UCB0CTL1 &= ~UCSWRST;                    // Clear SW reset, resume operation
+//		UCB0IE |= UCRXIE + UCNACKIFG;                         // Enable RX interrupt
+//
+//		break;
+//
+//	case MPU:
+//
+//		P8SEL |= BIT5 + BIT6;                            // Assign P2.1 to UCB0SDA and...
+//
+//		UCB1CTL1 |= UCSWRST;                      // Enable SW reset
+//		UCB1CTL0 = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
+//		UCB1CTL1 = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
+//		UCB1BR0 = 12;                             // fSCL = SMCLK/12 = ~100kHz
+//		UCB1BR1 = 0;
+//		UCB1I2CSA = MPU_I2C_ADRESS;               // Slave Address
+//		UCB1CTL1 &= ~UCSWRST;                    // Clear SW reset, resume operation
+//		UCB1IE |= UCTXIE | UCRXIE;                         // Enable RX interrupt
+//
+//		break;
+//	}
+//}
 
-	switch(device){
-	case EPS:
+void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
+{
+    //Initialize Master
+    USCI_B_I2C_initMasterParam param = {0};
+    param.selectClockSource = USCI_B_I2C_CLOCKSOURCE_SMCLK;
+    param.i2cClk = UCS_getSMCLK();
+    param.dataRate = USCI_B_I2C_SET_DATA_RATE_400KBPS;
+    USCI_B_I2C_initMaster(usBaseAddress, &param);
 
-		Port_Mapping_UCB0();
+    //Specify slave address
+    USCI_B_I2C_setSlaveAddress(usBaseAddress, ucSlaveAddress);
 
-		P2SEL |= 0x06;                            // Assign P2.1 to UCB0SDA and...
-		P2DIR |= 0x06;                            // P2.2 to UCB0SCL
+    //Set Transmit mode
+    USCI_B_I2C_setMode(usBaseAddress, USCI_B_I2C_TRANSMIT_MODE);
 
-		UCB0CTL1 |= UCSWRST;                      // Enable SW reset
-		UCB0CTL0 = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
-		UCB0CTL1 = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
-		UCB0BR0 = 12;                             // fSCL = SMCLK/12 = ~100kHz
-		UCB0BR1 = 0;
-		UCB0I2CSA = EPS_I2C_ADRESS;                         // Slave Address
-		UCB0CTL1 &= ~UCSWRST;                    // Clear SW reset, resume operation
-		UCB0IE |= UCRXIE + UCNACKIFG;                         // Enable RX interrupt
+    USCI_B_I2C_disableInterrupt(usBaseAddress, 0xFF); //disable all USCI_B0 interrupts
 
-		break;
-
-	case MPU:
-
-		P8SEL |= BIT5 + BIT6;                            // Assign P2.1 to UCB0SDA and...
-
-		UCB1CTL1 |= UCSWRST;                      // Enable SW reset
-		UCB1CTL0 = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
-		UCB1CTL1 = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
-		UCB1BR0 = 12;                             // fSCL = SMCLK/12 = ~100kHz
-		UCB1BR1 = 0;
-		UCB1I2CSA = MPU_I2C_ADRESS;               // Slave Address
-		UCB1CTL1 &= ~UCSWRST;                    // Clear SW reset, resume operation
-		UCB1IE |= UCTXIE | UCRXIE;                         // Enable RX interrupt
-
-		break;
-	}
+    //Enable I2C Module to start operations
+    USCI_B_I2C_enable(usBaseAddress);
 }
 
-void i2c_read_eps(char *Buffer, unsigned int bytes){
-	PRxData = Buffer;
-	RXByteCtr = bytes;
-	UCB0CTL1 &= ~UCTR;
-	UCB0CTL1 |= UCTXSTT;
-//    __delay_cycles(DELAY_10_MS_IN_CYCLES);
-//    __delay_cycles(DELAY_10_MS_IN_CYCLES);
-//    __delay_cycles(DELAY_10_MS_IN_CYCLES);
-	//vTaskDelay(30 / portTICK_PERIOD_MS);
+void vI2cSetMode(uint16_t usBaseAddress, uint8_t ucMode)
+{
+    USCI_B_I2C_setMode(usBaseAddress, ucMode);
 }
 
 
+void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
+{
+    USCI_B_I2C_setSlaveAddress(usBaseAddress, ucSlaveAddress);
+}
 
+//device, data address, bytes
+bool vI2cWrite(uint16_t usBaseAddress, uint8_t *pucData, uint8_t ucLenght)
+{
+    volatile uint8_t ucCont;
+    volatile bool status;
+
+    USCI_B_I2C_masterSendStart(usBaseAddress);
+    for(ucCont = 0; ucCont < ucLenght; ucCont++)
+    {
+        status = USCI_B_I2C_masterSendMultiByteNextWithTimeout(usBaseAddress, pucData[ucCont], I2C_TIMEOUT);
+    }
+    //if some send returns STATUS_FAIL, status value will be STAUS_FAIL
+    status &=  USCI_B_I2C_masterSendMultiByteStopWithTimeout(usBaseAddress, I2C_TIMEOUT);
+
+    return status;
+}
+
+void vI2cRead(uint16_t usBaseAddress, uint8_t ucRegAddress, uint8_t *pucData, uint8_t ucLenght)
+{
+    volatile uint8_t ucCont;
+
+    USCI_B_I2C_masterSendStart(usBaseAddress);
+    USCI_B_I2C_masterSendSingleByteWithTimeout(usBaseAddress, ucRegAddress, I2C_TIMEOUT);
+    USCI_B_I2C_setMode(usBaseAddress, USCI_B_I2C_RECEIVE_MODE);
+    USCI_B_I2C_masterSendStart(usBaseAddress);
+    for(ucCont = 0; ucCont < ucLenght; ucCont++)
+    {
+//        USCI_B_I2C_masterSendStart(usBaseAddress);
+        pucData[ucCont] = USCI_B_I2C_masterReceiveMultiByteNext(usBaseAddress);
+    }
+    USCI_B_I2C_masterReceiveMultiByteFinish(usBaseAddress);
+    USCI_B_I2C_setMode(usBaseAddress, USCI_B_I2C_TRANSMIT_MODE);
+}
 
 void Port_Mapping_UCB0(void) {
 	// Disable Interrupts before altering Port Mapping registers
@@ -73,82 +125,4 @@ void Port_Mapping_UCB0(void) {
 //#endif
 }
 
-/*
- *  USCB_0 interrupt vector *
- */
-
-#pragma vector = USCI_B0_VECTOR
-__interrupt void USCI_B0_ISR(void) {
-	switch (__even_in_range(UCB0IV, 12)) {
-	case 0:
-		break;                           // Vector  0: No interrupts
-	case 2:
-		break;                           // Vector  2: ALIFG
-	case 4:                           // Vector  4: NACKIFG
-		break;
-	case 6:
-		break;                           // Vector  6: STTIFG
-	case 8:
-		break;                           // Vector  8: STPIFG
-	case 10:                                  // Vector 10: RXIFG
-		RXByteCtr--;                            // Decrement RX byte counter
-		if (RXByteCtr > 0) {
-			*PRxData++ = UCB0RXBUF;           // Move RX data to address PRxData
-			if (RXByteCtr == 1) {                  // Only one byte left?
-				UCB0CTL1 |= UCTXSTP;              // Generate I2C stop condition
-			}
-
-		} else {
-			*PRxData = UCB0RXBUF;               // Move final RX data to PRxData
-		}
-		break;
-	case 12:
-		break;                           // Vector 12: TXIFG
-	default:
-		break;
-	}
-}
-
-/*
- *  USCB_1 interrupt vector *
- */
-
-#pragma vector = USCI_B1_VECTOR
-__interrupt void USCI_B1_ISR(void) {
-	switch (__even_in_range(UCB1IV, 12)) {
-	case 0:
-		break;                           // Vector  0: No interrupts
-	case 2:
-		break;                           // Vector  2: ALIFG
-	case 4:
-		break;                           // Vector  4: NACKIFG
-	case 6:
-		break;                           // Vector  6: STTIFG
-	case 8:
-		break;                           // Vector  8: STPIFG
-	case 10:                            		// Vector 10: RXIFG
-		RXByteCtr--;                            // Decrement RX byte counter
-		if (RXByteCtr > 0) {
-			*PRxData++ = UCB1RXBUF;           // Move RX data to address PRxData
-			if (RXByteCtr == 1){                   // Only one byte left?
-				UCB1CTL1 |= UCTXSTP;              // Generate I2C stop condition
-			}
-		} else {
-			*PRxData = UCB1RXBUF;               // Move final RX data to PRxData
-			UCB1IFG &= ~UCRXIFG;                  // Clear USCI_B0 TX int flag
-		}
-		break;
-	case 12:                                  // Vector 12: TXIFG
-		if (TXByteCtr--)  {                        // Check TX byte counter
-			UCB1TXBUF = *PTxData++;               // Load TX buffer
-			__delay_cycles(100);
-		} else {
-			UCB1CTL1 |= UCTXSTP;                  // I2C stop condition
-			UCB1IFG &= ~UCTXIFG;                  // Clear USCI_B0 TX int flag
-		}
-		break;
-	default:
-		break;
-	}
-}
 

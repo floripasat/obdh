@@ -153,5 +153,11 @@ case configTICK_VECTOR is set to TIMER0_A0_VECTOR. */
 
 //#include "trcKernelPort.h"
 
+/**
+ * OBDH DEFINITIONS
+ *
+ */
+#define vTaskDelayMs( x )     ( vTaskDelay( x / portTICK_PERIOD_MS ) )
+
 #endif /* FREERTOS_CONFIG_H */
 

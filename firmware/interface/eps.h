@@ -10,7 +10,7 @@
 
 #include "../driver/i2c.h"
 #include "../util/debug.h"
-#include "../interface/fsat_globals.h"
+#include "../include/obdh_def.h"
 
 void eps_read(char* data);
 char* eps_data2string(char* stringBuffer, char* epsData);

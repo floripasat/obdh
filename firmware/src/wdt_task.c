@@ -1,19 +1,34 @@
-#include "wdt_task.h"
+/*
+ * wdt_task.c
+ *
+ *  Created on: 18 de out de 2016
+ *      Author: elder
+ */
+
+#include "../include/wdt_task.h"
 
 void prvWdtTask( void *pvParameters )
 {
-    TickType_t xLastWakeTime;
+    volatile TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+
+    //ENABLE WDTs
+
 
     while(1)
     {
-        xLastWakeTime = xTaskGetTickCount();
-        //acende led
-        P5OUT |= BIT4;
-        vTaskDelay(10 / portTICK_PERIOD_MS );
-        //apaga led
-        P5OUT ^= BIT4;
+        //TODO: TASK ROUTINE
 
-        //F = 0.1Hz (100ms contados a partir da execucao de xLastWakeTime = xTaskGetTickCount();
-        vTaskDelayUntil( &xLastWakeTime, 100 / portTICK_PERIOD_MS );
+        P5OUT |= BIT4; //set pin
+
+        vTaskDelayMs( 10 );
+
+        P5OUT ^= BIT4; //clear pin
+
+
+        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS );
     }
+
+    vTaskDelete( NULL );
 }
+
