@@ -1,12 +1,12 @@
 /*
- * attitude_task.h
+ * write_log_task.h
  *
  *  Created on: 18 de out de 2016
  *      Author: elder
  */
 
-#ifndef INCLUDE_ATTITUDE_TASK_H_
-#define INCLUDE_ATTITUDE_TASK_H_
+#ifndef INCLUDE_WRITE_LOG_TASK_H_
+#define INCLUDE_WRITE_LOG_TASK_H_
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -16,21 +16,21 @@
  * FREQUENCY =  1Hz
  */
 
-#define ATTITUDE_TASK_PRIORITY          5
-#define ATTITUDE_TASK_PERIOD_MS         1000
-#define ATTITUDE_TASK_PERIOD_TICKS      ( ATTITUDE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+#define WRITE_LOG_TASK_PRIORITY          5
+#define WRITE_LOG_TASK_PERIOD_MS         1000
+#define WRITE_LOG_TASK_PERIOD_TICKS      ( WRITE_LOG_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**
- * \var static xTaskHandle xAttitudeTask
+ * \var static xTaskHandle xWriteLogTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xAttitudeTask;
+static xTaskHandle xWriteLogTask;
 
 /**
- * \fn void prvAttitudeTask( void *pvParameters )
- * The task witch do the Attitude module main function
+ * \fn void prvWriteLogTask( void *pvParameters )
+ * The task witch do the WriteLog module main function
  * \param pvParameters Not used
  */
-void prvAttitudeTask( void *pvParameters );
+void prvWriteLogTask( void *pvParameters );
 
-#endif /* INCLUDE_ATTITUDE_TASK_H_ */
+#endif /* INCLUDE_WRITE_LOG_TASK_H_ */

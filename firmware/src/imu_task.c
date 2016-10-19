@@ -14,12 +14,17 @@ void prvImuTask( void *pvParameters )
     volatile TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
+    static uint8_t usCounter = 10;
+
     while(1)
     {
         //TODO: TASK ROUTINE
-        vImuRead(pucImu1Data, IMU1);
-        //vTaskDelay(5 / portTICK_PERIOD_MS); //delay between reads
-        vImuRead(pucImu2Data, IMU2);
+//        vImuRead(pucImu1Data, IMU1);
+//        vTaskDelay(5 / portTICK_PERIOD_MS); //delay between reads
+//        vImuRead(pucImu2Data, IMU2);
+
+        sprintf(imu_data, "IMU DATA: %u", usCounter);
+        usCounter = 10 + (usCounter+1)%10;
 
         vTaskDelayUntil( &xLastWakeTime, IMU_TASK_PERIOD_TICKS );
     }

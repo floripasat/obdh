@@ -10,14 +10,15 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "../include/obdh_def.h"
 
 /*
  * PRIORITY =   5
  * FREQUENCY =  1Hz
  */
 
-#define DEBUG_TASK_PRIORITY          5
-#define DEBUG_TASK_PERIOD_MS         1000
+#define DEBUG_TASK_PRIORITY          6
+#define DEBUG_TASK_PERIOD_MS         500
 #define DEBUG_TASK_PERIOD_TICKS      ( DEBUG_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**

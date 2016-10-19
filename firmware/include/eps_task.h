@@ -11,6 +11,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "../interface/eps.h"
+#include "../include/obdh_def.h"
 
 /*
  * PRIORITY =   5

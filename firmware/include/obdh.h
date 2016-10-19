@@ -15,9 +15,11 @@
 #include "../driver/obdh_hal.h"
 
 #include "../include/imu_task.h"
-//#include "../include/ttc_task.h"
-//#include "../include/wdt_task.h"
-//#include "../include/debug_task.h"
+#include "../include/ttc_task.h"
+#include "../include/wdt_task.h"
+#include "../include/eps_task.h"
+#include "../include/read_temperature_task.h"
+#include "../include/debug_task.h"
 //#include "../driver/obdh_hal.h"
 
 

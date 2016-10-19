@@ -10,6 +10,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "../driver/adc.h"
+#include "../include/obdh_def.h"
 
 /*
  * PRIORITY =   5

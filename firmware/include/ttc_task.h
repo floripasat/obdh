@@ -10,6 +10,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "../include/obdh_def.h"
 //#include "../interface/ttc.h"
 
 /*

@@ -7,13 +7,13 @@ void vDeployAntenna()
 
 void prvCreateTasks()
 {
-//    xTaskCreate( prvEPSTask, "EPS", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &epsTask );
-    xTaskCreate( prvImuTask, "IMU", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &xImuTask );
+    xTaskCreate( prvEpsTask, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_TASK_PRIORITY, &xEpsTask );
+    xTaskCreate( prvImuTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_TASK_PRIORITY, &xImuTask );
 //    xTaskCreate( prvOBDHTask, "OBDH", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &obdhTask );
-//    xTaskCreate( prvTTCTask, "TTC", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &ttcTask );
-//    xTaskCreate( prvReadTempTask, "ReadTemperature", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &readTemp );
-//    xTaskCreate( prvWdtTask, "WDT", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, &wdtTask );
-//    xTaskCreate( prvDebugTask, "DEBUG", 4*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &debugTask );
+    xTaskCreate( prvTtcTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_TASK_PRIORITY, &xTtcTask );
+    xTaskCreate( prvReadTemperatureTask, "ReadTemperature", configMINIMAL_STACK_SIZE, NULL, READ_TEMPERATURE_TASK_PRIORITY, &xReadTemperatureTask);
+    xTaskCreate( prvWdtTask, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &xWdtTask );
+    xTaskCreate( prvDebugTask, "DEBUG", 4*configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &xDebugTask);
 }
 
 

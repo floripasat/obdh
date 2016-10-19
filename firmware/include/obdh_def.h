@@ -28,6 +28,10 @@
 #define RADIO_DATA_LENGTH    4  // 2 B to counter + 2 B fo signal dB
 #define TEMP_SENS_DATA_LENGTH 80
 
+char eps_data[EPS_DATA_LENGTH];
+char imu_data[IMU_DATA_LENGTH];
+char ttc_data[TTC_DATA_LENGTH];
+char temp_sens_data[TEMP_SENS_DATA_LENGTH];
 
 
 #endif /* GLOBALS_H_ */

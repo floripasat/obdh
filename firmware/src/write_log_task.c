@@ -1,13 +1,13 @@
 /*
- * attitude_task.c
+ * write_log_task.c
  *
- *  Created on: 18 de out de 2016
+ *  Created on: 19 de out de 2016
  *      Author: elder
  */
 
-#include "../include/attitude_task.h"
+#include "../include/write_log_task.h"
 
-void prvAttitudeTask( void *pvParameters )
+void prvWriteLogTask( void *pvParameters )
 {
     volatile TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
@@ -17,7 +17,7 @@ void prvAttitudeTask( void *pvParameters )
         //TODO: TASK ROUTINE
 
 
-        vTaskDelayUntil( &xLastWakeTime, ATTITUDE_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( &xLastWakeTime, WRITE_LOG_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

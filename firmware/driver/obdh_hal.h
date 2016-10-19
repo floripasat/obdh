@@ -113,6 +113,9 @@
 // constants that we need. See device datasheet for the full TLV table memory
 // mapping.
 
+
+
+
 // Calibration constant for ADC 1.5-V Reference, Temp. Sensor 30°C
 #define CALADC12_15V_30C        (*((unsigned int *)0x1A1A))
 
