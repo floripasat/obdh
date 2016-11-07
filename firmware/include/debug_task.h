@@ -32,6 +32,6 @@ static xTaskHandle xDebugTask;
  * The task witch do the Debug module main function
  * \param pvParameters Not used
  */
-void prvDebugTask( void *pvParameters );
+void debugTask( void *pvParameters );
 
 #endif /* INCLUDE_DEBUG_TASK_H_ */

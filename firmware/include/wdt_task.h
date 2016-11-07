@@ -10,14 +10,15 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-//#include "../interface/wdt.h"
+//#include "../interface/external_wdt.h"
+#include "../driver/watchdog.h"
 
 /*
  * PRIORITY =   5
  * FREQUENCY =  1Hz
  */
 
-#define WDT_TASK_PRIORITY          10
+#define WDT_TASK_PRIORITY          6
 #define WDT_TASK_PERIOD_MS         100
 #define WDT_TASK_PERIOD_TICKS      ( WDT_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
@@ -32,6 +33,6 @@ static xTaskHandle xWdtTask;
  * That task reset the external and internal WatchDog Timers
  * \param pvParameters Not used
  */
-void prvWdtTask( void *pvParameters );
+void wdtTask( void *pvParameters );
 
 #endif /* INCLUDE_WDT_TASK_H_ */

@@ -1,19 +1,23 @@
 #include "../include/obdh.h"
 
-void vDeployAntenna()
+void vWDTsConfiguration()
 {
-
+    watchdog_setup(WATCHDOG, WD_250_mSEC);
 }
 
-void prvCreateTasks()
+void vCreateTasks()
 {
-    xTaskCreate( prvEpsTask, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_TASK_PRIORITY, &xEpsTask );
-    xTaskCreate( prvImuTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_TASK_PRIORITY, &xImuTask );
-//    xTaskCreate( prvOBDHTask, "OBDH", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &obdhTask );
-    xTaskCreate( prvTtcTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_TASK_PRIORITY, &xTtcTask );
-    xTaskCreate( prvReadTemperatureTask, "ReadTemperature", configMINIMAL_STACK_SIZE, NULL, READ_TEMPERATURE_TASK_PRIORITY, &xReadTemperatureTask);
-    xTaskCreate( prvWdtTask, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &xWdtTask );
-    xTaskCreate( prvDebugTask, "DEBUG", 4*configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &xDebugTask);
+    xTaskCreate( wdtTask, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &xWdtTask );
+    xTaskCreate( antennaTask, "AntennaDeploy", configMINIMAL_STACK_SIZE, NULL, ANTENNA_TASK_PRIORITY, &xAntennaTask);
+    xTaskCreate( readInternalSensorsTask, "ReadInternal", configMINIMAL_STACK_SIZE, NULL, READ_INTERNAL_SENSORS_TASK_PRIORITY, &xReadInternalSensorsTask);
+    xTaskCreate( epsInterfaceTask, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &xEpsInterfaceTask );
+    //xTaskCreate( ttcInterfaceTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_TASK_PRIORITY, &xTtcInterfaceTask );
+    xTaskCreate( communicationsTask, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &xCommunicationsTask );
+    xTaskCreate( imuInterfaceTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &xImuInterfaceTask);
+    xTaskCreate( solarPanelsInterfaceTask, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &xSolarPanelsInterfaceTask);
+    xTaskCreate( saveDataOnFlashMemoryTask, "SaveDataOnFlash", configMINIMAL_STACK_SIZE, NULL, SAVE_DATA_ON_FLASH_MEMORY_TASK_PRIORITY, &xSaveDataOnFlashMemoryTask);
+
+    xTaskCreate( debugTask, "DEBUG", 4*configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &xDebugTask);
 }
 
 
@@ -34,11 +38,31 @@ void vSetupHardware( void )
     taskDISABLE_INTERRUPTS();
 
     /* Disable the watchdog. */
-    WDTCTL = WDTPW + WDTHOLD;
+//    WDTCTL = WDTPW + WDTHOLD;
 
-    P5DIR |= BIT4;
-    P5OUT |= BIT4;
+//    external watchdog timer reset pin
+    P1DIR |= BIT7;
+    P1OUT |= BIT7;
+    obdh_setup();
+// SETUP CLOCKS
 
+    P7SEL |= BIT2+BIT3; //XT2
+
+    UCSCTL6 &= ~(XT2OFF | XT1OFF);            // Enable XT2 and XT1
+    UCSCTL6 |= XCAP_3;                        // Internal load cap
+
+//    do
+//    {
+//    UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);
+//                                            // Clear XT2,XT1,DCO fault flags
+//    SFRIFG1 &= ~OFIFG;                      // Clear fault flags
+//    }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
+
+    UCSCTL6 &= ~(XT2DRIVE0 | XT1DRIVE_3);       // Decrease XT2 Drive according to
+                                                // expected frequency
+
+    UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
+    
 /*
  * TODO: Adicionar retorno para cada setup, de modo a saber, ao fim desta função,
  * quais modulos foram corretamente configurados e quais não. Isto pode ser armazenado no log de eventos

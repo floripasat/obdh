@@ -7,7 +7,7 @@
 #include "obdh_hal.h"
 
 
-#define I2C_TIMEOUT 1000
+#define I2C_TIMEOUT 50
 
 #define TRANSMIT_MODE                                           UCTR
 #define RECEIVE_MODE                                            0x00

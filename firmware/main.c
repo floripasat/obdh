@@ -5,11 +5,12 @@
 
 int main(void) {
 
-    vDeployAntenna();
+    //vDeployAntenna();
+    vWDTsConfiguration();
 
     vSetupHardware();
 
-    prvCreateTasks();
+    vCreateTasks();
 
     vTaskStartScheduler();
 

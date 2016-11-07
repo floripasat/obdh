@@ -26,7 +26,7 @@
 #define EPS_DATA_LENGTH     23  // 17 B of payload + 2 * 3 Bytes of SOF and EOF
 #define IMU_DATA_LENGTH     14  // 6 B to Acc + 6 B to Gyr
 #define RADIO_DATA_LENGTH    4  // 2 B to counter + 2 B fo signal dB
-#define TEMP_SENS_DATA_LENGTH 80
+#define TEMP_SENS_DATA_LENGTH 60
 
 char eps_data[EPS_DATA_LENGTH];
 char imu_data[IMU_DATA_LENGTH];

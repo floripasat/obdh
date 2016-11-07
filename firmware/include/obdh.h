@@ -13,20 +13,27 @@
 #include "task.h"
 #include "timers.h"
 #include "../driver/obdh_hal.h"
-
-#include "../include/imu_task.h"
-#include "../include/ttc_task.h"
 #include "../include/wdt_task.h"
-#include "../include/eps_task.h"
-#include "../include/read_temperature_task.h"
+#include "../include/antenna_task.h"
+#include "../include/read_internal_sensors_task.h"
+#include "../include/eps_interface_task.h"
+#include "../include/imu_interface_task.h"
+//#include "../include/ttc_interface_task.h"
+#include "../include/communications_task.h"
+#include "../include/solar_panels_interface_task.h"
+#include "../include/save_data_on_flash_memory_task.h"
+
 #include "../include/debug_task.h"
+
 //#include "../driver/obdh_hal.h"
 
 
-void vDeployAntenna();
-void prvCreateTasks();
-void vSetupHardware( void );
+//void vDeployAntenna();
+void vCreateTasks();
+void vSetupHardware();
+void vWDTsConfiguration();
 //void vPrintEvent (char *string);
 
 
 #endif
+

@@ -7,7 +7,7 @@
 
 #include "../include/debug_task.h"
 
-void prvDebugTask( void *pvParameters )
+void debugTask( void *pvParameters )
 {
     volatile TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();

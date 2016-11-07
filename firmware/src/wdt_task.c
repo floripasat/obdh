@@ -7,26 +7,26 @@
 
 #include "../include/wdt_task.h"
 
-void prvWdtTask( void *pvParameters )
+void wdtTask( void *pvParameters )
 {
     volatile TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
-    //ENABLE WDTs
 
 
     while(1)
     {
         //TODO: TASK ROUTINE
+        wdt_reset_counter();
 
-        P5OUT |= BIT4; //set pin
+        P1OUT |= BIT7; //set pin
 
-        vTaskDelayMs( 10 );
+        vTaskDelayUntil( &xLastWakeTime, 10 );
 
-        P5OUT ^= BIT4; //clear pin
+        P1OUT ^= BIT7; //clear pin
 
 
-        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS -10 );
     }
 
     vTaskDelete( NULL );

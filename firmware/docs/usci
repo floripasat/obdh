@@ -1,9 +1,9 @@
-A0  SPI TRANSCEIVER
-A1  SPI MAIN BUS (flash/SD memory, adc1, adc2, adc3, ADCS) + 5 GPIO (CS)
-A2  UART DEBUG
+A0  SPI_0 TRANSCEIVER
+A1  SPI_1 MAIN BUS (flash/SD memory, adc1, adc2, adc3, paineis solares) + 5 GPIO (CS)
+A2  UART_0 DEBUG
 
 
-B0  I2C EPS (OBDH master - EPS slave)
-B1  I2C MAIN BUS (IMU1, IMU2)
-B2  I2C ANTENNA DEPLOYMENT
+B0  I2C_0 EPS (OBDH master - EPS slave)
+B1  I2C_1 MAIN BUS (IMU1, IMU2, payload)
+B2  I2C_2 ANTENNA DEPLOYMENT
 

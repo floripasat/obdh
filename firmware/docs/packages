@@ -1,0 +1,44 @@
+EPS
+  LENGHT:
+  
+  | STATUS | BATERRY (current (2 bytes), voltage (2 bytes)| chksum |
+
+
+
+TT&C
+
+  | STATUS | chksum |
+
+
+IMU
+
+  | GYRO (6 bytes) | ACCEL (6 BYTES) | TEMP (2 bytes) | MAGNETOMETER (6 bytes) |
+
+
+OBDH 
+  
+  | INTERNAL TEMPERATURE | MODE | RTOS FAILS | SYSTICK |
+
+
+MEMORY
+
+  log:
+    | DATE (y/m/d - h:m:s) | event
+  
+  data:
+    | PAYLOAD | OBDH | EPS | TTC |
+
+
+RADIO
+  
+  uplink:
+    | AUTHENTICATION | COMMAND (DATA REQUEST) | CRC |
+
+  downlink:
+    | DATE | DATA (MEMORY / COMMAND RESPONSE) | CRC |
+    | DATE | DATA | ACK | CRC |
+
+
+DEBUG
+  | 
+
