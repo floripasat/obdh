@@ -15,7 +15,7 @@ void vCreateTasks()
     xTaskCreate( communicationsTask, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &xCommunicationsTask );
     xTaskCreate( imuInterfaceTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &xImuInterfaceTask);
     xTaskCreate( solarPanelsInterfaceTask, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &xSolarPanelsInterfaceTask);
-    xTaskCreate( saveDataOnFlashMemoryTask, "SaveDataOnFlash", configMINIMAL_STACK_SIZE, NULL, SAVE_DATA_ON_FLASH_MEMORY_TASK_PRIORITY, &xSaveDataOnFlashMemoryTask);
+    xTaskCreate( saveDataOnFlashMemoryTask, "SaveDataOnFlash", 10*configMINIMAL_STACK_SIZE, NULL, SAVE_DATA_ON_FLASH_MEMORY_TASK_PRIORITY, &xSaveDataOnFlashMemoryTask);
 
     xTaskCreate( debugTask, "DEBUG", 4*configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &xDebugTask);
 }
