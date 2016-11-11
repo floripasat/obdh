@@ -1,0 +1,21 @@
+/*
+ * spi.h
+ *
+ *  Created on: 11 de out de 2016
+ *      Author: elder
+ */
+
+#ifndef DRIVER_SPI_HTXT_
+#define DRIVER_SPI_HTXT_
+
+#include "driverlib.h"
+
+uint8_t spi_init();
+void spi_is_busy();
+void spi_send_byte(uint8_t transmitData);
+void spi_send(uint8_t *transmitData, uint8_t bytes);
+uint8_t spi_receive_byte();
+void spi_receive(uint8_t *receiveData, uint8_t bytes);
+
+
+#endif /* DRIVER_SPI_HTXT_ */

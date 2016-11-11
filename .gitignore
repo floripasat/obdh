@@ -31,3 +31,11 @@
 # Debug files
 *.dSYM/
 *.su
+/firmware/Debug/
+/firmware/.launches
+
+# Tracealyzer files
+/firmware/GenericRecorderLibSrc/
+
+# Doc files
+/doc/
