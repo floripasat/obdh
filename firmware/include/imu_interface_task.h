@@ -10,6 +10,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "math.h"
 #include "../interface/imu.h"
 
 /*

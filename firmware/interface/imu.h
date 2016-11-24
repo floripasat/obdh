@@ -120,11 +120,9 @@
 void vImuRead(uint8_t *pucImu1Data, uint8_t ucImuSelect);
 void vImuConfig(void);
 void imu_read(char* imuData);
+#define fImuRawToFloat(H, L)(float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
 
-char* imu_data2string(char* stringBuffer, char* imuData, float accRange, float gyrRange);
 
-void imu_i2c_read(unsigned char , char* ,unsigned int );
-void imu_i2c_write(unsigned char , unsigned char );
 
 
 #endif /* INTERFACE_IMU_H_ */

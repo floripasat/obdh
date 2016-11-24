@@ -11,7 +11,7 @@ void vCreateTasks()
     xTaskCreate( antennaTask, "AntennaDeploy", configMINIMAL_STACK_SIZE, NULL, ANTENNA_TASK_PRIORITY, &xAntennaTask);
     xTaskCreate( readInternalSensorsTask, "ReadInternal", configMINIMAL_STACK_SIZE, NULL, READ_INTERNAL_SENSORS_TASK_PRIORITY, &xReadInternalSensorsTask);
     xTaskCreate( epsInterfaceTask, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &xEpsInterfaceTask );
-    //xTaskCreate( ttcInterfaceTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_TASK_PRIORITY, &xTtcInterfaceTask );
+//    xTaskCreate( ttcInterfaceTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_TASK_PRIORITY, &xTtcInterfaceTask );
     xTaskCreate( communicationsTask, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &xCommunicationsTask );
     xTaskCreate( imuInterfaceTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &xImuInterfaceTask);
     xTaskCreate( solarPanelsInterfaceTask, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &xSolarPanelsInterfaceTask);
@@ -41,12 +41,16 @@ void vSetupHardware( void )
 //    WDTCTL = WDTPW + WDTHOLD;
 
 //    external watchdog timer reset pin
-    P1DIR |= BIT7;
-    P1OUT |= BIT7;
+    P5DIR |= BIT4;
+    P5OUT |= BIT4;
     obdh_setup();
 // SETUP CLOCKS
 
     P7SEL |= BIT2+BIT3; //XT2
+//    P3DIR |= BIT4;                            // SCLK set out to pin
+//    P3SEL |= BIT4;
+
+
 
     UCSCTL6 &= ~(XT2OFF | XT1OFF);            // Enable XT2 and XT1
     UCSCTL6 |= XCAP_3;                        // Internal load cap
