@@ -17,7 +17,7 @@ void adc_setup_temp(void)
 void adc_setup_A4(void)
 {
     /*  A4 (PINO 1) VCC/2 ADC  (ADC 2)*/
-    P6SEL |= 1<<4;                            // Enable A/D channel A0
+    P6SEL |= BIT4;                            // Enable A/D channel A0
     REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
                                             // ADC12_A ref control registers
     ADC12CTL0 = ADC12ON|ADC12SHT02|ADC12REFON|ADC12REF2_5V;

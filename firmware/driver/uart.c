@@ -44,3 +44,16 @@ void uart_tx_char(char tx_char){
 	while ((UCA2STAT & UCBUSY) == TRUE);
 	UCA2TXBUF = tx_char;
 }
+
+void uart_rx(char *rx_data, int length){
+    while (length--) {
+        while (!(UCA2IFG & UCRXIFG));
+        *rx_data =  UCA2RXBUF;
+        rx_data++;
+    }
+}
+
+char uart_rx_char(){
+    while (!(UCA2IFG & UCRXIFG));               //Enquanto a flag for 0
+    return UCA2RXBUF;
+}

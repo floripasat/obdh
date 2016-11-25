@@ -37,17 +37,15 @@ void vSetupHardware( void )
 {
     taskDISABLE_INTERRUPTS();
 
-    /* Disable the watchdog. */
-//    WDTCTL = WDTPW + WDTHOLD;
-
-//    external watchdog timer reset pin
+    /*   External watchdog timer reset pin */
     P5DIR |= BIT4;
     P5OUT |= BIT4;
     obdh_setup();
-// SETUP CLOCKS
+
+    /*  SETUP CLOCKS */
 
     P7SEL |= BIT2+BIT3; //XT2
-//    P3DIR |= BIT4;                            // SCLK set out to pin
+//    P3DIR |= BIT4;    // SCLK set out to pin
 //    P3SEL |= BIT4;
 
 
@@ -57,7 +55,7 @@ void vSetupHardware( void )
 
 //    do
 //    {
-//    UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);
+//    UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);  //TODO: rever este trecho
 //                                            // Clear XT2,XT1,DCO fault flags
 //    SFRIFG1 &= ~OFIFG;                      // Clear fault flags
 //    }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
