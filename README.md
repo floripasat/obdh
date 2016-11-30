@@ -2,6 +2,9 @@
 
 The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat information aimming to reach the mission goal.
 
+![OBDH 3D ISO](images/obdh_v2_3d_iso.png)
+![OBDH 3D Panes](images/obdh_v2_3d_panes.png)
+
 ## Hardware
 
 * The MCU used in this module is the [MSP430F6659](http://www.ti.com/product/MSP430F6659);
