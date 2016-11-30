@@ -19,11 +19,11 @@ void wdtTask( void *pvParameters )
         //TODO: TASK ROUTINE
         wdt_reset_counter();
 
-        P1OUT |= BIT7; //set pin
+        P5OUT |= BIT4; //set pin
 
         vTaskDelayUntil( &xLastWakeTime, 10 );
 
-        P1OUT ^= BIT7; //clear pin
+        P5OUT ^= BIT4; //clear pin
 
 
         vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS -10 );

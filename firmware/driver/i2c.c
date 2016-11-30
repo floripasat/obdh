@@ -1,107 +1,97 @@
-#include <driver/i2c.h>
-
-//void i2c_setup(unsigned int device){
-//
-//	switch(device){
-//	case EPS:
-//
-//		Port_Mapping_UCB0();
-//
-//		P2SEL |= 0x06;                            // Assign P2.1 to UCB0SDA and...
-//		P2DIR |= 0x06;                            // P2.2 to UCB0SCL
-//
-//		UCB0CTL1 |= UCSWRST;                      // Enable SW reset
-//		UCB0CTL0 = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
-//		UCB0CTL1 = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
-//		UCB0BR0 = 12;                             // fSCL = SMCLK/12 = ~100kHz
-//		UCB0BR1 = 0;
-//		UCB0I2CSA = EPS_I2C_ADRESS;                         // Slave Address
-//		UCB0CTL1 &= ~UCSWRST;                    // Clear SW reset, resume operation
-//		UCB0IE |= UCRXIE + UCNACKIFG;                         // Enable RX interrupt
-//
-//		break;
-//
-//	case MPU:
-//
-//		P8SEL |= BIT5 + BIT6;                            // Assign P2.1 to UCB0SDA and...
-//
-//		UCB1CTL1 |= UCSWRST;                      // Enable SW reset
-//		UCB1CTL0 = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
-//		UCB1CTL1 = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
-//		UCB1BR0 = 12;                             // fSCL = SMCLK/12 = ~100kHz
-//		UCB1BR1 = 0;
-//		UCB1I2CSA = MPU_I2C_ADRESS;               // Slave Address
-//		UCB1CTL1 &= ~UCSWRST;                    // Clear SW reset, resume operation
-//		UCB1IE |= UCTXIE | UCRXIE;                         // Enable RX interrupt
-//
-//		break;
-//	}
-//}
+#include <msp430.h>
+#include "i2c.h"
 
 void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
 {
-    //Initialize Master
-    USCI_B_I2C_initMasterParam param = {0};
-    param.selectClockSource = USCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = UCS_getSMCLK();
-    param.dataRate = USCI_B_I2C_SET_DATA_RATE_400KBPS;
-    USCI_B_I2C_initMaster(usBaseAddress, &param);
+//    P8SEL |= BIT5 + BIT6;                           //Assign I2C pins to USCI_B1
 
-    //Specify slave address
-    USCI_B_I2C_setSlaveAddress(usBaseAddress, ucSlaveAddress);
-
-    //Set Transmit mode
-    USCI_B_I2C_setMode(usBaseAddress, USCI_B_I2C_TRANSMIT_MODE);
-
-    USCI_B_I2C_disableInterrupt(usBaseAddress, 0xFF); //disable all USCI_B0 interrupts
-
-    //Enable I2C Module to start operations
-    USCI_B_I2C_enable(usBaseAddress);
+    HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCSWRST;    // Enable SW reset
+    HWREG8(usBaseAddress + OFS_UCBxCTL0)  = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
+    HWREG8(usBaseAddress + OFS_UCBxCTL1)  = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
+    HWREG8(usBaseAddress + OFS_UCBxBR0)   = 40;                            // fSCL = SMCLK/40 = ~100kHz
+    HWREG8(usBaseAddress + OFS_UCBxBR1)   = 1; //******* ALTERAR PARA ATENDER TODOS OS MODULOS COMUNICADOS POR I2C**** //
+    HWREG16(usBaseAddress + OFS_UCBxI2CSA) = ucSlaveAddress;                // Slave Address is 048h
+    HWREG8(usBaseAddress + OFS_UCBxCTL1) &= ~UCSWRST;                      // Clear SW reset, resume operation
 }
 
 void vI2cSetMode(uint16_t usBaseAddress, uint8_t ucMode)
 {
-    USCI_B_I2C_setMode(usBaseAddress, ucMode);
+    HWREG8(usBaseAddress + OFS_UCBxCTL1) &= ~UCTR;
+    HWREG8(usBaseAddress + OFS_UCBxCTL1) |= ucMode;
 }
 
 
 void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
 {
-    USCI_B_I2C_setSlaveAddress(usBaseAddress, ucSlaveAddress);
+    HWREG16(usBaseAddress + OFS_UCBxI2CSA) = ucSlaveAddress;
 }
 
-//device, data address, bytes
-bool vI2cWrite(uint16_t usBaseAddress, uint8_t *pucData, uint8_t ucLenght)
+void vI2cSend(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop)
 {
-    volatile uint8_t ucCont;
-    volatile bool status;
+    if(!(ucWithStartStop & NO_START))
+        HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTT; //começa a transmissao
 
-    USCI_B_I2C_masterSendStart(usBaseAddress);
-    for(ucCont = 0; ucCont < ucLenght; ucCont++)
+    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
+    HWREG8(usBaseAddress + OFS_UCBxTXBUF) = ucPxData; //envia o byte atual e aponta para o proximo byte
+    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //wait for finish the transmissions
+
+
+    if(!(ucWithStartStop & NO_STOP))
     {
-        status = USCI_B_I2C_masterSendMultiByteNextWithTimeout(usBaseAddress, pucData[ucCont], I2C_TIMEOUT);
+        HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
+        HWREG8(usBaseAddress + OFS_UCBxIFG) &= ~(UCTXIFG);
     }
-    //if some send returns STATUS_FAIL, status value will be STAUS_FAIL
-    status &=  USCI_B_I2C_masterSendMultiByteStopWithTimeout(usBaseAddress, I2C_TIMEOUT);
-
-    return status;
 }
 
-void vI2cRead(uint16_t usBaseAddress, uint8_t ucRegAddress, uint8_t *pucData, uint8_t ucLenght)
+void vI2cSendBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes)
 {
-    volatile uint8_t ucCont;
-
-    USCI_B_I2C_masterSendStart(usBaseAddress);
-    USCI_B_I2C_masterSendSingleByteWithTimeout(usBaseAddress, ucRegAddress, I2C_TIMEOUT);
-    USCI_B_I2C_setMode(usBaseAddress, USCI_B_I2C_RECEIVE_MODE);
-    USCI_B_I2C_masterSendStart(usBaseAddress);
-    for(ucCont = 0; ucCont < ucLenght; ucCont++)
+    HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTR | UCTXSTT; //começa a transmissao
+    while(usBytes--)
     {
-//        USCI_B_I2C_masterSendStart(usBaseAddress);
-        pucData[ucCont] = USCI_B_I2C_masterReceiveMultiByteNext(usBaseAddress);
+        while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
+        HWREG8(usBaseAddress + OFS_UCBxTXBUF) = *(pucPxData++); //envia o byte atual e aponta para o proximo byte
     }
-    USCI_B_I2C_masterReceiveMultiByteFinish(usBaseAddress);
-    USCI_B_I2C_setMode(usBaseAddress, USCI_B_I2C_TRANSMIT_MODE);
+
+    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //wait for finish the transmissions
+
+//    HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCTXIFG); //UCTXIFG is automatically reset if a character is written to UCBxTXBUF
+
+    HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
+}
+
+void vI2cClearFlags(uint16_t usBaseAddress)
+{
+    HWREG8(usBaseAddress + OFS_UCBxIFG) &= ~UCRXIFG & ~UCTXIFG;
+}
+
+uint8_t vI2cReceive(uint16_t usBaseAddress, uint8_t ucWithStartStop)
+{
+    uint8_t ucPxData;
+
+    if(!(ucWithStartStop & NO_START))
+    {
+        HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTT;        //send start
+        while(HWREG8(usBaseAddress + OFS_UCBxCTL1) & UCTXSTT);    //wait Slave Address ACK
+    }
+
+    if(!(ucWithStartStop & NO_STOP))
+        HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTP;
+
+    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCRXIFG));      //wait to receive data and shift data in buffer
+    ucPxData = HWREG8(usBaseAddress + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
+
+
+    return ucPxData;
+}
+
+void vI2cReceiveBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes)
+{
+    while(usBytes--)
+    {
+        while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCRXIFG));      //wait to receive data and shift data in buffer
+        *(pucPxData++) = HWREG8(usBaseAddress + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
+//        HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCRXIFG);            //UCRXIFG is automatically reset when UCxRXBUF is read.
+    }
 }
 
 void Port_Mapping_UCB0(void) {

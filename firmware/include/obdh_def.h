@@ -20,11 +20,10 @@
 #define SD      0x05
 
 
-
 #define TTC_DATA_LENGTH     30
 #define OBDH_DATA_LENGTH     7  //  7 B of payload
 #define EPS_DATA_LENGTH     23  // 17 B of payload + 2 * 3 Bytes of SOF and EOF
-#define IMU_DATA_LENGTH     14  // 6 B to Acc + 6 B to Gyr
+#define IMU_DATA_LENGTH     70  // 6 B to Acc + 2 B to Temp + 6 B to Gyr
 #define RADIO_DATA_LENGTH    4  // 2 B to counter + 2 B fo signal dB
 #define TEMP_SENS_DATA_LENGTH 60
 

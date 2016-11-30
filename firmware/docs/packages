@@ -1,7 +1,7 @@
 EPS
   LENGHT:
   
-  | STATUS | BATERRY (current (2 bytes), voltage (2 bytes)| chksum |
+  | STATUS | BATERY (current (2 bytes), voltage (2 bytes)| chksum |
 
 
 

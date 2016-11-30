@@ -8,7 +8,8 @@
 #ifndef DRIVER_SPI_HTXT_
 #define DRIVER_SPI_HTXT_
 
-#include "driverlib.h"
+//#include "driverlib.h"
+#include "msp430f5xx_6xxgeneric.h"
 
 uint8_t spi_init();
 void spi_is_busy();
