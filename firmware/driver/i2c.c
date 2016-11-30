@@ -9,7 +9,7 @@ void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
     HWREG8(usBaseAddress + OFS_UCBxCTL0)  = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
     HWREG8(usBaseAddress + OFS_UCBxCTL1)  = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
     HWREG8(usBaseAddress + OFS_UCBxBR0)   = 40;                            // fSCL = SMCLK/40 = ~100kHz
-    HWREG8(usBaseAddress + OFS_UCBxBR1)   = 0; //******* ALTERAR PARA ATENDER TODOS OS MODULOS COMUNICADOS POR I2C**** //
+    HWREG8(usBaseAddress + OFS_UCBxBR1)   = 1; //******* ALTERAR PARA ATENDER TODOS OS MODULOS COMUNICADOS POR I2C**** //
     HWREG16(usBaseAddress + OFS_UCBxI2CSA) = ucSlaveAddress;                // Slave Address is 048h
     HWREG8(usBaseAddress + OFS_UCBxCTL1) &= ~UCSWRST;                      // Clear SW reset, resume operation
 }

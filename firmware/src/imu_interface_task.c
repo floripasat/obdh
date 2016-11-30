@@ -27,6 +27,8 @@ void imuInterfaceTask( void *pvParameters )
         fAccelZ = fImuRawToFloat(pucImu1Data[4], pucImu1Data[5]);
         fAccelAbs = sqrtf(fAccelZ * fAccelZ + fAccelY * fAccelY + fAccelX * fAccelX);
         sprintf(imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", fAccelX, fAccelY, fAccelZ);
+//        for(int i = 0; i < 14; i++)
+//            imu_data[i] = pucImu1Data[i];
 
         vTaskDelayUntil( &xLastWakeTime, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }
