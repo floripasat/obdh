@@ -43,25 +43,28 @@ void vSetupHardware( void )
     obdh_setup();
 
     /*  SETUP CLOCKS */
-
+    P5SEL |= BIT4+BIT5;                       // Select XT1
+    P7SEL |= BIT2+BIT3; //XT2
     P7SEL |= BIT2+BIT3; //XT2
 //    P3DIR |= BIT4;    // SCLK set out to pin
 //    P3SEL |= BIT4;
 
-
+    while(BAKCTL & LOCKBAK)                   // Unlock XT1 pins for operation
+         BAKCTL &= ~(LOCKBAK);
 
     UCSCTL6 &= ~(XT2OFF | XT1OFF);            // Enable XT2 and XT1
     UCSCTL6 |= XCAP_3;                        // Internal load cap
+    UCSCTL6 |= XT1DRIVE_3;
+    UCSCTL6 &= ~XT2DRIVE_0;                  //4MHz crystal
 
-//    do
-//    {
-//    UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);  //TODO: rever este trecho
-//                                            // Clear XT2,XT1,DCO fault flags
-//    SFRIFG1 &= ~OFIFG;                      // Clear fault flags
-//    }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
+    do
+    {
+        UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);  //TODO: rever este trecho
+                                                // Clear XT2,XT1,DCO fault flags
+        SFRIFG1 &= ~OFIFG;                      // Clear fault flags
+    }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
 
-    UCSCTL6 &= ~(XT2DRIVE0 | XT1DRIVE_3);       // Decrease XT2 Drive according to
-                                                // expected frequency
+//    UCSCTL6 |= (XT2DRIVE_3 | XT1DRIVE_3);       //  XT2 Drive 24MHz -> 32MHz
 
     UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
     
@@ -70,7 +73,10 @@ void vSetupHardware( void )
  * quais modulos foram corretamente configurados e quais não. Isto pode ser armazenado no log de eventos
  */
     //set GPIO pins (8.6 -> UCB1SCL, 8.5 -> UCB1SDA)
-    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN5 + GPIO_PIN6);
+//    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN5 + GPIO_PIN6);
+    //Set IMU pins
+    P8DIR &= ~(BIT5 | BIT6);
+    P8SEL |= BIT5 | BIT6;
     vI2cSetup(IMU_BASE_ADDRESS,MPU1_I2C_SLAVE_ADRESS);
 
     vImuConfig();

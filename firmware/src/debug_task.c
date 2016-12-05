@@ -15,6 +15,7 @@ void debugTask( void *pvParameters )
     static char uart_package[400];
     static char cmd[10];
     static char oldCmd = 0;
+    volatile uint32_t systick;
     while(1)
     {
         //TODO: TASK ROUTINE
@@ -41,6 +42,9 @@ void debugTask( void *pvParameters )
             break;
             /* MEMORY CLEAR */
             case '5':  sprintf(uart_package, "Memory cleared");
+            break;
+            case '6': systick = xTaskGetTickCount();
+                sprintf(uart_package, "Systick: %lu \n\rhours: %f \n\rminutes: %f", systick, systick/3600000.0, systick/60000.0);
             break;
             default:   sprintf(uart_package, "Invalid request: %c",cmd[0]);
         }
