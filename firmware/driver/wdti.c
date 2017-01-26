@@ -5,25 +5,25 @@
  *      Author: mario
  */
 
-#include <driver/watchdog.h>
+#include <wdti.h>
 
-void watchdog_setup(char mode, char time2trigger) {
-	wdt_hold_counter();
+void wdti_setup(char mode, char time2trigger) {
+	wdti_hold_counter();
 	WDTCTL = WDTPW + WDTHOLD + mode + time2trigger;
 	if (mode == INTERVAL)       //TODO add: WDTTMSEL = 1;
 	    SFRIE1 |= WDTIE;            // Enable WDT interrupt
-	wdt_release_counter();
+	wdti_release_counter();
 }
 
-void wdt_reset_counter(void){
+void wdti_reset_counter(void){
 	WDTCTL = (WDTCTL & 0x00FF) + WDTPW + WDTCNTCL;
 }
 
-void wdt_hold_counter(void){
+void wdti_hold_counter(void){
 	WDTCTL = (WDTCTL & 0x00FF) + WDTPW + WDTHOLD;
 }
 
-void wdt_release_counter(void){
+void wdti_release_counter(void){
 	WDTCTL = ((WDTCTL & 0x00FF) + WDTPW) & ~WDTHOLD;
 }
 

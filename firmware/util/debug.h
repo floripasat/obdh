@@ -5,8 +5,8 @@
  *      Author: mario
  */
 
-#ifndef UTIL_DEBUG_H_
-#define UTIL_DEBUG_H_
+#ifndef UTIL_DEBUG_XH_
+#define UTIL_DEBUG_XH_
 
 #include "../driver/uart.h"
 
@@ -20,4 +20,4 @@ void debug_float  (char* msg,    float value);
 void debug_array  (char* msg, char* array, uint16_t length);
 void debug_array_ascii  (char* msg, char* array, uint16_t length);
 
-#endif /* UTIL_DEBUG_H_ */
+#endif /* UTIL_DEBUG_XH_ */

@@ -21,7 +21,7 @@ void epsInterfaceTask( void *pvParameters )
         sprintf(eps_data,"EPS DATA: %u ",usCounter);
         usCounter = (usCounter+1)%10;
 
-        vTaskDelayUntil( &xLastWakeTime, EPS_INTERFACE_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, EPS_INTERFACE_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

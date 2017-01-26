@@ -5,7 +5,7 @@
  *      Author: elder
  */
 
-#include "../include/debug_task.h"
+#include <debug_task.h>
 
 void debugTask( void *pvParameters )
 {

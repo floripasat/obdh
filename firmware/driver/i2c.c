@@ -1,16 +1,31 @@
 #include <msp430.h>
 #include "i2c.h"
 
+
+void i2c0_setup(void){
+    P2SEL |= BIT1 | BIT2;
+    vI2cSetup(USCI_B0_BASE, EPS_SLAVE_ADDRESS);
+    Port_Mapping_UCB0();
+}
+
+void i2c1_setup(void){
+    P8SEL |= BIT5 | BIT6;
+    vI2cSetup(USCI_B1_BASE, IMU1_SLAVE_ADDRESS);
+}
+
+void i2c2_setup(void){
+    P9SEL |= BIT5 | BIT6;
+    vI2cSetup(USCI_B2_BASE, ANTENNA_DEPLOY_SLAVE_ADDRESS);
+}
+
 void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
 {
-//    P8SEL |= BIT5 + BIT6;                           //Assign I2C pins to USCI_B1
-
     HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCSWRST;    // Enable SW reset
     HWREG8(usBaseAddress + OFS_UCBxCTL0)  = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
     HWREG8(usBaseAddress + OFS_UCBxCTL1)  = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
     HWREG8(usBaseAddress + OFS_UCBxBR0)   = 40;                            // fSCL = SMCLK/40 = ~100kHz
     HWREG8(usBaseAddress + OFS_UCBxBR1)   = 1; //******* ALTERAR PARA ATENDER TODOS OS MODULOS COMUNICADOS POR I2C**** //
-    HWREG16(usBaseAddress + OFS_UCBxI2CSA) = ucSlaveAddress;                // Slave Address is 048h
+    HWREG16(usBaseAddress + OFS_UCBxI2CSA) = ucSlaveAddress;
     HWREG8(usBaseAddress + OFS_UCBxCTL1) &= ~UCSWRST;                      // Clear SW reset, resume operation
 }
 
@@ -28,6 +43,7 @@ void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
 
 void vI2cSend(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop)
 {
+    int c = 0;
     if(!(ucWithStartStop & NO_START))
         HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTT; //começa a transmissao
 
@@ -96,7 +112,7 @@ void vI2cReceiveBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usByt
 
 void Port_Mapping_UCB0(void) {
 	// Disable Interrupts before altering Port Mapping registers
-	__disable_interrupt();
+//	__disable_interrupt();
 	// Enable Write-access to modify port mapping registers
 	PMAPPWD = 0x02D52;
 
@@ -111,7 +127,7 @@ void Port_Mapping_UCB0(void) {
 	// Disable Write-Access to modify port mapping registers
 	PMAPPWD = 0;
 //#ifdef PORT_MAP_EINT
-	__enable_interrupt();                     // Re-enable all interrupts
+//	__enable_interrupt();                     // Re-enable all interrupts
 //#endif
 }
 

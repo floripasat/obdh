@@ -12,21 +12,13 @@ void wdtTask( void *pvParameters )
     volatile TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
-
-
     while(1)
     {
         //TODO: TASK ROUTINE
-        wdt_reset_counter();
+        wdti_reset_counter();
+        wdte_reset_counter();
 
-        P5OUT |= BIT4; //set pin
-
-        vTaskDelayUntil( &xLastWakeTime, 10 );
-
-        P5OUT ^= BIT4; //clear pin
-
-
-        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS -10 );
+        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS);
     }
 
     vTaskDelete( NULL );

@@ -6,7 +6,7 @@
  */
 
 
-#include "debug.h"
+#include <debug.h>
 
 void debug_inline(char* msg){
 	if (DEBUG_LOG_ENABLE){

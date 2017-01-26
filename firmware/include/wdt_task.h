@@ -8,18 +8,19 @@
 #ifndef INCLUDE_WDT_TASK_H_
 #define INCLUDE_WDT_TASK_H_
 
+
 #include "FreeRTOS.h"
 #include "task.h"
-//#include "../interface/external_wdt.h"
-#include "../driver/watchdog.h"
+#include "../driver/wdti.h"
+#include "../driver/wdte.h"
 
 /*
  * PRIORITY =   5
  * FREQUENCY =  1Hz
  */
 
-#define WDT_TASK_PRIORITY          6
-#define WDT_TASK_PERIOD_MS         100
+#define WDT_TASK_PRIORITY          5
+#define WDT_TASK_PERIOD_MS         500
 #define WDT_TASK_PERIOD_TICKS      ( WDT_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**

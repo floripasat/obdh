@@ -9,6 +9,7 @@
 #define INTERFACE_IMU_H_
 
 #include "../driver/i2c.h"
+#include "../driver/obdh_hal.h"
 #include "../include/obdh_def.h"
 #include "../util/misc.h"
 //#include "../util/debug.h"
@@ -117,9 +118,9 @@
 
 
 
-void vImuRead(uint8_t *pucImu1Data, uint8_t ucImuSelect);
-void vImuConfig(void);
-void imu_read(char* imuData);
+void imu_read(uint8_t *pucImu1Data, uint8_t ucImuSelect);
+void imu_setup(void);
+//void imu_read(char* imuData);
 #define fImuRawToFloat(H, L)(float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
 
 

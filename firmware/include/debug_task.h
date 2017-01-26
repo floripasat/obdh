@@ -5,8 +5,8 @@
  *      Author: elder
  */
 
-#ifndef INCLUDE_DEBUG_TASK_H_
-#define INCLUDE_DEBUG_TASK_H_
+#ifndef INCLUDE_DEBUG_TASK_XH_
+#define INCLUDE_DEBUG_TASK_XH_
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -17,7 +17,7 @@
  * FREQUENCY =  1Hz
  */
 
-#define DEBUG_TASK_PRIORITY          6
+#define DEBUG_TASK_PRIORITY          5
 #define DEBUG_TASK_PERIOD_MS         500
 #define DEBUG_TASK_PERIOD_TICKS      ( DEBUG_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
@@ -34,4 +34,4 @@ static xTaskHandle xDebugTask;
  */
 void debugTask( void *pvParameters );
 
-#endif /* INCLUDE_DEBUG_TASK_H_ */
+#endif /* INCLUDE_DEBUG_TASK_XH_ */

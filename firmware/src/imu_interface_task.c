@@ -12,13 +12,22 @@ void imuInterfaceTask( void *pvParameters )
     static uint8_t pucImu1Data[IMU_DATA_LENGTH];
     static uint8_t pucImu2Data[IMU_DATA_LENGTH];
     volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
     volatile float fAccelX, fAccelY, fAccelZ, fAccelAbs;
+
+
+    //Set IMU pins
+    imu_setup();
+
+    //    vI2cSetup(IMU_BASE_ADDRESS,MPU0_I2C_SLAVE_ADRESS);
+    //
+    //    vImuConfig();
+
+    xLastWakeTime = xTaskGetTickCount();
 
     while(1)
     {
         //TODO: TASK ROUTINE
-        vImuRead(pucImu1Data, IMU1);
+        imu_read(pucImu1Data, IMU1);
 //        vTaskDelay(5 / portTICK_PERIOD_MS); //delay between reads
 //        vImuRead(pucImu2Data, IMU2);
 
@@ -27,8 +36,8 @@ void imuInterfaceTask( void *pvParameters )
         fAccelZ = fImuRawToFloat(pucImu1Data[4], pucImu1Data[5]);
         fAccelAbs = sqrtf(fAccelZ * fAccelZ + fAccelY * fAccelY + fAccelX * fAccelX);
         sprintf(imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", fAccelX, fAccelY, fAccelZ);
-//        for(int i = 0; i < 14; i++)
-//            imu_data[i] = pucImu1Data[i];
+        for(int i = 0; i < 14; i++)
+            imu_data[i] = pucImu1Data[i];
 
         vTaskDelayUntil( &xLastWakeTime, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }

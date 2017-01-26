@@ -39,12 +39,11 @@ void saveDataOnFlashMemoryTask( void *pvParameters )
       cardSize =  mmcReadCardSize();
 
 
-
     while(1)
     {
         //TODO: TASK ROUTINE
         //save in the begining of the memory the log_status: (packages counter, resets counter, etc).
-        sprintf(status_package, "package count: %u \n", current_position/FLASH_PACKAGE_LENGTH);
+        sprintf(status_package, "package count: %u \n", current_position/FLASH_PACKAGE_LENGTH - 2);
         mmcWriteBlock(512, STATUS_PACKAGE_LENGTH, status_package);
 
         sprintf(flash_package, "\n<aaaa|mm|dd|hh|mm|ss|msms>: %s\n%s\n%s\n%s\n\n", eps_data, imu_data, ttc_data, temp_sens_data);

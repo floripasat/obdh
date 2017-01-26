@@ -114,7 +114,7 @@ char mmcInit(void)
   MMC_CS_PxDIR |= MMC_CS;
 
   // Card Detect
-  MMC_CD_PxDIR &=  ~MMC_CD;
+//  MMC_CD_PxDIR &=  ~MMC_CD;
   
   // Init SPI Module
   halSPISetup();
@@ -506,10 +506,10 @@ unsigned long mmcReadCardSize(void)
 
 char mmcPing(void)
 {
-  if (!(MMC_CD_PxIN & MMC_CD))
+//  if (!(MMC_CD_PxIN & MMC_CD))
     return (MMC_SUCCESS);
-  else
-    return (MMC_INIT_ERROR);
+//  else
+//    return (MMC_INIT_ERROR);
 }
 
 

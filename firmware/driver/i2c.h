@@ -13,6 +13,10 @@
 #define TRANSMIT_MODE                                           UCTR
 #define RECEIVE_MODE                                            0x00
 
+#define EPS_SLAVE_ADDRESS 0x48              //TODO: FIX THE ADDRESS
+#define IMU1_SLAVE_ADDRESS 0x68
+#define ANTENNA_DEPLOY_SLAVE_ADDRESS 0x12   //TODO: FIX THE ADDRESS
+
 
 unsigned char *PRxData;                     // Pointer to RX data
 unsigned char *PTxData;                     // Pointer to TX data
@@ -20,7 +24,9 @@ unsigned char RXByteCtr;
 unsigned char TXByteCtr;
 
 void Port_Mapping_UCB0(void);
-
+void i2c0_setup(void);
+void i2c1_setup(void);
+void i2c2_setup(void);
 void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress);
 void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress);
 void vI2cSetMode(uint16_t usBaseAddress, uint8_t ucMode);

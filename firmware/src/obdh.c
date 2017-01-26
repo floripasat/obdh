@@ -1,17 +1,10 @@
 #include "../include/obdh.h"
 
-void vWDTsConfiguration()
-{
-    watchdog_setup(WATCHDOG, WD_250_mSEC);
-}
-
-void vCreateTasks()
-{
+void create_tasks() {
     xTaskCreate( wdtTask, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &xWdtTask );
-    xTaskCreate( antennaTask, "AntennaDeploy", configMINIMAL_STACK_SIZE, NULL, ANTENNA_TASK_PRIORITY, &xAntennaTask);
     xTaskCreate( readInternalSensorsTask, "ReadInternal", configMINIMAL_STACK_SIZE, NULL, READ_INTERNAL_SENSORS_TASK_PRIORITY, &xReadInternalSensorsTask);
     xTaskCreate( epsInterfaceTask, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &xEpsInterfaceTask );
-//    xTaskCreate( ttcInterfaceTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_TASK_PRIORITY, &xTtcInterfaceTask );
+    xTaskCreate( ttcInterfaceTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &xTtcInterfaceTask );
     xTaskCreate( communicationsTask, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &xCommunicationsTask );
     xTaskCreate( imuInterfaceTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &xImuInterfaceTask);
     xTaskCreate( solarPanelsInterfaceTask, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &xSolarPanelsInterfaceTask);
@@ -20,70 +13,37 @@ void vCreateTasks()
     xTaskCreate( debugTask, "DEBUG", 4*configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &xDebugTask);
 }
 
-
-//void vPrintEvent (char *string)
-//{
-//    volatile char msg[100];
-//    volatile unsigned long systick;
-//
-//    systick = (TickType_t)xTaskGetTickCount();
-//    sprintf((char*)msg, "\n[ %u ] -> ", systick);
-//    uart_tx(msg);
-//    sprintf(msg, "%s ", string);
-//    uart_tx(msg);
-//}
-
-void vSetupHardware( void )
+void setup_hardware( void )
 {
     taskDISABLE_INTERRUPTS();
 
     /*   External watchdog timer reset pin */
-    P5DIR |= BIT4;
-    P5OUT |= BIT4;
-    obdh_setup();
+    wdti_setup(WATCHDOG, WD_16_SEC);
+    wdte_setup();
+    wdte_reset_counter();
 
     /*  SETUP CLOCKS */
-    P5SEL |= BIT4+BIT5;                       // Select XT1
-    P7SEL |= BIT2+BIT3; //XT2
-    P7SEL |= BIT2+BIT3; //XT2
-//    P3DIR |= BIT4;    // SCLK set out to pin
-//    P3SEL |= BIT4;
+    clocks_setup();
 
-    while(BAKCTL & LOCKBAK)                   // Unlock XT1 pins for operation
-         BAKCTL &= ~(LOCKBAK);
+    /*  SETUP I2C */
+    i2c0_setup();
+    i2c1_setup();
+    i2c2_setup();
 
-    UCSCTL6 &= ~(XT2OFF | XT1OFF);            // Enable XT2 and XT1
-    UCSCTL6 |= XCAP_3;                        // Internal load cap
-    UCSCTL6 |= XT1DRIVE_3;
-    UCSCTL6 &= ~XT2DRIVE_0;                  //4MHz crystal
+    /*  SETUP SPI */
 
-    do
-    {
-        UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);  //TODO: rever este trecho
-                                                // Clear XT2,XT1,DCO fault flags
-        SFRIFG1 &= ~OFIFG;                      // Clear fault flags
-    }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
 
-//    UCSCTL6 |= (XT2DRIVE_3 | XT1DRIVE_3);       //  XT2 Drive 24MHz -> 32MHz
+    /*  SETUP UART */
+    uart0_setup(9600);
 
-    UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
-    
-/*
- * TODO: Adicionar retorno para cada setup, de modo a saber, ao fim desta função,
- * quais modulos foram corretamente configurados e quais não. Isto pode ser armazenado no log de eventos
- */
-    //set GPIO pins (8.6 -> UCB1SCL, 8.5 -> UCB1SDA)
-//    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN5 + GPIO_PIN6);
-    //Set IMU pins
-    P8DIR &= ~(BIT5 | BIT6);
-    P8SEL |= BIT5 | BIT6;
-    vI2cSetup(IMU_BASE_ADDRESS,MPU1_I2C_SLAVE_ADRESS);
+    /*  SETUP ADC */
+    adc_setup();
 
-    vImuConfig();
-
-    uart_setup(9600);
-
-    adc_setup_temp();
+    /*  SETUP GPIO */
+    //MAGNETORQUER
+    //SD
+    //
+//    adc_setup_temp();
 }
 
 

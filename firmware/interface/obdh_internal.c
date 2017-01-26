@@ -9,22 +9,55 @@
 
 #include <obdh_internal.h>
 
+const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
 
-float obdh_temp_convert(uint16_t usTempRaw){
-	float fTemp = (float)((long)usTempRaw - CALADC12_15V_30C) * TEMP_COEFICIENT + 30.0f;
+float obdh_temperature_convert(uint16_t usTempRaw){                 // TODO: FAZER A CONTA CORRETAMENTE, SEM 1.73 (MAGICO)
+	float fTemp = (float)(((long)usTempRaw * 2 - CALADC12_15V_30C) * (85 - 30)) /
+            (CALADC12_15V_85C - CALADC12_15V_30C) + 30.0f;
 	return fTemp;
 }
 
-uint16_t obdh_temp_read(void){
-    uint16_t usTempRaw;
-    usTempRaw = adc_read();
+uint16_t obdh_temperature_read(void){
+    uint16_t temp_raw;
+    temp_raw = adc_read(INTERNAL_TEMP_SENSOR_ADC_CH);
 
-    return usTempRaw;
+    return temp_raw;
+}
+
+float obdh_current_convert(uint16_t curr_raw){
+    volatile float curr;
+    curr = ((float)curr_raw) * CURR_COEF;
+    if(curr == 0)
+        curr = 1;
+    return curr;
+}
+
+uint16_t obdh_current_read(void){
+    uint16_t curr_raw;
+    curr_raw = adc_read(OBDH_CURRENT_ADC_CH);
+
+    return curr_raw;
+}
+
+float obdh_voltage_convert(uint16_t volt_raw){
+    float volt = volt_raw * AVCC / ADC_RANGE;
+    return volt;
+}
+
+uint16_t obdh_voltage_read(void){
+    uint16_t volt_raw;
+    volt_raw = adc_read(VCC_3V3_ADC_CH);
+
+    return volt_raw;
 }
 
 void obdh_setup(void){
 
-    TEMP_COEFICIENT = (85.0 - 30.0) / (CALADC12_15V_85C - CALADC12_15V_30C);
+
+
+    //CURRENT SENSING SETUP
+
+
 ////	Internal temperature reading setup
 //	  REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
 //	                                            // ADC12_A ref control registers

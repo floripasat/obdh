@@ -59,7 +59,6 @@
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/util/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/interface/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/GenericRecorderLibSrc/Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/MMC_lib/&quot;"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_16.6.compilerID.C_DIALECT.1871629378" name="C Dialect" superClass="com.ti.ccstudio.buildDefinitions.MSP430_16.6.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.MSP430_16.6.compilerID.C_DIALECT.C99" valueType="enumerated"/>

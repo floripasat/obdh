@@ -297,9 +297,9 @@ unsigned char spiReadFrame(unsigned char* pBuffer, unsigned int size)
   unsigned long i = 0;
   // clock the actual data transfer and receive the bytes; spi_read automatically finds the Data Block
   for (i = 0; i < size; i++){
-    while (halSPITXREADY ==0);   // wait while not ready for TX
+    while (halSPITXREADY == 0);   // wait while not ready for TX
     halSPI_SEND(DUMMY_CHAR);     // dummy write
-    while (halSPIRXREADY ==0);   // wait for RX buffer (full)
+    while (halSPIRXREADY == 0);   // wait for RX buffer (full)
     pBuffer[i] = halSPIRXBUF;
   }
 #else

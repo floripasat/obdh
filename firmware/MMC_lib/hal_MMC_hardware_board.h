@@ -87,14 +87,14 @@
 #define MMC_UCLK          SPI_UCLK
 
 // Chip Select
-#define MMC_CS_PxOUT      P8OUT
-#define MMC_CS_PxDIR      P8DIR
-#define MMC_CS            BIT4
+#define MMC_CS_PxOUT      P4OUT
+#define MMC_CS_PxDIR      P4DIR
+#define MMC_CS            BIT6
 
 // Card Detect
-#define MMC_CD_PxIN       P1IN
-#define MMC_CD_PxDIR      P1DIR
-#define MMC_CD            BIT7
+//#define MMC_CD_PxIN       P1IN
+//#define MMC_CD_PxDIR      P1DIR
+//#define MMC_CD            BIT7
 
 /*
 // Chip Select
