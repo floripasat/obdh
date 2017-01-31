@@ -9,7 +9,7 @@
 #define DRIVER_CLOCKS_H_
 
 #include <msp430.h>
-#include "obdh_hal.h"
+#include "../hal/obdh_hal.h"
 
 /**
  *     MAIN_clocks_setup will configure the ACLK clock to be sourced by the REFO (32768 Hz).

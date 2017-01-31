@@ -29,7 +29,7 @@ void debugTask( void *pvParameters )
         switch(cmd[0])
         {
             /* GENERAL INFO/STATUS */
-            case '1':   sprintf(uart_package, "Last compilation: v0.38 \r\nLast cmd: %c\r\n%s\r\n%s",oldCmd,  eps_data, temp_sens_data);
+            case '1':   sprintf(uart_package, "Last compilation: v0.38 \r\nLast cmd: %c\r\n%s\r\n%s",oldCmd,  eps_data, msp_internal_data);
             break;
             /* BUS VOLTAGES */
             case '2':   sprintf(uart_package, "BUS VOLTAGE: ");
@@ -54,7 +54,7 @@ void debugTask( void *pvParameters )
         uart_tx(uart_package);
         uart_tx("}\r\n");           //send stop of frame
 
-        vTaskDelayUntil( &xLastWakeTime, DEBUG_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, DEBUG_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

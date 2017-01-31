@@ -5,7 +5,7 @@
  *      Author: elder
  */
 
-#include "../include/save_data_on_flash_memory_task.h"
+#include <save_data_on_flash_memory_task.h>
 
 void saveDataOnFlashMemoryTask( void *pvParameters )
 {
@@ -43,15 +43,15 @@ void saveDataOnFlashMemoryTask( void *pvParameters )
     {
         //TODO: TASK ROUTINE
         //save in the begining of the memory the log_status: (packages counter, resets counter, etc).
-        sprintf(status_package, "package count: %u \n", current_position/FLASH_PACKAGE_LENGTH - 2);
-        mmcWriteBlock(512, STATUS_PACKAGE_LENGTH, status_package);
+        sprintf(status_package, "Package count: %lu \n", current_position/FLASH_PACKAGE_LENGTH - 2);
+        mmcWriteBlock(512, STATUS_PACKAGE_LENGTH, (unsigned char *) status_package);
 
-        sprintf(flash_package, "\n<aaaa|mm|dd|hh|mm|ss|msms>: %s\n%s\n%s\n%s\n\n", eps_data, imu_data, ttc_data, temp_sens_data);
-        mmcWriteBlock(current_position, FLASH_PACKAGE_LENGTH, flash_package);
+        sprintf(flash_package, "\n<aaaa|mm|dd|hh|mm|ss|msms>: %s\n%s\n%s\n%s\n\n", eps_data, imu_data, ttc_data, msp_internal_data);
+        mmcWriteBlock(current_position, FLASH_PACKAGE_LENGTH, (unsigned char *) flash_package);
 //        mmcWriteSector(current_position, flash_package);
         current_position += FLASH_PACKAGE_LENGTH;
 //        current_position +=  sizeof(flash_package);
-        vTaskDelayUntil( &xLastWakeTime, SAVE_DATA_ON_FLASH_MEMORY_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, SAVE_DATA_ON_FLASH_MEMORY_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

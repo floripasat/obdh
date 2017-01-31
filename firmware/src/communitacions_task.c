@@ -5,7 +5,7 @@
  *      Author: elder
  */
 
-#include "../include/communications_task.h"
+#include <communications_task.h>
 
 void communicationsTask( void *pvParameters )
 {
@@ -21,7 +21,7 @@ void communicationsTask( void *pvParameters )
 
         }
 
-        vTaskDelayUntil( &xLastWakeTime, COMMUNICATIONS_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, COMMUNICATIONS_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

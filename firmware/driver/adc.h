@@ -3,7 +3,7 @@
 #define ADC_H_
 
 #include <stdint.h>
-#include "../driver/obdh_hal.h"
+#include "../hal/obdh_hal.h"
 
 #define AVCC 3.0
 #define ADC_RANGE 4095.0

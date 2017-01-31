@@ -9,11 +9,10 @@
 
 void imuInterfaceTask( void *pvParameters )
 {
-    static uint8_t pucImu1Data[IMU_DATA_LENGTH];
-    static uint8_t pucImu2Data[IMU_DATA_LENGTH];
+    static uint8_t imu_data_temp[IMU_DATA_LENGTH];
+
     volatile TickType_t xLastWakeTime;
     volatile float fAccelX, fAccelY, fAccelZ, fAccelAbs;
-
 
     //Set IMU pins
     imu_setup();
@@ -26,20 +25,19 @@ void imuInterfaceTask( void *pvParameters )
 
     while(1)
     {
-        //TODO: TASK ROUTINE
-        imu_read(pucImu1Data, IMU1);
-//        vTaskDelay(5 / portTICK_PERIOD_MS); //delay between reads
-//        vImuRead(pucImu2Data, IMU2);
+        imu_read(imu_data_temp, IMU1);
 
-        fAccelX = fImuRawToFloat(pucImu1Data[0], pucImu1Data[1]);
-        fAccelY = fImuRawToFloat(pucImu1Data[2], pucImu1Data[3]);
-        fAccelZ = fImuRawToFloat(pucImu1Data[4], pucImu1Data[5]);
+        fAccelX = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
+        fAccelY = imu_acc_raw_to_g(imu_data_temp[2], imu_data_temp[3]);
+        fAccelZ = imu_acc_raw_to_g(imu_data_temp[4], imu_data_temp[5]);
         fAccelAbs = sqrtf(fAccelZ * fAccelZ + fAccelY * fAccelY + fAccelX * fAccelX);
-        sprintf(imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", fAccelX, fAccelY, fAccelZ);
-        for(int i = 0; i < 14; i++)
-            imu_data[i] = pucImu1Data[i];
 
-        vTaskDelayUntil( &xLastWakeTime, IMU_INTERFACE_TASK_PERIOD_TICKS);
+        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", fAccelX, fAccelY, fAccelZ);
+
+//        for(int i = 0; i < 14; i++)
+//            imu_data[i] = imu_data_temp[i];
+
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }
 
     vTaskDelete( NULL );

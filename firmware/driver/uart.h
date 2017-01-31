@@ -4,6 +4,7 @@
 
 #include <msp430.h>
 #include "util/misc.h"
+#include "../hal/obdh_hal.h"
 #include <stdio.h>
 
 

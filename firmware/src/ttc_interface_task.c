@@ -5,7 +5,7 @@
  *      Author: elder
  */
 
-#include "../include/ttc_interface_task.h"
+#include <ttc_interface_task.h>
 
 void ttcInterfaceTask( void *pvParameters )
 {
@@ -21,7 +21,7 @@ void ttcInterfaceTask( void *pvParameters )
         sprintf(ttc_data,"TTC DATA: %u ",usCounter);
         usCounter = (usCounter+1)%10;
 
-        vTaskDelayUntil( &xLastWakeTime, TTC_INTERFACE_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, TTC_INTERFACE_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

@@ -5,7 +5,7 @@
  *      Author: mario
  */
 
-#include <interface/eps.h>
+#include <eps.h>
 
 void eps_read(char* data){
 //     Clear frame memory space
@@ -13,7 +13,7 @@ void eps_read(char* data){
     for (i=0; i<EPS_DATA_LENGTH; i++){
         data[i] = 0x00;
     }
-	i2c_read_eps(data,EPS_DATA_LENGTH);
+//	i2c_read_eps(data,EPS_DATA_LENGTH);
 }
 
 

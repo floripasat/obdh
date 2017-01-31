@@ -3,8 +3,7 @@
 
 #include <msp430.h>
 #include "misc.h"
-#include "../driverlib/MSP430F5xx_6xx/inc/hw_memmap.h"
-#include "obdh_hal.h"
+#include "../hal/obdh_hal.h"
 
 
 

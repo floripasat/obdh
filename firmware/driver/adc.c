@@ -1,7 +1,6 @@
 #include <driver/adc.h>
 
-void adc_setup(void)
-{
+void adc_setup(void) {
     //  Internal temperature reading setup
     REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
                                             // ADC12_A ref control registers
@@ -9,7 +8,10 @@ void adc_setup(void)
                                             // Internal ref = 1.5V
     ADC12CTL1 = ADC12SHP | ADC12CONSEQ_1;                     // enable sample timer
 
-    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;
+//    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;
+    BIT_SET(ADC_SEL, (X_SUNSEN_ADC_PIN | Y_SUNSEN_ADC_PIN | Z_SUNSEN_ADC_PIN
+                      | OBDH_CURRENT_ADC_PIN | ADC_Vref_TEMP_PIN | VCC_3V3_PIN));
+
     ADC12MCTL0 = ADC12SREF_2 | ADC12INCH_0;                 // Vr+=Veref+ (3V) and Vr-=AVss
     ADC12MCTL1 = ADC12SREF_2 | ADC12INCH_1;
     ADC12MCTL2 = ADC12SREF_2 | ADC12INCH_2;
@@ -79,4 +81,5 @@ uint16_t adc_read(uint8_t channel){
         while (!(ADC12IFG & BITF));
         return ADC12MEM15;
     }
+    return 0;
 }

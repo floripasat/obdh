@@ -3,23 +3,23 @@
 
 
 void i2c0_setup(void){
-    P2SEL |= BIT1 | BIT2;
+    BIT_SET(I2C0_SEL, I2C0_SDA | I2C0_SCL);
+
     vI2cSetup(USCI_B0_BASE, EPS_SLAVE_ADDRESS);
     Port_Mapping_UCB0();
 }
 
 void i2c1_setup(void){
-    P8SEL |= BIT5 | BIT6;
+    BIT_SET(I2C1_SEL, I2C1_SDA | I2C1_SCL);
     vI2cSetup(USCI_B1_BASE, IMU1_SLAVE_ADDRESS);
 }
 
 void i2c2_setup(void){
-    P9SEL |= BIT5 | BIT6;
+    BIT_SET(I2C2_SEL, I2C2_SDA | I2C2_SCL);
     vI2cSetup(USCI_B2_BASE, ANTENNA_DEPLOY_SLAVE_ADDRESS);
 }
 
-void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
-{
+void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress) {
     HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCSWRST;    // Enable SW reset
     HWREG8(usBaseAddress + OFS_UCBxCTL0)  = UCMST | UCMODE_3 | UCSYNC;     // I2C Master, synchronous mode
     HWREG8(usBaseAddress + OFS_UCBxCTL1)  = UCSSEL_2 | UCSWRST;            // Use SMCLK, keep SW reset
@@ -29,27 +29,25 @@ void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
     HWREG8(usBaseAddress + OFS_UCBxCTL1) &= ~UCSWRST;                      // Clear SW reset, resume operation
 }
 
-void vI2cSetMode(uint16_t usBaseAddress, uint8_t ucMode)
-{
+void vI2cSetMode(uint16_t usBaseAddress, uint8_t ucMode) {
     HWREG8(usBaseAddress + OFS_UCBxCTL1) &= ~UCTR;
     HWREG8(usBaseAddress + OFS_UCBxCTL1) |= ucMode;
 }
 
 
-void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress)
-{
+void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress) {
     HWREG16(usBaseAddress + OFS_UCBxI2CSA) = ucSlaveAddress;
 }
 
-void vI2cSend(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop)
-{
-    int c = 0;
+void vI2cSend(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop) {
+    uint16_t timeout = 0;
+
     if(!(ucWithStartStop & NO_START))
         HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTT; //começa a transmissao
 
-    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
+    while((!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < 10000); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
     HWREG8(usBaseAddress + OFS_UCBxTXBUF) = ucPxData; //envia o byte atual e aponta para o proximo byte
-    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //wait for finish the transmissions
+    while((!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < 10000); //wait for finish the transmissions
 
 
     if(!(ucWithStartStop & NO_STOP))
@@ -59,8 +57,9 @@ void vI2cSend(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop)
     }
 }
 
-void vI2cSendBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes)
-{
+void vI2cSendBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes) {
+    uint16_t timeout = 0;
+
     HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTR | UCTXSTT; //começa a transmissao
     while(usBytes--)
     {
@@ -68,20 +67,18 @@ void vI2cSendBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes)
         HWREG8(usBaseAddress + OFS_UCBxTXBUF) = *(pucPxData++); //envia o byte atual e aponta para o proximo byte
     }
 
-    while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)); //wait for finish the transmissions
+    while((!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < 10000); //wait for finish the transmissions
 
 //    HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCTXIFG); //UCTXIFG is automatically reset if a character is written to UCBxTXBUF
 
     HWREG8(usBaseAddress + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
 }
 
-void vI2cClearFlags(uint16_t usBaseAddress)
-{
+void vI2cClearFlags(uint16_t usBaseAddress) {
     HWREG8(usBaseAddress + OFS_UCBxIFG) &= ~UCRXIFG & ~UCTXIFG;
 }
 
-uint8_t vI2cReceive(uint16_t usBaseAddress, uint8_t ucWithStartStop)
-{
+uint8_t vI2cReceive(uint16_t usBaseAddress, uint8_t ucWithStartStop) {
     uint8_t ucPxData;
 
     if(!(ucWithStartStop & NO_START))
@@ -100,8 +97,7 @@ uint8_t vI2cReceive(uint16_t usBaseAddress, uint8_t ucWithStartStop)
     return ucPxData;
 }
 
-void vI2cReceiveBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes)
-{
+void vI2cReceiveBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes) {
     while(usBytes--)
     {
         while(!(HWREG8(usBaseAddress + OFS_UCBxIFG) & UCRXIFG));      //wait to receive data and shift data in buffer

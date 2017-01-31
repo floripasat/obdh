@@ -5,12 +5,12 @@
  *      Author: mario
  */
 
-#include <interface/imu.h>
+#include <imu.h>
 
 uint8_t pucImuTmpData[40];
 
 
-void imu_setup(void){
+uint8_t imu_setup(void){
     i2c2_setup();
     //    I2C1_SDA_DIR &= I2C1_SDA_PIN
 //    P8SEL |= BIT5 + BIT6;
@@ -34,20 +34,19 @@ void imu_setup(void){
 	vI2cSend(IMU_BASE_ADDRESS, pucImuTmpData[0], NO_STOP);
     vI2cSend(IMU_BASE_ADDRESS, pucImuTmpData[1], NO_START);
 
-    volatile uint8_t ucWhoAmI = 0;
+    uint8_t who_am_i = 0;
     vI2cSend(IMU_BASE_ADDRESS, MPU9150_WHO_AM_I, NO_STOP);
     vI2cSetMode(IMU_BASE_ADDRESS, RECEIVE_MODE);
-    ucWhoAmI = vI2cReceive(IMU_BASE_ADDRESS, START_STOP);
+    who_am_i = vI2cReceive(IMU_BASE_ADDRESS, START_STOP);
 
-//    while(ucWhoAmI != 0x68); // TRAVAR O CODIGO AQUI CASO A IDENTIFICACAO DA IMU DE ERRADO
-
+    return who_am_i;
 }
 
 
 void imu_read(uint8_t *pucImuData, uint8_t ucImuSelect)
 {
     volatile uint8_t ucSlaveAddress = 0x00;
-    volatile imuData;
+
     switch(ucImuSelect)
     {
         case IMU1:

@@ -21,7 +21,7 @@ void solarPanelsInterfaceTask( void *pvParameters )
 
         }
 
-        vTaskDelayUntil( &xLastWakeTime, SOLAR_PANELS_INTERFACE_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, SOLAR_PANELS_INTERFACE_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

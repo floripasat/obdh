@@ -5,7 +5,7 @@
  *      Author: elder
  */
 
-#include "../include/eps_interface_task.h"
+#include <eps_interface_task.h>
 
 void epsInterfaceTask( void *pvParameters )
 {
@@ -19,7 +19,7 @@ void epsInterfaceTask( void *pvParameters )
         //TODO: TASK ROUTINE
 
         sprintf(eps_data,"EPS DATA: %u ",usCounter);
-        usCounter = (usCounter+1)%10;
+        usCounter = (usCounter + 1 ) % 10;
 
         vTaskDelayUntil( (TickType_t *) &xLastWakeTime, EPS_INTERFACE_TASK_PERIOD_TICKS );
     }

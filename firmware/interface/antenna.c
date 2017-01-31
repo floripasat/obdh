@@ -4,7 +4,7 @@
  *  Created on: 4 de nov de 2016
  *      Author: elder
  */
-#include "../interface/antenna.h"
+#include <antenna.h>
 
 void deploy_antenna(void){
     //TODO: I2C communication
@@ -21,4 +21,5 @@ void deploy_antenna(void){
 
 uint8_t verify_deployment_status(void){
     //send I2C cmd to read deployment status
+
 }

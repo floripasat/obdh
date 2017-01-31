@@ -12,7 +12,7 @@
 
 volatile uint16_t status;
 
-void clocks_setup(void) {
+void clocks_setup(void){
 //    set_vcore_up(3);
 //    status = PMM_setVCore(PMMCOREV_3);
     setup_xt1_xt2();
@@ -20,8 +20,7 @@ void clocks_setup(void) {
     setup_clks();
 }
 
-void set_vcore_up (unsigned int level)
-{
+void set_vcore_up (unsigned int level){
     // Open PMM registers for write access
     PMMCTL0_H = 0xA5;
     // Make sure no flags are set for iterative sequences
@@ -47,7 +46,7 @@ void set_vcore_up (unsigned int level)
 }
 
 
-void setup_xt1_xt2(void) {
+void setup_xt1_xt2(void){
 
     while(BAKCTL & LOCKBAK)                   // Unlock XT1 pins for operation
         BAKCTL &= ~(LOCKBAK);
@@ -58,8 +57,7 @@ void setup_xt1_xt2(void) {
     UCSCTL6 |= XCAP_3;                        // Internal load cap
 }
 
-void setup_clks(void)
-{
+void setup_clks(void){
 //    P1DIR |= BIT0;    // ACLK set out to pin
 //    P1SEL |= BIT0;
 
@@ -70,8 +68,7 @@ void setup_clks(void)
     UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
 }
 
-void test_fault_flags(void)
-{
+void test_fault_flags(void){
     do {
         UCSCTL7 &= ~(XT2OFFG | XT1LFOFFG | XT1HFOFFG | DCOFFG);  // Clear XT2,XT1,DCO fault flags
         SFRIFG1 &= ~OFIFG;                      // Clear fault flags

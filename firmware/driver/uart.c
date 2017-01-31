@@ -3,7 +3,9 @@
 
 void uart0_setup(unsigned long baudrate){
 	//User Guide Pg. 953
-	P9SEL |= BIT2 + BIT3;							//P9.2,3 = USCI_A2 TXD/RXD
+
+	BIT_SET(UART0_SEL, UART0_TX | UART0_RX);
+
 	UCA2CTL1 |= UCSWRST;							//**Put state machine in reset**
 	uart_set_baudrate(baudrate);
 	//UCA2IE |= UCRXIE;								//enabling RX interruption

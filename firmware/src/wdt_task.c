@@ -5,7 +5,7 @@
  *      Author: elder
  */
 
-#include "../include/wdt_task.h"
+#include <wdt_task.h>
 
 void wdtTask( void *pvParameters )
 {
@@ -18,7 +18,7 @@ void wdtTask( void *pvParameters )
         wdti_reset_counter();
         wdte_reset_counter();
 
-        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS);
+        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, WDT_TASK_PERIOD_TICKS);
     }
 
     vTaskDelete( NULL );
