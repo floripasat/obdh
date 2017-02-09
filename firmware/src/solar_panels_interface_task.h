@@ -24,13 +24,13 @@
  * \var static xTaskHandle xSolarPanelsInterfaceTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xSolarPanelsInterfaceTask;
+static xTaskHandle solar_panels_interface_task_handle;
 
 /**
  * \fn void prvSolarPanelsTask( void *pvParameters )
  * That task manage the solar panels sensors
  * \param pvParameters Not used
  */
-void solarPanelsInterfaceTask( void *pvParameters );
+void solar_panels_interface_task( void *pvParameters );
 
 #endif /* SRC_SOLAR_PANELS_INTERFACE_TASK_H_ */

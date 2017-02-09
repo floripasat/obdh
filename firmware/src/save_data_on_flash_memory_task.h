@@ -32,13 +32,13 @@
  * \var static xTaskHandle xSaveDataOnFlashMemoryTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xSaveDataOnFlashMemoryTask;
+static xTaskHandle save_data_on_flash_memory_task_handle;
 
 /**
  * \fn void prvSaveDataOnFlashMemoryTask( void *pvParameters )
  * The task witch do the SaveDataOnFlashMemory module main function
  * \param pvParameters Not used
  */
-void saveDataOnFlashMemoryTask( void *pvParameters );
+void save_data_on_flash_memory_task( void *pvParameters );
 
 #endif /* SRC_SAVE_DATA_ON_FLASH_MEMORY_TASK_H_ */

@@ -1,16 +1,16 @@
 #include <obdh.h>
 
-void create_tasks() {
-    xTaskCreate( wdtTask, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &xWdtTask );
-    xTaskCreate( readInternalSensorsTask, "ReadInternal", configMINIMAL_STACK_SIZE, NULL, READ_INTERNAL_SENSORS_TASK_PRIORITY, &xReadInternalSensorsTask);
-    xTaskCreate( epsInterfaceTask, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &xEpsInterfaceTask );
-    xTaskCreate( ttcInterfaceTask, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &xTtcInterfaceTask );
-    xTaskCreate( communicationsTask, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &xCommunicationsTask );
-    xTaskCreate( imuInterfaceTask, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &xImuInterfaceTask);
-    xTaskCreate( solarPanelsInterfaceTask, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &xSolarPanelsInterfaceTask);
-    xTaskCreate( saveDataOnFlashMemoryTask, "SaveDataOnFlash", 10 * configMINIMAL_STACK_SIZE, NULL, SAVE_DATA_ON_FLASH_MEMORY_TASK_PRIORITY, &xSaveDataOnFlashMemoryTask);
+void create_tasks( void ) {
+    xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
+    xTaskCreate( save_data_on_flash_memory_task, "SaveDataOnFlash", 10 * configMINIMAL_STACK_SIZE, NULL, SAVE_DATA_ON_FLASH_MEMORY_TASK_PRIORITY, &save_data_on_flash_memory_task_handle);
+    xTaskCreate( communications_task, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
+    xTaskCreate( read_internal_sensors_task, "ReadInternal", configMINIMAL_STACK_SIZE, NULL, READ_INTERNAL_SENSORS_TASK_PRIORITY, &read_internal_sensors_task_handle);
+    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
+    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
+    xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
+    xTaskCreate( ttc_interface_task, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
 
-    xTaskCreate( debugTask, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &xDebugTask);
+    xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
 }
 
 void setup_hardware( void )
@@ -26,9 +26,9 @@ void setup_hardware( void )
     clocks_setup();
 
     /*  SETUP I2C */
-    i2c0_setup();
-    i2c1_setup();
-    i2c2_setup();
+    i2c_setup(0);
+    i2c_setup(1);
+    i2c_setup(2);
 
     /*  SETUP SPI */
 
@@ -119,8 +119,7 @@ void vApplicationMallocFailedHook( void )
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
-{
+void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName ) {
     ( void ) pxTask;
     ( void ) pcTaskName;
 

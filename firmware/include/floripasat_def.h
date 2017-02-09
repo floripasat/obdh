@@ -12,6 +12,42 @@
 #include <stdint.h>
 
 
+// | AUTHENTICATION |   CMD  |  DATA  |
+// |      1 BYTE    | 1 BYTE | 4 BYTES|
+
+//UPLINK COMMANDS
+#define     SEND_DATA_REQUEST   0x01
+#define     SHUTDOWN_REQUEST    0x02
+
+#define OBDH_BYTE           0
+#define EPS_BYTE            1
+#define TTC_BYTE            2
+#define PAYLOADS_BYTE       3
+
+//DATA REQUEST PACKAGE
+//OBDH
+#define SYSTEM_STATUS_REQUEST           (0x01)
+#define IMU_REQUEST                     (0x02)
+#define MSP_SENSORS_REQUEST             (0x04)
+#define SYSTICK_REQUEST                 (0x08)
+#define SOLAR_PANELS_REQUEST            (0x10)
+#define RTC_REQUEST                     (0x20)
+#define RADIO_REQUEST                   (0x40)
+#define PACKAGE_REQUEST                 (0x80)
+//EPS
+#define ADC_SOLAR_PANELS_REQUEST        (0x01)
+#define MSP430_ADC_REQUEST              (0x02)
+#define BATTERY_MONITOR_REQUEST         (0x04)
+#define ADS1248_REQUEST                 (0x08)
+#define TASK_SCHEDULER_REQUEST          (0x10)
+//TT&C
+#define BEACON_REQUEST                  (0x01)
+#define TRANSCEIVER_REQUEST             (0x02)
+//PAYLOADS
+#define PAYLOAD1_REQUEST                (0x01)
+#define PAYLOAD2_REQUEST                (0x02)
+
+
 //INTERFACES
 #define IMU1    0x01
 #define IMU2    0x02

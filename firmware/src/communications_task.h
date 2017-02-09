@@ -24,13 +24,13 @@
  * \var static xTaskHandle xCommunicationsTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xCommunicationsTask;
+static xTaskHandle communications_task_handle;
 
 /**
  * \fn void prvCommunicationsTask( void *pvParameters )
  * That task manage the uplink data
  * \param pvParameters Not used
  */
-void communicationsTask( void *pvParameters );
+void communications_task( void *pvParameters );
 
 #endif /* SRC_COMMUNICATIONS_TASK_H_ */

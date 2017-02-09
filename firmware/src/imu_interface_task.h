@@ -26,13 +26,13 @@
  * \var static xTaskHandle xImuInterfaceTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xImuInterfaceTask;
+static xTaskHandle imu_interface_task_handle;
 
 /**
  * \fn void prvImuTask( void *pvParameters )
  * That task read the IMU data
  * \param pvParameters Not used
  */
-void imuInterfaceTask( void *pvParameters );
+void imu_interface_task( void *pvParameters );
 
 #endif /* SRC_IMU_INTERFACE_TASK_H_ */

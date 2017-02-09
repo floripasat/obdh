@@ -22,21 +22,19 @@ unsigned char *PTxData;                     // Pointer to TX data
 unsigned char RXByteCtr;
 unsigned char TXByteCtr;
 
-void Port_Mapping_UCB0(void);
-void i2c0_setup(void);
-void i2c1_setup(void);
-void i2c2_setup(void);
+void port_mapping_ucb0(void);
+void i2c_setup(uint8_t interface);
 void vI2cSetup(uint16_t usBaseAddress, uint8_t ucSlaveAddress);
-void vI2cSetSlave(uint16_t usBaseAddress, uint8_t ucSlaveAddress);
-void vI2cSetMode(uint16_t usBaseAddress, uint8_t ucMode);
-void vI2cSend(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop);
-void vI2cSendBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes);
-void vI2cReceiveBurst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes);
-uint8_t vI2cReceive(uint16_t usBaseAddress, uint8_t ucWithStartStop);
+void i2c_set_slave(uint16_t usBaseAddress, uint8_t ucSlaveAddress);
+void i2c_set_mode(uint16_t usBaseAddress, uint8_t ucMode);
+void i2c_send(uint16_t usBaseAddress, uint8_t ucPxData, uint8_t ucWithStartStop);
+void i2c_send_burst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes);
+void i2c_receive_burst(uint16_t usBaseAddress, uint8_t *pucPxData, uint16_t usBytes);
+uint8_t i2c_receive(uint16_t usBaseAddress, uint8_t ucWithStartStop);
 
-#define START_STOP  1<<0
-#define NO_START 1<<1
-#define NO_STOP  1<<2
+#define     START_STOP   (0x0001)
+#define     NO_START     (0x0002)
+#define     NO_STOP      (0x0004)
 
 
 #endif /* I2C_H_ */

@@ -7,13 +7,22 @@
 
 #include <eps.h>
 
-void eps_read(char* data){
+void eps_setup(void) {
+//    i2c_setup(0);
+}
+
+
+void eps_read(eps_package_t *package) {
 //     Clear frame memory space
-    int i;
-    for (i=0; i<EPS_DATA_LENGTH; i++){
-        data[i] = 0x00;
-    }
-//	i2c_read_eps(data,EPS_DATA_LENGTH);
+    uint8_t *data = (uint8_t *)package;
+
+    i2c_send(EPS_BASE_ADDRESS, EPS_REQUEST_DATA_CMD, START_STOP);
+
+    data[0] = i2c_receive(EPS_BASE_ADDRESS, NO_STOP);
+
+    i2c_receive_burst(EPS_BASE_ADDRESS, data + 1, EPS_PACKAGE_LENGTH - 2);
+
+    data[EPS_PACKAGE_LENGTH] = i2c_receive(EPS_BASE_ADDRESS, NO_START);
 }
 
 

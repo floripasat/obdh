@@ -7,10 +7,10 @@
 
 #include <solar_panels_interface_task.h>
 
-void solarPanelsInterfaceTask( void *pvParameters )
+void solar_panels_interface_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
     uint16_t usCount;
 
     while(1)
@@ -21,7 +21,7 @@ void solarPanelsInterfaceTask( void *pvParameters )
 
         }
 
-        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, SOLAR_PANELS_INTERFACE_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, SOLAR_PANELS_INTERFACE_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

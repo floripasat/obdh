@@ -26,13 +26,13 @@
  * \var static xTaskHandle xEpsInterfaceTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xEpsInterfaceTask;
+static xTaskHandle eps_interface_task_handle;
 
 /**
  * \fn void epsInterfaceInterfaceTask( void *pvParameters )
  * The task witch do communication with the EPS_INTERFACE module
  * \param pvParameters Not used
  */
-void epsInterfaceTask( void *pvParameters );
+void eps_interface_task( void *pvParameters );
 
 #endif /* SRC_EPS_INTERFACE_TASK_H_ */

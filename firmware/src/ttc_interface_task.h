@@ -26,13 +26,13 @@
  * \var static xTaskHandle xTtcInterfaceTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xTtcInterfaceTask;
+static xTaskHandle ttc_interface_task_handle;
 
 /**
  * \fn void ttc_interfaceTask( void *pvParameters )
  * The task witch do communication with the TTC_INTERFACE module
  * \param pvParameters Not used
  */
-void ttcInterfaceTask( void *pvParameters );
+void ttc_interface_task( void *pvParameters );
 
 #endif /* SRC_TTC_INTERFACE_TASK_H_ */

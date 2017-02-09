@@ -7,37 +7,37 @@
 
 #include <imu_interface_task.h>
 
-void imuInterfaceTask( void *pvParameters )
+void imu_interface_task( void *pvParameters )
 {
-    static uint8_t imu_data_temp[IMU_DATA_LENGTH];
+    uint8_t imu_data_temp[IMU_DATA_LENGTH];
 
-    volatile TickType_t xLastWakeTime;
-    volatile float fAccelX, fAccelY, fAccelZ, fAccelAbs;
+    TickType_t last_wake_time;
+
+    float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
+//    float gyroscope_x, gyroscope_y, gyroscope_z;
+//    float magnetometer_x, magnetometer_y, magnetometer_z;
+//    float temperature;
 
     //Set IMU pins
     imu_setup();
 
-    //    vI2cSetup(IMU_BASE_ADDRESS,MPU0_I2C_SLAVE_ADRESS);
-    //
-    //    vImuConfig();
-
-    xLastWakeTime = xTaskGetTickCount();
+    last_wake_time = xTaskGetTickCount();
 
     while(1)
     {
         imu_read(imu_data_temp, IMU1);
 
-        fAccelX = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
-        fAccelY = imu_acc_raw_to_g(imu_data_temp[2], imu_data_temp[3]);
-        fAccelZ = imu_acc_raw_to_g(imu_data_temp[4], imu_data_temp[5]);
-        fAccelAbs = sqrtf(fAccelZ * fAccelZ + fAccelY * fAccelY + fAccelX * fAccelX);
+        accelerometer_x = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
+        accelerometer_y = imu_acc_raw_to_g(imu_data_temp[2], imu_data_temp[3]);
+        accelerometer_z = imu_acc_raw_to_g(imu_data_temp[4], imu_data_temp[5]);
+        accelerometer_absolute = sqrtf(accelerometer_z * accelerometer_z + accelerometer_y * accelerometer_y + accelerometer_x * accelerometer_x);
 
-        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", fAccelX, fAccelY, fAccelZ);
+        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
 
 //        for(int i = 0; i < 14; i++)
 //            imu_data[i] = imu_data_temp[i];
 
-        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, IMU_INTERFACE_TASK_PERIOD_TICKS);
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }
 
     vTaskDelete( NULL );

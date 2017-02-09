@@ -18,6 +18,7 @@
 
 //USCI CONNECTED DEVICES (DRIVERLIB)
 #define IMU_BASE_ADDRESS USCI_B1_BASE
+#define EPS_BASE_ADDRESS USCI_B0_BASE
 
 
 // @ 16Mhz internal ref, 1 cycle ~= 62.5 nS

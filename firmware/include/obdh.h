@@ -29,8 +29,8 @@
 
 
 //void vDeployAntenna();
-void create_tasks();
-void setup_hardware();
+void create_tasks( void );
+void setup_hardware( void );
 
 
 #endif

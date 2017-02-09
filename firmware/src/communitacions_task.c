@@ -7,10 +7,10 @@
 
 #include <communications_task.h>
 
-void communicationsTask( void *pvParameters )
+void communications_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
     uint16_t usCount;
 
     while(1)
@@ -21,7 +21,7 @@ void communicationsTask( void *pvParameters )
 
         }
 
-        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, COMMUNICATIONS_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

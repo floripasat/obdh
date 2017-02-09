@@ -27,13 +27,13 @@
  * \var static xTaskHandle xWdtTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xWdtTask;
+static xTaskHandle wdt_task_handle;
 
 /**
  * \fn void prvWdtTask( void *pvParameters )
  * That task reset the external and internal WatchDog Timers
  * \param pvParameters Not used
  */
-void wdtTask( void *pvParameters );
+void wdt_task( void *pvParameters );
 
 #endif /* SRC_WDT_TASK_H_ */

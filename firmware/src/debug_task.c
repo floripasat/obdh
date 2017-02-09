@@ -7,15 +7,16 @@
 
 #include <debug_task.h>
 
-void debugTask( void *pvParameters )
+void debug_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
 
-    static char uart_package[400];
-    static char cmd[10];
-    static char oldCmd = 0;
-    volatile uint32_t systick;
+    char uart_package[400];
+    char cmd[10];
+    char old_cmd = 0;
+    uint32_t systick;
+
     while(1)
     {
         //TODO: TASK ROUTINE
@@ -29,7 +30,7 @@ void debugTask( void *pvParameters )
         switch(cmd[0])
         {
             /* GENERAL INFO/STATUS */
-            case '1':   sprintf(uart_package, "Last compilation: v0.38 \r\nLast cmd: %c\r\n%s\r\n%s",oldCmd,  eps_data, msp_internal_data);
+            case '1':   sprintf(uart_package, "Last compilation: v0.38 \r\nLast cmd: %c\r\n%s\r\n%s",old_cmd,  eps_data, msp_internal_data);
             break;
             /* BUS VOLTAGES */
             case '2':   sprintf(uart_package, "BUS VOLTAGE: ");
@@ -48,13 +49,13 @@ void debugTask( void *pvParameters )
             break;
             default:   sprintf(uart_package, "Invalid request: %c",cmd[0]);
         }
-        oldCmd = cmd[0];
+        old_cmd = cmd[0];
 
         uart_tx("{");               //send start of frame
         uart_tx(uart_package);
         uart_tx("}\r\n");           //send stop of frame
 
-        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, DEBUG_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, DEBUG_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

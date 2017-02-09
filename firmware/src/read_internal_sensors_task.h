@@ -27,13 +27,13 @@
  * \var static xTaskHandle xReadInternalSensorsTask
  * \brief variable which holds the task reference
  */
-static xTaskHandle xReadInternalSensorsTask;
+static xTaskHandle read_internal_sensors_task_handle;
 
 /**
  * \fn void prvReadInternalSensorsTask( void *pvParameters )
  * That task reads the MSP internal temperature sensor
  * \param pvParameters Not used
  */
-void readInternalSensorsTask( void *pvParameters );
+void read_internal_sensors_task( void *pvParameters );
 
 #endif /* SRC_READ_INTERNAL_SENSORS_TASK_H_ */

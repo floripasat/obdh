@@ -9,13 +9,13 @@
 
 
 
-void readInternalSensorsTask( void *pvParameters )
+void read_internal_sensors_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    volatile uint16_t temperature_raw, voltage_raw, current_raw;
-    volatile float temperature, voltage, current;
+    TickType_t last_wake_time;
+    uint16_t temperature_raw, voltage_raw, current_raw;
+    float temperature, voltage, current;
 
-    xLastWakeTime = xTaskGetTickCount();
+    last_wake_time = xTaskGetTickCount();
 
     obdh_setup();
 
@@ -36,7 +36,7 @@ void readInternalSensorsTask( void *pvParameters )
         //TODO: TASK ROUTINE
         sprintf(msp_internal_data, "adc value(0-4095): %u -> temp: %.3f C", temperature_raw, temperature);
 
-        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, READ_INTERNAL_SENSORS_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, READ_INTERNAL_SENSORS_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

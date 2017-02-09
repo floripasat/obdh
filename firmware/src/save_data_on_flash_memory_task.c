@@ -7,17 +7,17 @@
 
 #include <save_data_on_flash_memory_task.h>
 
-void saveDataOnFlashMemoryTask( void *pvParameters )
+void save_data_on_flash_memory_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
 
 
-    static char flash_package[FLASH_PACKAGE_LENGTH];
-    static char status_package[STATUS_PACKAGE_LENGTH];
+    char flash_package[FLASH_PACKAGE_LENGTH];
+    char status_package[STATUS_PACKAGE_LENGTH];
     static unsigned long current_position = 1024; // to jump over the MBR data in SD
     /*** mmc initialization ***/
-    volatile unsigned long cardSize = 0;
+    unsigned long cardSize = 0;
     unsigned char status = 1;
     unsigned int timeout = 0;
 
@@ -51,7 +51,7 @@ void saveDataOnFlashMemoryTask( void *pvParameters )
 //        mmcWriteSector(current_position, flash_package);
         current_position += FLASH_PACKAGE_LENGTH;
 //        current_position +=  sizeof(flash_package);
-        vTaskDelayUntil( (TickType_t *) &xLastWakeTime, SAVE_DATA_ON_FLASH_MEMORY_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, SAVE_DATA_ON_FLASH_MEMORY_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

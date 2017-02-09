@@ -26,13 +26,13 @@
  * \var static xTaskHandle xDebugTask;
  * \brief variable which holds the task reference
  */
-static xTaskHandle xDebugTask;
+static xTaskHandle debug_task_handle;
 
 /**
  * \fn void prvDebugTask( void *pvParameters )
  * The task witch do the Debug module main function
  * \param pvParameters Not used
  */
-void debugTask( void *pvParameters );
+void debug_task( void *pvParameters );
 
 #endif /* INCLUDE_DEBUG_TASK_XH_ */
