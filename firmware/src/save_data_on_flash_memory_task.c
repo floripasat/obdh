@@ -46,6 +46,12 @@ void save_data_on_flash_memory_task( void *pvParameters )
         sprintf(status_package, "Package count: %lu \n", current_position/FLASH_PACKAGE_LENGTH - 2);
         mmcWriteBlock(512, STATUS_PACKAGE_LENGTH, (unsigned char *) status_package);
 
+        //TODO: corrigir sistema para salvar na memoria. Deve seguir o seguinte esquema:
+        /* A cada iteração, no cabeçalho do pacote deve conter as flags cujos sensores foram lidos desde a execução anterior da tarefa de salvar. 
+         * Desta forma, se a flag não estiver setada, aquele byte não deve ser enviado, poupando o downlink. 
+         * Porém, o pacote é salvo no tamanho total no cartão, mesmo que ocupe mais espaço, com os bytes zerados onde a informação será ignorada.
+         */
+
         sprintf(flash_package, "\n<aaaa|mm|dd|hh|mm|ss|msms>: %s\n%s\n%s\n%s\n\n", eps_data, imu_data, ttc_data, msp_internal_data);
         mmcWriteBlock(current_position, FLASH_PACKAGE_LENGTH, (unsigned char *) flash_package);
 //        mmcWriteSector(current_position, flash_package);
