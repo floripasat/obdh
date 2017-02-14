@@ -11,7 +11,7 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 
 * The MCU used in this module is the [MSP430F6659](http://www.ti.com/product/MSP430F6659);
 * The tracking IC used is [MPU9250](https://www.invensense.com/products/motion-tracking/9-axis/mpu-9250/), which contains a 9-axis sensors (3-axis each): a gyroscope, an accelerometer and a compass;
-* For space-ground communications, is used the radio transceiver [CC1175](http://www.ti.com/product/CC1175);
+* For space-ground communications, is used the radio transceiver [CC1125](http://www.ti.com/product/CC1125);
 * Detailed information can be found [here](https://github.com/floripasat/obdh/hardware/).
 
 ## Software
