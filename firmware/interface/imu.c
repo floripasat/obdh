@@ -7,7 +7,7 @@
 
 #include <imu.h>
 
-uint8_t imu_temp_data[40];
+uint8_t imu_temp_data[20];
 
 
 uint8_t imu_setup(void){

@@ -34,7 +34,13 @@ void read_internal_sensors_task( void *pvParameters )
         current = obdh_current_convert(current_raw);
 
         //TODO: TASK ROUTINE
-        sprintf(msp_internal_data, "adc value(0-4095): %u -> temp: %.3f C", temperature_raw, temperature);
+//        sprintf(msp_internal_data, "adc value(0-4095): %u -> temp: %.3f C", temperature_raw, temperature);
+        msp_internal_data[0] = temperature_raw & 0xFF;
+        msp_internal_data[1] = temperature_raw>>8 & 0xFF;
+        msp_internal_data[2] = voltage_raw & 0xFF;
+        msp_internal_data[3] = voltage_raw>>8 & 0xFF;
+        msp_internal_data[4] = current_raw & 0xFF;
+        msp_internal_data[5] = current_raw>>8 & 0xFF;
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, READ_INTERNAL_SENSORS_TASK_PERIOD_TICKS );
     }

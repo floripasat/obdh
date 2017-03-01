@@ -22,13 +22,11 @@
 #include "../src/eps_interface_task.h"
 #include "../src/imu_interface_task.h"
 #include "../src/read_internal_sensors_task.h"
-#include "../src/save_data_on_flash_memory_task.h"
+#include "../src/store_data_task.h"
 #include "../src/solar_panels_interface_task.h"
 #include "../src/ttc_interface_task.h"
 #include "../src/wdt_task.h"
 
-
-//void vDeployAntenna();
 void create_tasks( void );
 void setup_hardware( void );
 

@@ -13,4 +13,6 @@
 void wdte_setup(void);
 void wdte_reset_counter(void);
 
+#define _DEBUG 1
+
 #endif /* INTERFACE_WDTE_H_ */

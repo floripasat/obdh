@@ -32,10 +32,10 @@ void imu_interface_task( void *pvParameters )
         accelerometer_z = imu_acc_raw_to_g(imu_data_temp[4], imu_data_temp[5]);
         accelerometer_absolute = sqrtf(accelerometer_z * accelerometer_z + accelerometer_y * accelerometer_y + accelerometer_x * accelerometer_x);
 
-        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
+//        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
 
-//        for(int i = 0; i < 14; i++)
-//            imu_data[i] = imu_data_temp[i];
+        for(int i = 0; i < 20; i++)
+            imu_data[i] = imu_data_temp[i];
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }

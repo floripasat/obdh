@@ -11,6 +11,7 @@ void wdt_task( void *pvParameters )
 {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
+    int c= 0;
 
     while(1)
     {

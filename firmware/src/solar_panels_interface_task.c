@@ -7,8 +7,7 @@
 
 #include <solar_panels_interface_task.h>
 
-void solar_panels_interface_task( void *pvParameters )
-{
+void solar_panels_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t usCount;
