@@ -15,8 +15,6 @@ void store_data_task( void *pvParameters ) {
     last_wake_time = xTaskGetTickCount();
 
 
-    static unsigned long current_position = 1024; // to jump over the MBR data in SD
-
     /*** mmc initialization ***/
     volatile unsigned long card_size = 0;
     unsigned char status = 1;
@@ -67,9 +65,10 @@ void store_data_task( void *pvParameters ) {
 
 data_packet_t read_and_pack_data( void ) {
     data_packet_t packet = {0};
-    uint16_t i;
 
-    module_flags_t *flags = packet.package_flags;
+    packet = satellite_data;
+
+    module_flags_t *flags = (module_flags_t *) packet.package_flags;
     flags->imu_flag = 1;
     flags->msp_sensors_flag = 1;
 
@@ -86,13 +85,6 @@ data_packet_t read_and_pack_data( void ) {
     packet.system_status[2] = reset>>16 & 0xFF;
     packet.system_status[3] = 0;
     packet.system_status[4] = 0;
-
-
-    for(i = 0; i < sizeof(packet.msp_sensors); i++)
-        packet.msp_sensors[i] = msp_internal_data[i];
-
-    for(i = 0; i < sizeof(packet.imu); i++)
-        packet.imu[i] = imu_data[i];
 
     return packet;
 }
@@ -112,10 +104,9 @@ void store_data_on_flash( data_packet_t *packet ) {
 }
 
 
-uint16_t grab_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_packet) {
+uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_packet) {
     uint8_t flash_package[512];
     uint16_t package_size = 0;
-    uint16_t i;
     uint32_t read_sector;
     module_flags_t *to_send_flags;
     data_packet_t *p_data_packet;
@@ -132,17 +123,12 @@ uint16_t grab_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_p
     mmcReadSector(read_sector, (unsigned char *) flash_package);
     p_data_packet = (data_packet_t*)flash_package;
 
-    uint8_t flags[4] = {0xFF,0xFF,0xFF,0xFF};
-//    flags[0] = ((uint8_t *)&rqst_data_packet->flags)[0] & p_data_packet->package_flags[0];
-//    flags[1] = ((uint8_t *)&rqst_data_packet->flags)[1] & p_data_packet->package_flags[1];
-//    flags[2] = ((uint8_t *)&rqst_data_packet->flags)[2] & p_data_packet->package_flags[2];
-//    flags[3] = ((uint8_t *)&rqst_data_packet->flags)[3] & p_data_packet->package_flags[3];
-
-    to_send_flags = flags;
+    uint32_t flags = 0x00;
+//    flags = rqst_data_packet->flags_byte & (* ((uint32_t *) p_data_packet->package_flags));
+    to_send_flags = (module_flags_t *) p_data_packet->package_flags;
 
 
-
-    pack_module_data(to_send_flags->package_flags_flag,  p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
+    pack_module_data( 1 ,  p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
     pack_module_data(to_send_flags->system_status_flag,  p_data_packet->system_status, sizeof(p_data_packet->system_status), to_send_packet, &package_size);
     pack_module_data(to_send_flags->imu_flag,  p_data_packet->imu, sizeof(p_data_packet->imu), to_send_packet, &package_size);
     pack_module_data(to_send_flags->msp_sensors_flag,  p_data_packet->msp_sensors, sizeof(p_data_packet->msp_sensors), to_send_packet, &package_size);
@@ -170,14 +156,6 @@ void update_last_read_position(uint32_t new_position) {
 //    last_read_pointer = new_position;
 }
 
-/*
-while(count--){
-grab_packet
-offset++
-send
-}
-update_last_read_position
-*/
 
 
 void pack_module_data(uint8_t flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size) {

@@ -9,7 +9,7 @@
 
 void imu_interface_task( void *pvParameters )
 {
-    uint8_t imu_data_temp[IMU_DATA_LENGTH];
+    uint8_t imu_data_temp[20];
 
     TickType_t last_wake_time;
 
@@ -23,8 +23,7 @@ void imu_interface_task( void *pvParameters )
 
     last_wake_time = xTaskGetTickCount();
 
-    while(1)
-    {
+    while(1) {
         imu_read(imu_data_temp, IMU1);
 
         accelerometer_x = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
@@ -34,8 +33,8 @@ void imu_interface_task( void *pvParameters )
 
 //        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
 
-        for(int i = 0; i < 20; i++)
-            imu_data[i] = imu_data_temp[i];
+        for(int i = 0; i < sizeof(satellite_data.imu); i++)
+            satellite_data.imu[i] = imu_data_temp[i];
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }

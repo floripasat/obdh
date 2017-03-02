@@ -11,7 +11,6 @@
 #include "stdint.h"
 
 typedef struct {
-    unsigned package_flags_flag:1;
     unsigned system_status_flag:1;
     unsigned imu_flag:1;
     unsigned msp_sensors_flag:1;
@@ -34,7 +33,10 @@ typedef struct {
 } module_flags_t;
 
 typedef struct {
-    module_flags_t flags;
+    union {
+        module_flags_t flags;
+        uint32_t flags_byte;
+    };
     uint8_t packages_count;
     uint8_t packages_origin;
     int32_t packages_offset;
@@ -85,12 +87,8 @@ typedef struct {
 #define TTC     0x04
 #define SD      0x05
 
+volatile data_packet_t satellite_data;
 
-#define MSP_INTERNAL_DATA_LENGTH    6
-char msp_internal_data[MSP_INTERNAL_DATA_LENGTH];
-
-#define IMU_DATA_LENGTH     20
-char imu_data[IMU_DATA_LENGTH];
 
 #endif /* FLORIPASATDEF_H_ */
 

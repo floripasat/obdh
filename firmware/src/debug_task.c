@@ -15,22 +15,17 @@ void debug_task( void *pvParameters ) {
     uint16_t package_size;
     char cmd[10];
     char old_cmd = 0;
-    uint32_t systick;
     request_packet_t *rqt_packet;
 
     while(1) {
         //TODO: TASK ROUTINE
-        /* assemble the package */
-//        sprintf(uart_package, "%s\n%s\n%s\n%s\n\n", eps_data, imu_data, ttc_data, temp_sens_data);
-        /* send the package */
-//        uart_tx(uart_package);
 
         uart_rx(cmd, 10);
         rqt_packet = decode((uint8_t *)cmd);
         
         if(rqt_packet->request_action == SEND_DATA_REQUEST) {
             while(rqt_packet->request_data[4] > 0) {
-            	package_size = grab_packet(uart_package, rqt_packet->request_data);
+            	package_size = get_packet(uart_package, rqt_packet->request_data);
             	if(package_size > 0) {
             		uart_tx_bytes((char *)uart_package, package_size);
             	}

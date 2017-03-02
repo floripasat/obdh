@@ -13,11 +13,6 @@ request_packet_t*  decode(uint8_t *raw_package) {
     return packet;
 }
 
-
-void pack_data(uint8_t *package) {
-
-}
-
 void shutdown(uint8_t *package) {
 //    uint32_t seconds_to_wake_up = (uint32_t* package)[0];
 
