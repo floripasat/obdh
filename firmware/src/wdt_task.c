@@ -5,28 +5,20 @@
  *      Author: elder
  */
 
-#include "../include/wdt_task.h"
+#include <wdt_task.h>
 
-void wdtTask( void *pvParameters )
+void wdt_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
-
-
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
 
     while(1)
     {
         //TODO: TASK ROUTINE
-        wdt_reset_counter();
+        wdti_reset_counter();
+        wdte_reset_counter();
 
-        P5OUT |= BIT4; //set pin
-
-        vTaskDelayUntil( &xLastWakeTime, 10 );
-
-        P5OUT ^= BIT4; //clear pin
-
-
-        vTaskDelayUntil( &xLastWakeTime, WDT_TASK_PERIOD_TICKS -10 );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, WDT_TASK_PERIOD_TICKS);
     }
 
     vTaskDelete( NULL );

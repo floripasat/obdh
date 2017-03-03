@@ -5,52 +5,34 @@
  *      Author: elder
  */
 
-#include "../include/debug_task.h"
+#include <debug_task.h>
 
-void debugTask( void *pvParameters )
-{
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+void debug_task( void *pvParameters ) {
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
 
-    static char uart_package[400];
-    static char cmd[10];
-    static char oldCmd = 0;
-    while(1)
-    {
+    uint8_t uart_package[512];
+    uint16_t package_size;
+    char cmd[10];
+    char old_cmd = 0;
+    request_data_packet_t *rqt_packet;
+
+    while(1) {
         //TODO: TASK ROUTINE
-        /* assemble the package */
-//        sprintf(uart_package, "%s\n%s\n%s\n%s\n\n", eps_data, imu_data, ttc_data, temp_sens_data);
-        /* send the package */
-//        uart_tx(uart_package);
 
-        uart_rx(cmd, 1);
-
-        switch(cmd[0])
-        {
-            /* GENERAL INFO/STATUS */
-            case '1':   sprintf(uart_package, "Last compilation: v0.38 \r\nLast cmd: %c\r\n%s\r\n%s",oldCmd,  eps_data, temp_sens_data);
-            break;
-            /* BUS VOLTAGES */
-            case '2':   sprintf(uart_package, "BUS VOLTAGE: ");
-            break;
-            /* IMU READ */
-            case '3':   sprintf(uart_package, "%s", imu_data);
-            break;
-            /* MEMORY DUMP */
-            case '4':   sprintf(uart_package, "Memory dumped");
-            break;
-            /* MEMORY CLEAR */
-            case '5':  sprintf(uart_package, "Memory cleared");
-            break;
-            default:   sprintf(uart_package, "Invalid request: %c",cmd[0]);
+        uart_rx(cmd, 10);
+        rqt_packet = decode((uint8_t *)cmd);
+        
+        if(rqt_packet->request_action == SEND_DATA_REQUEST) {
+            while(rqt_packet->packages_count > 0) {
+            	package_size = get_packet(uart_package, rqt_packet);
+            	if(package_size > 0) {
+            		uart_tx_bytes((char *)uart_package, package_size);
+            	}
+            }
         }
-        oldCmd = cmd[0];
 
-        uart_tx("{");               //send start of frame
-        uart_tx(uart_package);
-        uart_tx("}\r\n");           //send stop of frame
-
-        vTaskDelayUntil( &xLastWakeTime, DEBUG_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, DEBUG_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

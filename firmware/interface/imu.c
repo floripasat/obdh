@@ -5,66 +5,66 @@
  *      Author: mario
  */
 
-#include <interface/imu.h>
+#include <imu.h>
 
-uint8_t pucImuTmpData[40];
+uint8_t imu_temp_data[20];
 
 
-void vImuConfig(void){
-    P8SEL |= BIT5 + BIT6;
+uint8_t imu_setup(void){
+//    i2c_setup(1);
+
 	//imu_i2c_write(MPU9150_PWR_MGMT_1, 0x00);
-    pucImuTmpData[0] = MPU9150_PWR_MGMT_1;   //reg address
-    pucImuTmpData[1] = 0x00;                 //data
+    imu_temp_data[0] = MPU9150_PWR_MGMT_1;   //reg address
+    imu_temp_data[1] = 0x00;                 //data
 
-    vI2cSetMode(IMU_BASE_ADDRESS, TRANSMIT_MODE);
-    vI2cSetSlave(IMU_BASE_ADDRESS, MPU1_I2C_SLAVE_ADRESS);
-    vI2cSend(IMU_BASE_ADDRESS, pucImuTmpData[0], NO_STOP);
-    vI2cSend(IMU_BASE_ADDRESS, pucImuTmpData[1], NO_START);
+    i2c_set_mode(IMU_BASE_ADDRESS, TRANSMIT_MODE);
+    i2c_set_slave(IMU_BASE_ADDRESS, MPU0_I2C_SLAVE_ADRESS);
+    i2c_send(IMU_BASE_ADDRESS, imu_temp_data[0], NO_STOP);
+    i2c_send(IMU_BASE_ADDRESS, imu_temp_data[1], NO_START);
 
-    pucImuTmpData[0] = MPU9150_ACCEL_CONFIG;
+    imu_temp_data[0] = MPU9150_ACCEL_CONFIG;
 	if (IMU_ACC_RANGE == 2.0) {
-	    pucImuTmpData[1] = 0x00;   // config for +-2g range
+	    imu_temp_data[1] = 0x00;   // config for +-2g range
 	} else {
-	    pucImuTmpData[1] = 0x18;   // config for +-16g range
+	    imu_temp_data[1] = 0x18;   // config for +-16g range
 	}
 
-	vI2cSend(IMU_BASE_ADDRESS, pucImuTmpData[0], NO_STOP);
-    vI2cSend(IMU_BASE_ADDRESS, pucImuTmpData[1], NO_START);
+	i2c_send(IMU_BASE_ADDRESS, imu_temp_data[0], NO_STOP);
+    i2c_send(IMU_BASE_ADDRESS, imu_temp_data[1], NO_START);
 
-    uint8_t ucWhoAmI = 0;
-    vI2cSend(IMU_BASE_ADDRESS, MPU9150_WHO_AM_I, NO_STOP);
-    vI2cSetMode(IMU_BASE_ADDRESS, RECEIVE_MODE);
-    ucWhoAmI = vI2cReceive(IMU_BASE_ADDRESS, START_STOP);
+    uint8_t who_am_i = 0;
+    i2c_send(IMU_BASE_ADDRESS, MPU9150_WHO_AM_I, NO_STOP);
+    i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);
+    who_am_i = i2c_receive(IMU_BASE_ADDRESS, START_STOP);
 
-//    while(ucWhoAmI != 0x68); // TRAVAR O CODIGO AQUI CASO A IDENTIFICACAO DA IMU DE ERRADO
-
+    return who_am_i;
 }
 
 
-void vImuRead(uint8_t *pucImuData, uint8_t ucImuSelect)
+void imu_read(uint8_t *p_imu_data, uint8_t imu_select)
 {
     volatile uint8_t ucSlaveAddress = 0x00;
-    volatile imuData;
-    switch(ucImuSelect)
+
+    switch(imu_select)
     {
         case IMU1:
-            ucSlaveAddress = MPU1_I2C_SLAVE_ADRESS;
+            ucSlaveAddress = MPU0_I2C_SLAVE_ADRESS;
             break;
         case IMU2:
-            ucSlaveAddress = MPU2_I2C_SLAVE_ADRESS;
+            ucSlaveAddress = MPU1_I2C_SLAVE_ADRESS;
             break;
     }
 
 //    vI2cSetSlave( IMU_BASE_ADDRESS, ucSlaveAddress);
-    vI2cSetMode(IMU_BASE_ADDRESS, TRANSMIT_MODE);
-    vI2cSend(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, NO_STOP);
-    vI2cSetMode(IMU_BASE_ADDRESS, RECEIVE_MODE);
+    i2c_set_mode(IMU_BASE_ADDRESS, TRANSMIT_MODE);
+    i2c_send(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, NO_STOP);
+    i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);
 
-    pucImuData[0] = vI2cReceive(IMU_BASE_ADDRESS, NO_STOP);
+    p_imu_data[0] = i2c_receive(IMU_BASE_ADDRESS, NO_STOP);
 
-    vI2cReceiveBurst(IMU_BASE_ADDRESS, pucImuData+1,12);
+    i2c_receive_burst(IMU_BASE_ADDRESS, p_imu_data + 1, 12);
 
-    pucImuData[13] = vI2cReceive(IMU_BASE_ADDRESS, NO_START);
+    p_imu_data[13] = i2c_receive(IMU_BASE_ADDRESS, NO_START);
 }
 
 

@@ -10,6 +10,11 @@
 
 #include "../driver/i2c.h"
 
-void vAntennaDeploy();
+#define NOT_DEPLOYED 0
+#define DEPLOYED 1
+
+
+void deploy_antenna();
+uint8_t verify_deployment_status(void);
 
 #endif /* INTERFACE_ANTENNA_H_ */

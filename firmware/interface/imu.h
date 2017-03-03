@@ -9,7 +9,8 @@
 #define INTERFACE_IMU_H_
 
 #include "../driver/i2c.h"
-#include "../include/obdh_def.h"
+#include "../hal/obdh_hal.h"
+#include "../include/floripasat_def.h"
 #include "../util/misc.h"
 //#include "../util/debug.h"
 //#include "../util/codecs.h"
@@ -114,13 +115,14 @@
 #define MPU9150_CMPS_ZOUT_H        0x4F   // R
 
 
+#define IMU_ACC_RANGE   16.0
+#define IMU_GYR_RANGE   2.0
 
 
-
-void vImuRead(uint8_t *pucImu1Data, uint8_t ucImuSelect);
-void vImuConfig(void);
-void imu_read(char* imuData);
-#define fImuRawToFloat(H, L)(float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
+void imu_read(uint8_t *pucImu1Data, uint8_t ucImuSelect);
+uint8_t imu_setup(void);
+//void imu_read(char* imuData);
+#define imu_acc_raw_to_g(H, L)(float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
 
 
 

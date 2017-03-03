@@ -7,30 +7,36 @@
 
 #include <imu_interface_task.h>
 
-void imuInterfaceTask( void *pvParameters )
+void imu_interface_task( void *pvParameters )
 {
-    static uint8_t pucImu1Data[IMU_DATA_LENGTH];
-    static uint8_t pucImu2Data[IMU_DATA_LENGTH];
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
-    volatile float fAccelX, fAccelY, fAccelZ, fAccelAbs;
+    uint8_t imu_data_temp[20];
 
-    while(1)
-    {
-        //TODO: TASK ROUTINE
-        vImuRead(pucImu1Data, IMU1);
-//        vTaskDelay(5 / portTICK_PERIOD_MS); //delay between reads
-//        vImuRead(pucImu2Data, IMU2);
+    TickType_t last_wake_time;
 
-        fAccelX = fImuRawToFloat(pucImu1Data[0], pucImu1Data[1]);
-        fAccelY = fImuRawToFloat(pucImu1Data[2], pucImu1Data[3]);
-        fAccelZ = fImuRawToFloat(pucImu1Data[4], pucImu1Data[5]);
-        fAccelAbs = sqrtf(fAccelZ * fAccelZ + fAccelY * fAccelY + fAccelX * fAccelX);
-        sprintf(imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", fAccelX, fAccelY, fAccelZ);
-//        for(int i = 0; i < 14; i++)
-//            imu_data[i] = pucImu1Data[i];
+    float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
+//    float gyroscope_x, gyroscope_y, gyroscope_z;
+//    float magnetometer_x, magnetometer_y, magnetometer_z;
+//    float temperature;
 
-        vTaskDelayUntil( &xLastWakeTime, IMU_INTERFACE_TASK_PERIOD_TICKS);
+    //Set IMU pins
+    imu_setup();
+
+    last_wake_time = xTaskGetTickCount();
+
+    while(1) {
+        imu_read(imu_data_temp, IMU1);
+
+        accelerometer_x = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
+        accelerometer_y = imu_acc_raw_to_g(imu_data_temp[2], imu_data_temp[3]);
+        accelerometer_z = imu_acc_raw_to_g(imu_data_temp[4], imu_data_temp[5]);
+        accelerometer_absolute = sqrtf(accelerometer_z * accelerometer_z + accelerometer_y * accelerometer_y + accelerometer_x * accelerometer_x);
+
+//        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
+
+        for(int i = 0; i < sizeof(satellite_data.imu); i++)
+            satellite_data.imu[i] = imu_data_temp[i];
+
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }
 
     vTaskDelete( NULL );

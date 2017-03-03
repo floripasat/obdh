@@ -9,8 +9,7 @@
 
 #include <msp430.h>
 #include <stdint.h>
-#include "../driver/obdh_hal.h"
-#include "../util/debug.h"
+#include "../hal/obdh_hal.h"
 #include "../util/misc.h"
 
 

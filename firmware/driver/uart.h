@@ -4,12 +4,14 @@
 
 #include <msp430.h>
 #include "util/misc.h"
+#include "../hal/obdh_hal.h"
 #include <stdio.h>
 
 
-void uart_setup(unsigned long);
+void uart0_setup(unsigned long);
 void uart_tx     (char *tx_data);
 void uart_tx_char(char  tx_char);
+void uart_tx_bytes(char *tx_data, int16_t bytes);
 void uart_rx(char *rx_data, int length);
 char uart_rx_char();
 

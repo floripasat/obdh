@@ -5,23 +5,23 @@
  *      Author: elder
  */
 
-#include "../include/eps_interface_task.h"
+#include <eps_interface_task.h>
 
-void epsInterfaceTask( void *pvParameters )
+void eps_interface_task( void *pvParameters )
 {
-    volatile TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
+    eps_package_t eps_package;
 
-    static uint8_t usCounter = 0;
+    eps_setup();
 
     while(1)
     {
         //TODO: TASK ROUTINE
 
-        sprintf(eps_data,"EPS DATA: %u ",usCounter);
-        usCounter = (usCounter+1)%10;
+        eps_read(&eps_package);
 
-        vTaskDelayUntil( &xLastWakeTime, EPS_INTERFACE_TASK_PERIOD_TICKS );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, EPS_INTERFACE_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );

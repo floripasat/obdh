@@ -4,7 +4,7 @@
  *  Created on: 11 de mai de 2016
  *      Author: mario
  */
-#include <interface/radio.h>
+#include <radio.h>
 
 void readTransceiver(char* buffer){
 
@@ -90,7 +90,7 @@ static void runRX(char* buffer) {
 			cc112xSpiReadRxFifo(rxBuffer, rxBytes);
 
 			//			debug("Printing radio buffer...");
-			debug_array("\tRadio data:", rxBuffer, rxBytes );
+			debug_array("\tRadio data:", (char *)rxBuffer, rxBytes );
 //			debug_array_ascii("Radio ASCII:", rxBuffer, rxBytes );
 			buffer[0] = rxBuffer[1];
 			buffer[1] = rxBuffer[2];

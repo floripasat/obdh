@@ -17,10 +17,10 @@
     <node id="n0">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="234.46000000000004" width="441.98789062500003" x="-117.9322265625" y="-88.4"/>
+          <y:Geometry height="234.46000000000004" width="473.58012695312505" x="-149.524462890625" y="-88.4"/>
           <y:Fill color="#99CCFF" transparent="false"/>
           <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="52.890625" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="212.2978515625" x="114.84501953125002" y="4.0">
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="52.890625" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="212.2978515625" x="130.64113769531252" y="4.0">
 
 FloripaSat OBDH Software</y:NodeLabel>
           <y:Shape type="rectangle"/>
@@ -44,11 +44,11 @@ FloripaSat OBDH Software</y:NodeLabel>
               <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="14" rightF="13.942773437500023" top="0" topF="0.0"/>
             </y:GroupNode>
             <y:GroupNode>
-              <y:Geometry height="83.53999999999999" width="441.98789062500003" x="-117.9322265625" y="146.06000000000006"/>
+              <y:Geometry height="83.53999999999999" width="473.58012695312505" x="-149.524462890625" y="146.06000000000006"/>
               <y:Fill color="#999999" transparent="false"/>
               <y:BorderStyle color="#000000" type="dashed" width="1.0"/>
-              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#999999" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="bold" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="tr" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="441.98789062500003" x="0.0" y="0.0">Hardware</y:NodeLabel>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="20.296875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="116.02734375" x="162.98027343750002" y="31.621562499999982">MSP430F6659<y:LabelModel>
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#999999" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="bold" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="tr" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="473.58012695312505" x="0.0" y="0.0">Hardware</y:NodeLabel>
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="20.296875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="116.02734375" x="178.77639160156252" y="31.621562499999982">MSP430F6659<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -56,7 +56,7 @@ FloripaSat OBDH Software</y:NodeLabel>
                 </y:ModelParameter>
               </y:NodeLabel>
               <y:Shape type="roundrectangle"/>
-              <y:State closed="true" closedHeight="83.53999999999999" closedWidth="441.98789062500003" innerGraphDisplayEnabled="false"/>
+              <y:State closed="true" closedHeight="83.53999999999999" closedWidth="473.58012695312505" innerGraphDisplayEnabled="false"/>
               <y:NodeBounds considerNodeLabelSize="true"/>
               <y:Insets bottom="5" bottomF="5.0" left="5" leftF="5.0" right="5" rightF="5.0" top="5" topF="5.0"/>
               <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="0" rightF="0.0" top="0" topF="0.0"/>
@@ -314,11 +314,29 @@ FloripaSat OBDH Software</y:NodeLabel>
     <node id="n3">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="61.06000000000003" width="91.06201171875" x="-38.61767578125" y="85.0"/>
+          <y:Geometry height="61.06000000000003" width="103.59379882812499" x="-51.14946289062499" y="85.0"/>
           <y:Fill color="#FF0000" transparent="false"/>
           <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="36.59375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="70.869140625" x="10.096435546875" y="12.23312500000003">TI
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="36.59375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="70.869140625" x="16.362329101562494" y="12.23312500000003">TI
 driverlib<y:LabelModel>
+              <y:SmartNodeLabelModel distance="4.0"/>
+            </y:LabelModel>
+            <y:ModelParameter>
+              <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/>
+            </y:ModelParameter>
+          </y:NodeLabel>
+          <y:Shape type="rectangle"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n4">
+      <data key="d6">
+        <y:ShapeNode>
+          <y:Geometry height="61.06000000000003" width="98.375" x="-149.524462890625" y="85.0"/>
+          <y:Fill color="#99CCFF" transparent="false"/>
+          <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="14" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="36.59375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="85.375" x="6.5" y="12.23312500000003">FloripaSat
+driver<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>

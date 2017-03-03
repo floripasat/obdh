@@ -49,6 +49,4 @@ The general documentation of the project can be found in [GitBook](https://www.g
 
 All source code of the project can be found in [GitHub](https://github.com/floripasat/).
 
-Doxygen documentation [here](http://fsat-server.duckdns.org:8000/obdh/).
-
 The official website of the project is [www.floripasat.ufsc.br](http://www.floripasat.ufsc.br/).
