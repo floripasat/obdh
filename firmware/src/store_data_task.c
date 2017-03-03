@@ -68,9 +68,8 @@ data_packet_t read_and_pack_data( void ) {
 
     packet = satellite_data;
 
-    module_flags_t *flags = (module_flags_t *) packet.package_flags;
-    flags->imu_flag = 1;
-    flags->msp_sensors_flag = 1;
+    packet.package_flags |= IMU_FLAG;
+    packet.package_flags |= MSP_SENSORS_FLAG;
 
 
     uint32_t systick = xTaskGetTickCount();
@@ -108,7 +107,6 @@ uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_pa
     uint8_t flash_package[512];
     uint16_t package_size = 0;
     uint32_t read_sector;
-    module_flags_t *to_send_flags;
     data_packet_t *p_data_packet;
 
     //mmcReadSector(older_package_sector, (unsigned char *) status_package);
@@ -123,28 +121,27 @@ uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_pa
     mmcReadSector(read_sector, (unsigned char *) flash_package);
     p_data_packet = (data_packet_t*)flash_package;
 
-    uint32_t flags = 0x00;
-//    flags = rqst_data_packet->flags_byte & (* ((uint32_t *) p_data_packet->package_flags));
-    to_send_flags = (module_flags_t *) p_data_packet->package_flags;
+    uint16_t flags = 0x00;
+    flags = rqst_data_packet->flags & p_data_packet->package_flags;
 
 
-    pack_module_data( 1 ,  p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->system_status_flag,  p_data_packet->system_status, sizeof(p_data_packet->system_status), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->imu_flag,  p_data_packet->imu, sizeof(p_data_packet->imu), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->msp_sensors_flag,  p_data_packet->msp_sensors, sizeof(p_data_packet->msp_sensors), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->systick_flag,  p_data_packet->systick, sizeof(p_data_packet->systick), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->solar_panels_flag,  p_data_packet->solar_panels, sizeof(p_data_packet->solar_panels), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->rtc_flag,  p_data_packet->rtc, sizeof(p_data_packet->rtc), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->radio_flag,  p_data_packet->radio, sizeof(p_data_packet->radio), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->adc_solar_panels_flag,  p_data_packet->adc_solar_panels, sizeof(p_data_packet->adc_solar_panels), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->msp430_adc_flag,  p_data_packet->msp430_adc, sizeof(p_data_packet->msp430_adc), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->battery_monitor_flag,  p_data_packet->battery_monitor, sizeof(p_data_packet->battery_monitor), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->ads1248_flag,  p_data_packet->ads1248, sizeof(p_data_packet->ads1248), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->task_scheduler_flag,  p_data_packet->task_scheduler, sizeof(p_data_packet->task_scheduler), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->beacon_flag,  p_data_packet->beacon, sizeof(p_data_packet->beacon), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->transceiver_flag,  p_data_packet->transceiver, sizeof(p_data_packet->transceiver), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->payload1_flag,  p_data_packet->payload1, sizeof(p_data_packet->payload1), to_send_packet, &package_size);
-    pack_module_data(to_send_flags->payload2_flag,  p_data_packet->payload2, sizeof(p_data_packet->payload2), to_send_packet, &package_size);
+    pack_module_data( 1 , 1,  &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
+    pack_module_data(flags, SYSTEM_STATUS_FLAG,  p_data_packet->system_status, sizeof(p_data_packet->system_status), to_send_packet, &package_size);
+    pack_module_data(flags, IMU_FLAG,  p_data_packet->imu, sizeof(p_data_packet->imu), to_send_packet, &package_size);
+    pack_module_data(flags, MSP_SENSORS_FLAG,  p_data_packet->msp_sensors, sizeof(p_data_packet->msp_sensors), to_send_packet, &package_size);
+    pack_module_data(flags, SYSTICK_FLAG,  p_data_packet->systick, sizeof(p_data_packet->systick), to_send_packet, &package_size);
+    pack_module_data(flags, SOLAR_PANELS_FLAG,  p_data_packet->solar_panels, sizeof(p_data_packet->solar_panels), to_send_packet, &package_size);
+    pack_module_data(flags, RTC_FLAG,  p_data_packet->rtc, sizeof(p_data_packet->rtc), to_send_packet, &package_size);
+    pack_module_data(flags, RADIO_FLAG,  p_data_packet->radio, sizeof(p_data_packet->radio), to_send_packet, &package_size);
+    pack_module_data(flags, ADC_SOLAR_PANELS_FLAG,  p_data_packet->adc_solar_panels, sizeof(p_data_packet->adc_solar_panels), to_send_packet, &package_size);
+    pack_module_data(flags, MSP430_ADC_FLAG,  p_data_packet->msp430_adc, sizeof(p_data_packet->msp430_adc), to_send_packet, &package_size);
+    pack_module_data(flags, BATTERY_MONITOR_FLAG,  p_data_packet->battery_monitor, sizeof(p_data_packet->battery_monitor), to_send_packet, &package_size);
+    pack_module_data(flags, ADS1248_FLAG,  p_data_packet->ads1248, sizeof(p_data_packet->ads1248), to_send_packet, &package_size);
+    pack_module_data(flags, TASK_SCHEDULER_FLAG,  p_data_packet->task_scheduler, sizeof(p_data_packet->task_scheduler), to_send_packet, &package_size);
+    pack_module_data(flags, BEACON_FLAG,  p_data_packet->beacon, sizeof(p_data_packet->beacon), to_send_packet, &package_size);
+    pack_module_data(flags, TRANSCEIVER_FLAG,  p_data_packet->transceiver, sizeof(p_data_packet->transceiver), to_send_packet, &package_size);
+    pack_module_data(flags, PAYLOAD1_FLAG,  p_data_packet->payload1, sizeof(p_data_packet->payload1), to_send_packet, &package_size);
+    pack_module_data(flags, PAYLOAD2_FLAG,  p_data_packet->payload2, sizeof(p_data_packet->payload2), to_send_packet, &package_size);
 
     rqst_data_packet->packages_offset++;
     rqst_data_packet->packages_count--;
@@ -158,10 +155,10 @@ void update_last_read_position(uint32_t new_position) {
 
 
 
-void pack_module_data(uint8_t flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size) {
+void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size) {
     uint16_t i;
 
-    if(flag == 1) {
+    if(has_flag(flags,bit_flag)) {
         for(i = 0; i < module_size; i++) {
             to_send_packet[*total_package_size + i] = module_data[i];
         }

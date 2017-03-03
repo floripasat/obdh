@@ -10,46 +10,63 @@
 
 #include "stdint.h"
 
+//typedef struct {
+//    unsigned system_status_flag:1;
+//    unsigned imu_flag:1;
+//    unsigned msp_sensors_flag:1;
+//    unsigned systick_flag:1;
+//    unsigned solar_panels_flag:1;
+//    unsigned rtc_flag:1;
+//    unsigned radio_flag:1;
+//
+//    unsigned adc_solar_panels_flag:1;
+//    unsigned msp430_adc_flag:1;
+//    unsigned battery_monitor_flag:1;
+//    unsigned ads1248_flag:1;
+//    unsigned task_scheduler_flag:1;
+//
+//    unsigned beacon_flag:1;
+//    unsigned transceiver_flag:1;
+//
+//    unsigned payload1_flag:1;
+//    unsigned payload2_flag:1;
+//} module_flags_t;
+
+#define has_flag(x,y)   (x & y)
+
+#define  SYSTEM_STATUS_FLAG         BIT0
+#define  IMU_FLAG                   BIT1
+#define  MSP_SENSORS_FLAG           BIT2
+#define  SYSTICK_FLAG               BIT3
+#define  SOLAR_PANELS_FLAG          BIT4
+#define  RTC_FLAG                   BIT5
+#define  RADIO_FLAG                 BIT6
+
+#define  ADC_SOLAR_PANELS_FLAG      BIT7
+#define  MSP430_ADC_FLAG            BIT8
+#define  BATTERY_MONITOR_FLAG       BIT9
+#define  ADS1248_FLAG               BITA
+#define  TASK_SCHEDULER_FLAG        BITB
+
+#define  BEACON_FLAG                BITC
+#define  TRANSCEIVER_FLAG           BITD
+
+#define  PAYLOAD1_FLAG              BITE
+#define  PAYLOAD2_FLAG              BITF
+
+
 typedef struct {
-    unsigned system_status_flag:1;
-    unsigned imu_flag:1;
-    unsigned msp_sensors_flag:1;
-    unsigned systick_flag:1;
-    unsigned solar_panels_flag:1;
-    unsigned rtc_flag:1;
-    unsigned radio_flag:1;
-
-    unsigned adc_solar_panels_flag:1;
-    unsigned msp430_adc_flag:1;
-    unsigned battery_monitor_flag:1;
-    unsigned ads1248_flag:1;
-    unsigned task_scheduler_flag:1;
-
-    unsigned beacon_flag:1;
-    unsigned transceiver_flag:1;
-
-    unsigned payload1_flag:1;
-    unsigned payload2_flag:1;
-} module_flags_t;
-
-typedef struct {
-    union {
-        module_flags_t flags;
-        uint32_t flags_byte;
-    };
+    uint8_t request_action;
+    uint16_t flags;
     uint8_t packages_count;
     uint8_t packages_origin;
     int32_t packages_offset;
 } request_data_packet_t;
 
-typedef struct {
-    uint8_t request_action;
-    uint8_t request_data[9];
-} request_packet_t;
 
 
 typedef struct {
-    uint8_t package_flags      [4];
+    uint16_t package_flags;
     //obdh
     uint8_t system_status      [5];
     uint8_t imu                [20];

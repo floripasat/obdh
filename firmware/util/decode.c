@@ -7,8 +7,8 @@
 
 #include "decode.h"
 
-request_packet_t*  decode(uint8_t *raw_package) {
-    request_packet_t *packet = (request_packet_t *) raw_package;
+request_data_packet_t*  decode(uint8_t *raw_package) {
+    request_data_packet_t *packet = (request_data_packet_t *) raw_package;
     
     return packet;
 }

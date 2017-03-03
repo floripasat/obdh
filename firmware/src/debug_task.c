@@ -15,7 +15,7 @@ void debug_task( void *pvParameters ) {
     uint16_t package_size;
     char cmd[10];
     char old_cmd = 0;
-    request_packet_t *rqt_packet;
+    request_data_packet_t *rqt_packet;
 
     while(1) {
         //TODO: TASK ROUTINE
@@ -24,8 +24,8 @@ void debug_task( void *pvParameters ) {
         rqt_packet = decode((uint8_t *)cmd);
         
         if(rqt_packet->request_action == SEND_DATA_REQUEST) {
-            while(rqt_packet->request_data[4] > 0) {
-            	package_size = get_packet(uart_package, rqt_packet->request_data);
+            while(rqt_packet->packages_count > 0) {
+            	package_size = get_packet(uart_package, rqt_packet);
             	if(package_size > 0) {
             		uart_tx_bytes((char *)uart_package, package_size);
             	}

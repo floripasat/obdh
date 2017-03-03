@@ -10,7 +10,6 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "../util/debug.h"
  #include "../util/decode.h"
 #include "../include/floripasat_def.h"
 #include "store_data_task.h"

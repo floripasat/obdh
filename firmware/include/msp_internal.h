@@ -13,7 +13,6 @@
 
 #include "../hal/obdh_hal.h"
 #include "../driver/adc.h"
-#include "../util/debug.h"
 #include "floripasat_def.h"
 #include "stdint.h"
 

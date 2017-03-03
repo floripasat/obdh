@@ -15,6 +15,7 @@
 #include "../hal/obdh_hal.h"
 #include "../driver/clocks.h"
 #include "../driver/adc.h"
+#include "../driver/uart.h"
 #include "../interface/antenna.h"
 #include "../interface/wdte.h"
 #include "../src/communications_task.h"

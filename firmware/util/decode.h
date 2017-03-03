@@ -11,7 +11,7 @@
 
 #include "../include/floripasat_def.h"
 
-request_packet_t*  decode(uint8_t *raw_package);
+request_data_packet_t*  decode(uint8_t *raw_package);
 void shutdown(uint8_t *package);
 
 #endif /* DECODE_H_ */

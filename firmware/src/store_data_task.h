@@ -42,7 +42,7 @@ data_packet_t read_and_pack_data( void );
 void store_data_on_flash( data_packet_t *packet );
 uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_packet);
 void update_last_read_position(uint32_t new_position);
-void pack_module_data(uint8_t flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size);
+void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size);
 
 
 #endif /* SRC_STORE_DATA_TASK_H_ */

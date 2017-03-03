@@ -10,7 +10,6 @@
 
 #include "../driver/i2c.h"
 #include "../include/floripasat_def.h"
-#include "../util/debug.h"
 
 #define TTC_REQUEST_DATA_CMD   0x54      //an arbitrary value was choosen
 
