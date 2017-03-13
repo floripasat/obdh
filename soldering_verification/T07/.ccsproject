@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?ccsproject version="1.0"?>
+<projectOptions>
+	<deviceVariant value="MSP430F5438A"/>
+	<deviceFamily value="MSP430"/>
+	<deviceEndianness value="little"/>
+	<codegenToolVersion value="16.6.0.STS"/>
+	<isElfFormat value="true"/>
+	<connection value="common/targetdb/connections/TIMSP430-USB.xml"/>
+	<linkerCommandFile value="lnk_msp430f5438a.cmd"/>
+	<rts value="libc.a"/>
+	<createSlaveProjects value=""/>
+	<templateProperties value="id=usci_b_i2c_ex3_masterTxSingle.projectspec.usci_b_i2c_ex3_masterTxSingle,"/>
+	<origin value="/home/elder/ti/MSP430Ware_3_50_00_04/driverlib/examples/MSP430F5xx_6xx/usci_b_i2c/CCS/usci_b_i2c_ex3_masterTxSingle.projectspec"/>
+	<filesToOpen value=""/>
+	<isTargetManual value="false"/>
+</projectOptions>
