@@ -13,25 +13,22 @@
 #include "task.h"
 #include "math.h"
 
-/*
- * PRIORITY =   5
- * FREQUENCY =  1Hz
- */
 
-#define IMU_INTERFACE_TASK_PRIORITY          5
-#define IMU_INTERFACE_TASK_PERIOD_MS         1000
-#define IMU_INTERFACE_TASK_PERIOD_TICKS      ( IMU_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+#define IMU_INTERFACE_TASK_PRIORITY          5          /**< IMU task priority */
+#define IMU_INTERFACE_TASK_PERIOD_MS         1000       /**< IMU task period in miliseconds */
+#define IMU_INTERFACE_TASK_PERIOD_TICKS      ( IMU_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< IMU task period in ticks */
 
 /**
- * \var static xTaskHandle xImuInterfaceTask
- * \brief variable which holds the task reference
+ * \var static xTaskHandle imu_interface_task_handle
+ * \brief variable which holds the task reference, to allow it handling
  */
 static xTaskHandle imu_interface_task_handle;
 
 /**
- * \fn void prvImuTask( void *pvParameters )
+ * \fn imu_interface_task( void *pvParameters )
  * That task read the IMU data
  * \param pvParameters Not used
+ * \return None
  */
 void imu_interface_task( void *pvParameters );
 

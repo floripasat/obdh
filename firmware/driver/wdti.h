@@ -15,7 +15,7 @@
 #define WATCHDOG			0x00
 
 //time to trigger
-#define WD_4_uSEC			0x07 //TODO: recalcular de acordo com os clocks disponiveis. pag.461
+#define WD_4_uSEC			0x07
 #define WD_64_uSEC          0x06
 #define WD_512_uSEC			0x05
 #define WD_2_mSEC			0x27

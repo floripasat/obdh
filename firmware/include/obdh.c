@@ -1,3 +1,8 @@
+/*! \file obdh.c
+    \brief This file gather the main functions of the OBDH.
+
+
+*/
 #include <obdh.h>
 
 void create_tasks( void ) {
@@ -41,8 +46,7 @@ void setup_hardware( void ) {
     /*  SETUP GPIO */
     //MAGNETORQUER
     //SD
-    //
-//    adc_setup_temp();
+    //TODO: set the configuration of every port.
 }
 
 
@@ -71,7 +75,7 @@ interrupt vector for the chosen tick interrupt source.  This implementation of
 vApplicationSetupTimerInterrupt() generates the tick from timer A0, so in this
 case configTICK_VECTOR is set to TIMER0_A0_VECTOR. */
 void vApplicationSetupTimerInterrupt( void ) {
-const unsigned short usACLK_Frequency_Hz = 32768;
+    const unsigned short usACLK_Frequency_Hz = 32768;
 
     /* Ensure the timer is stopped. */
     TA0CTL = 0;

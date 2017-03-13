@@ -1,9 +1,7 @@
-/*
- * obdh.h
- *
- *  Created on: 8 de set de 2016
- *      Author: Fsat
- */
+/*! \file obdh.h
+    \brief This file gather the main functions of the OBDH.
+
+*/
 
 #ifndef INCLUDE_OBDH_H_
 #define INCLUDE_OBDH_H_
@@ -28,7 +26,20 @@
 #include "../src/ttc_interface_task.h"
 #include "../src/wdt_task.h"
 
+/**
+ * \fn create_tasks
+ *
+ * \brief Instantiation of the OS tasks
+ * \return None
+ */
 void create_tasks( void );
+
+/**
+ * \fn setup_hardware
+ *
+ * \brief Initialization of peripheral modules: internal WDT, external WDT, Clocks, I2C, SPI, UART, ADC.
+ * \return None
+ */
 void setup_hardware( void );
 
 

@@ -1,5 +1,7 @@
-/*
- * main.c
+/**
+ * \file main.c
+ *
+ * \brief main file
  */
 #include <obdh.h>
 

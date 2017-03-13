@@ -61,7 +61,7 @@ typedef struct {
     uint8_t packages_count;
     uint8_t packages_origin;
     int32_t packages_offset;
-} request_data_packet_t;
+} request_packet_t;
 
 
 

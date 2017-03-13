@@ -12,27 +12,22 @@
 #include "../include/floripasat_def.h"
 #include "FreeRTOS.h"
 #include "task.h"
-//#include "../driver/adc.h"
 
-/*
- * PRIORITY =   5
- * FREQUENCY =  1Hz
- */
-
-#define READ_INTERNAL_SENSORS_TASK_PRIORITY          5
-#define READ_INTERNAL_SENSORS_TASK_PERIOD_MS         1000
-#define READ_INTERNAL_SENSORS_TASK_PERIOD_TICKS      ( READ_INTERNAL_SENSORS_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+#define READ_INTERNAL_SENSORS_TASK_PRIORITY          5          /**< Internal sensors task priority */
+#define READ_INTERNAL_SENSORS_TASK_PERIOD_MS         1000       /**< Internal sensors task period in miliseconds */
+#define READ_INTERNAL_SENSORS_TASK_PERIOD_TICKS      ( READ_INTERNAL_SENSORS_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< Internal sensors task period in ticks*/
 
 /**
- * \var static xTaskHandle xReadInternalSensorsTask
- * \brief variable which holds the task reference
+ * \var static xTaskHandle read_internal_sensors_task_handle
+ * \brief variable which holds the task reference, to allow it handling
  */
 static xTaskHandle read_internal_sensors_task_handle;
 
 /**
- * \fn void prvReadInternalSensorsTask( void *pvParameters )
+ * \fn read_internal_sensors_task( void *pvParameters )
  * That task reads the MSP internal temperature sensor
  * \param pvParameters Not used
+ * \return None
  */
 void read_internal_sensors_task( void *pvParameters );
 

@@ -14,7 +14,6 @@ void wdt_task( void *pvParameters )
 
     while(1)
     {
-        //TODO: TASK ROUTINE
         wdti_reset_counter();
         wdte_reset_counter();
 

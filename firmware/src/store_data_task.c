@@ -8,7 +8,7 @@
 #include <store_data_task.h>
 
 uint32_t last_read_pointer, last_write_pointer;
-
+volatile uint32_t card_size;
 
 void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -16,11 +16,11 @@ void store_data_task( void *pvParameters ) {
 
 
     /*** mmc initialization ***/
-    volatile unsigned long card_size = 0;
     unsigned char status = 1;
     unsigned int timeout = 0;
     data_packet_t new_packet;
 
+    card_size = 0;
     last_read_pointer = 512;
     last_write_pointer = 512;
 
@@ -42,20 +42,9 @@ void store_data_task( void *pvParameters ) {
 
 
     while(1) {
-        //TODO: TASK ROUTINE
         //save in the begining of the memory the log_status: (packages counter, resets counter, etc).
         new_packet = read_and_pack_data();
         store_data_on_flash(&new_packet);
-
-//        mmcWriteSector(512, (unsigned char *) status_package);
-
-        //TODO: corrigir sistema para salvar na memoria. Deve seguir o seguinte esquema:
-        /* A cada iteração, no cabeçalho do pacote deve conter as flags cujos sensores foram lidos desde a execução anterior da tarefa de salvar. 
-         * Desta forma, se a flag não estiver setada, aquele byte não deve ser enviado, poupando o downlink. 
-         * Porém, o pacote é salvo no tamanho total no cartão, mesmo que ocupe mais espaço, com os bytes zerados onde a informação será ignorada.
-         */
-
-//        mmcWriteSector(current_position, flash_package);
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, STORE_DATA_TASK_PERIOD_TICKS );
     }
@@ -103,7 +92,7 @@ void store_data_on_flash( data_packet_t *packet ) {
 }
 
 
-uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_packet) {
+uint16_t get_packet(uint8_t* to_send_packet, request_packet_t *rqst_data_packet) {
     uint8_t flash_package[512];
     uint16_t package_size = 0;
     uint32_t read_sector;
@@ -115,6 +104,13 @@ uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_pa
     }
     else {
         read_sector = last_write_pointer + rqst_data_packet->packages_offset;;
+    }
+
+    if(read_sector < last_read_pointer) { //TODO: incluir o caso do setor de leitura chegar a posição maxima da memoria
+        read_sector = last_read_pointer;
+    }
+    if(read_sector > last_write_pointer) {
+        read_sector = last_write_pointer;
     }
 
 

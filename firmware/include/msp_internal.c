@@ -11,7 +11,7 @@
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
 
-float obdh_temperature_convert(uint16_t temperature_raw){                 // TODO: FAZER A CONTA CORRETAMENTE, SEM 1.73 (MAGICO)
+float obdh_temperature_convert(uint16_t temperature_raw){
 	float temperature = (float)(((long)temperature_raw * 2 - CALADC12_15V_30C) * (85 - 30)) /
             (CALADC12_15V_85C - CALADC12_15V_30C) + 30.0f;
 	return temperature;

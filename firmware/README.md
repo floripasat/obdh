@@ -1,23 +1,23 @@
 # FloripaSat - On Board Data Handling - Software
 
+#Description
+
 ## FreeRTOS
 
 * Language: C
 * The MCU used in this module is the [MSP430F6659](http://www.ti.com/product/MSP430F6659).
 * As transmitter, the [CC1175](http://www.ti.com/product/CC1175) IC is used.
 * All MCU peripherals are controlled with the ["MSP Driver Library"](http://www.ti.com/tool/mspdriverlib) library, also know as ["DriverLib"](http://www.ti.com/tool/mspdriverlib).
-* All software was developed in the [Code Composer Studio IDE](http://www.ti.com/tool/ccstudio) (version 6.1.3.00034), a.k.a. CCS.
+* All software was developed in the [Code Composer Studio IDE](http://www.ti.com/tool/ccstudio) (version 6.1.3.00034), a.k.a. CCS. The compiler used is TI MSP430 Compiler, version 4.4.8.
 
 
 ## Software flow
 
 1. Antenna Deployment Countdown 
 2. Antenna Deployment
-3. Watchdog configuration
+3. Watchdog timer configuration
 4. Peripherals initialization 
-5. Start Safe state tasks
-6. Start Atittude tasks
-7. Start Nominal tasks
+5. Start tasks
 
 
 ## USCI Configuration

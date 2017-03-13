@@ -17,7 +17,7 @@ void ttc_interface_task( void *pvParameters )
     while(1)
     {
         //TODO: TASK ROUTINE
-        ttc_read();
+//        ttc_read( );
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, TTC_INTERFACE_TASK_PERIOD_TICKS );
     }
