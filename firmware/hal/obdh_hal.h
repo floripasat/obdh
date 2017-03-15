@@ -51,6 +51,9 @@
 
 /********************************************/
 
+#define     TEST_SUCESS     0x01
+#define     TEST_FAIL       0x00
+
 #define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)
 #define BIT_SET(REG, BIT)       (REG |= BIT)
 #define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)

@@ -107,11 +107,15 @@ typedef struct {
 
 #define _DEBUG_AS_LINK 0
 
-#define CLOCK_INFO_MSG  "  CLOCKS:\n Master = 16MHz\n Subsystem master = 16MHz\n Auxiliary = 32768kHz \n\n"
-#define UART_INFO_MSG  "  UART:\n Baudrate = 9600\n Data bits = 8\n Parity = None\n Stop bits = 1\n\n"
-#define I2C_INFO_MSG "  I2C:\n Freq =~ 100kHz\n \n\n"
-#define SPI_INF_MSG  "  SPI:\n Freq =~ ---Hz\n \n\n"
-#define ADC_INFO_MSG  "  ADC:\n Vref+ = 3.0V\n Vref- = GND\n\n"
+
+
+#define BOOTING_MSG  "FSAT booting...\n Firmware v 0.1 - 15/03/2017\n\n"
+#define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"
+#define CLOCK_FAIL_MSG  " *CLOCKS SETUP FAIL* \n\n"
+#define UART_INFO_MSG  " UART:\n  Baudrate = 9600\n  Data bits = 8\n  Parity = None\n  Stop bits = 1\n\n"
+#define I2C_INFO_MSG " I2C:\n  Freq =~ 100kHz\n\n"
+#define SPI_INF_MSG  " SPI:\n  Freq =~ ---Hz\n\n"
+#define ADC_INFO_MSG  " ADC:\n  Vref+ = 3.0V\n  Vref- = GND\n\n"
 
 volatile data_packet_t satellite_data;
 

@@ -23,7 +23,7 @@ void create_tasks( void ) {
 }
 
 void setup_hardware( void ) {
-
+    uint8_t test_result;
     taskDISABLE_INTERRUPTS();
 
     /*   External watchdog timer reset pin */
@@ -32,17 +32,19 @@ void setup_hardware( void ) {
     wdte_reset_counter();
 
     /*  SETUP CLOCKS */
-    clocks_setup();
+    test_result = clocks_setup();
 
     /*  SETUP UART */
 
     uart0_setup(9600);
-    debug("FSAT booting... firmware v 0.1 - 15/03/2017\n");
-    debug("auto checking... OK\n");
+    debug(BOOTING_MSG);
     debug(UART_INFO_MSG);
-    debug(CLOCK_INFO_MSG);
-
-
+    if(test_result == TEST_SUCESS) {
+        debug(CLOCK_INFO_MSG);
+    }
+    else {
+        debug(CLOCK_FAIL_MSG);
+    }
 
     /*  SETUP I2C */
     i2c_setup(0);
@@ -62,7 +64,7 @@ void setup_hardware( void ) {
     /*  SETUP GPIO */
     //MAGNETORQUER
     //SD
-    //TODO: set the configuration of every port.
+    //TODO: set the configuration of every pins.
     BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
 
     debug("\n --- Boot completed ---\n");
