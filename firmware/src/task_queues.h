@@ -12,8 +12,8 @@
 
 
 /** Queues wait time in ticks. The value should be write in miliseconds and will be converted to ticks. */
-#define     IMU_QUEUE_WAIT_TIME                     (2000 / portTICK_PERIOD_MS)
-#define     INTERNAL_SENSORS_QUEUE_WAIT_TIME        (2000 / portTICK_PERIOD_MS)
+#define     IMU_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
+#define     INTERNAL_SENSORS_QUEUE_WAIT_TIME        (100 / portTICK_PERIOD_MS)
 
 
 volatile xQueueHandle imu_queue, internal_sensors_queue;
