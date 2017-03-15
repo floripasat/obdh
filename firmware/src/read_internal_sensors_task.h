@@ -11,6 +11,7 @@
 #include "../include/msp_internal.h"
 #include "../include/floripasat_def.h"
 #include "FreeRTOS.h"
+#include "task_queues.h"
 #include "task.h"
 
 #define READ_INTERNAL_SENSORS_TASK_PRIORITY          5          /**< Internal sensors task priority */

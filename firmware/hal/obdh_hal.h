@@ -51,7 +51,7 @@
 
 /********************************************/
 
-#define BIT_TOOGLE(REG, BIT)    (REG ^= BIT)
+#define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)
 #define BIT_SET(REG, BIT)       (REG |= BIT)
 #define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)
 

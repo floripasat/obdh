@@ -18,4 +18,5 @@ void wdte_reset_counter(void) {
 #ifndef _DEBUG
     WDI_EXT_OUT ^= WDI_EXT_PIN;
 #endif
+
 }

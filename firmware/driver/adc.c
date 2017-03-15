@@ -5,7 +5,7 @@ void adc_setup(void) {
     REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
                                             // ADC12_A ref control registers
     ADC12CTL0 = ADC12MSC | ADC12SHT0_15 | ADC12REFON | ADC12ON;
-                                            // Internal ref = 1.5V
+
     ADC12CTL1 = ADC12SHP | ADC12CONSEQ_1;                     // enable sample timer
 
 //    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;

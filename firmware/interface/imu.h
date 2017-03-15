@@ -12,8 +12,6 @@
 #include "../hal/obdh_hal.h"
 #include "../include/floripasat_def.h"
 #include "../util/misc.h"
-//#include "../util/debug.h"
-//#include "../util/codecs.h"
 
 #define MPU9150_SELF_TEST_X        0x0D   // R/W
 #define MPU9150_SELF_TEST_Y        0x0E   // R/W

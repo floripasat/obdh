@@ -7,10 +7,8 @@
 
 #include <imu_interface_task.h>
 
-void imu_interface_task( void *pvParameters )
-{
+void imu_interface_task( void *pvParameters ) {
     uint8_t imu_data_temp[20];
-
     TickType_t last_wake_time;
 
     float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
@@ -33,8 +31,10 @@ void imu_interface_task( void *pvParameters )
 
 //        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
 
-        for(int i = 0; i < sizeof(satellite_data.imu); i++)
-            satellite_data.imu[i] = imu_data_temp[i];
+//        for(int i = 0; i < sizeof(satellite_data.imu); i++)
+//            satellite_data.imu[i] = imu_data_temp[i];
+
+        xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }

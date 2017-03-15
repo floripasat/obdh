@@ -3,7 +3,8 @@
 /*
  * main.c
  */
-
+void clocks_setup(void);
+void set_vcore_up (unsigned int level);
 void setup_xt1();
 void setup_xt2();
 void setup_xt1_xt2();
@@ -15,7 +16,6 @@ volatile unsigned int i;
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
-
 //    setup_xt1();
     setup_xt2();
 //    setup_xt1_xt2();
@@ -26,7 +26,6 @@ int main(void) {
 
 	return 0;
 }
-
 
 void setup_xt1()
 {
@@ -50,7 +49,7 @@ void setup_xt2()
                                                 // Since LFXT1 is not used,
                                                 // sourcing FLL with LFXT1 can cause
                                                 // XT1OFFG flag to set
-
+    UCSCTL4 |= SELA_2;                          //to ensure that the ACLK is not sourced by XT1 (default).
 //    UCSCTL6 &= ~XT2DRIVE_0;                  //4MHz crystal
 }
 
@@ -66,11 +65,11 @@ void setup_xt1_xt2()
 
 void setup_clks()
 {
-    P1DIR |= BIT0;    // ACLK set out to pin
-    P1SEL |= BIT0;
+//    P1DIR |= BIT0;    // ACLK set out to pin
+//    P1SEL |= BIT0;
 
-//    P3DIR |= BIT4;    // SMCLK set out to pin
-//    P3SEL |= BIT4;
+    P3DIR |= BIT4;    // SMCLK set out to pin
+    P3SEL |= BIT4;
 
     UCSCTL5 |= DIVM_1 + DIVS_1;
     UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
@@ -79,7 +78,7 @@ void setup_clks()
 void test_fault_flags()
 {
     do {
-        UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);  // Clear XT2,XT1,DCO fault flags
+        UCSCTL7 &= ~(XT2OFFG | XT1LFOFFG | XT1HFOFFG | DCOFFG);  // Clear XT2,XT1,DCO fault flags
         SFRIFG1 &= ~OFIFG;                      // Clear fault flags
     } while (SFRIFG1 & OFIFG);
 }

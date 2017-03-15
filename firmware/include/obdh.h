@@ -10,6 +10,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "timers.h"
+#include "queue.h"
+#include "../src/task_queues.h"
 #include "../hal/obdh_hal.h"
 #include "../driver/clocks.h"
 #include "../driver/adc.h"

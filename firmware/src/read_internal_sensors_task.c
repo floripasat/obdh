@@ -9,8 +9,7 @@
 
 
 
-void read_internal_sensors_task( void *pvParameters )
-{
+void read_internal_sensors_task( void *pvParameters ) {
     TickType_t last_wake_time;
     uint16_t temperature_raw, voltage_raw, current_raw;
     float temperature, voltage, current;
@@ -41,6 +40,7 @@ void read_internal_sensors_task( void *pvParameters )
         satellite_data.msp_sensors[4] = current_raw>>8 & 0xFF;
         satellite_data.msp_sensors[5] = current_raw & 0xFF;
 
+        xQueueSendToBack(internal_sensors_queue, (void *)satellite_data.msp_sensors, portMAX_DELAY);
         vTaskDelayUntil( (TickType_t *) &last_wake_time, READ_INTERNAL_SENSORS_TASK_PERIOD_TICKS );
     }
 

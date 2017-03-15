@@ -10,6 +10,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "task_queues.h"
 #include "../util/MMC_lib/mmc.h"
 #include "../util/MMC_lib/hal_MMC_hardware_board.h"
 

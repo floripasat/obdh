@@ -56,16 +56,23 @@ data_packet_t read_and_pack_data( void ) {
     data_packet_t packet = {0};
 
     packet = satellite_data;
+    packet.package_flags = 0;
 
-    packet.package_flags |= IMU_FLAG;
-    packet.package_flags |= MSP_SENSORS_FLAG;
+    if(xQueueReceive(imu_queue, (void *) satellite_data.imu, IMU_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= IMU_FLAG;
+    }
 
+
+    if(xQueueReceive(internal_sensors_queue, (void *) satellite_data.msp_sensors, INTERNAL_SENSORS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= MSP_SENSORS_FLAG;
+    }
 
     uint32_t systick = xTaskGetTickCount();
     packet.systick[0] = systick & 0xFF;
     packet.systick[1] = systick>>8 & 0xFF;
     packet.systick[2] = systick>>16 & 0xFF;
     packet.systick[3] = systick>>24 & 0xFF;
+    packet.package_flags |= SYSTICK_FLAG;
 
     uint32_t reset = 0;
     packet.system_status[0] = reset & 0xFF;
@@ -73,6 +80,7 @@ data_packet_t read_and_pack_data( void ) {
     packet.system_status[2] = reset>>16 & 0xFF;
     packet.system_status[3] = 0;
     packet.system_status[4] = 0;
+    packet.package_flags |= SYSTEM_STATUS_FLAG;
 
     return packet;
 }
@@ -121,7 +129,7 @@ uint16_t get_packet(uint8_t* to_send_packet, request_packet_t *rqst_data_packet)
     flags = rqst_data_packet->flags & p_data_packet->package_flags;
 
 
-    pack_module_data( 1 , 1,  &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
+    pack_module_data( 1 , 1, (uint8_t*) &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
     pack_module_data(flags, SYSTEM_STATUS_FLAG,  p_data_packet->system_status, sizeof(p_data_packet->system_status), to_send_packet, &package_size);
     pack_module_data(flags, IMU_FLAG,  p_data_packet->imu, sizeof(p_data_packet->imu), to_send_packet, &package_size);
     pack_module_data(flags, MSP_SENSORS_FLAG,  p_data_packet->msp_sensors, sizeof(p_data_packet->msp_sensors), to_send_packet, &package_size);

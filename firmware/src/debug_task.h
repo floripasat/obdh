@@ -10,8 +10,10 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
- #include "../util/decode.h"
+#include "../util/decode.h"
+#include "../include/msp_internal.h"
 #include "../include/floripasat_def.h"
+#include "../driver/uart.h"
 #include "store_data_task.h"
 
 /*
