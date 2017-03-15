@@ -8,8 +8,8 @@
 // Interface with internal components of the OBDH SoC
 
 
-#ifndef INCLUDE_OBDH_H_
-#define INCLUDE_OBDH_H_
+#ifndef INCLUDE_MSP_INTERNAL_H_
+#define INCLUDE_MSP_INTERNAL_H_
 
 #include "../hal/obdh_hal.h"
 #include "../driver/adc.h"
@@ -36,4 +36,4 @@ uint16_t obdh_voltage_read(void);
 float obdh_voltage_convert(uint16_t volt_raw);
 void obdh_setup(void);
 
-#endif /* INCLUDE_OBDH_H_ */
+#endif /* INCLUDE_MSP_INTERNAL_H_ */

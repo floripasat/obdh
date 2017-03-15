@@ -11,7 +11,7 @@
 #include "../include/floripasat_def.h"
 #include "FreeRTOS.h"
 #include "task.h"
-//#include "../interface/ttc.h"
+#include "../interface/ttc.h"
 
 /*
  * PRIORITY =   5

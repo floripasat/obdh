@@ -8,7 +8,7 @@
 #include <store_data_task.h>
 
 uint32_t last_read_pointer, last_write_pointer;
-
+volatile uint32_t card_size;
 
 void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -16,11 +16,11 @@ void store_data_task( void *pvParameters ) {
 
 
     /*** mmc initialization ***/
-    volatile unsigned long card_size = 0;
     unsigned char status = 1;
     unsigned int timeout = 0;
     data_packet_t new_packet;
 
+    card_size = 0;
     last_read_pointer = 512;
     last_write_pointer = 512;
 
@@ -42,20 +42,9 @@ void store_data_task( void *pvParameters ) {
 
 
     while(1) {
-        //TODO: TASK ROUTINE
         //save in the begining of the memory the log_status: (packages counter, resets counter, etc).
         new_packet = read_and_pack_data();
         store_data_on_flash(&new_packet);
-
-//        mmcWriteSector(512, (unsigned char *) status_package);
-
-        //TODO: corrigir sistema para salvar na memoria. Deve seguir o seguinte esquema:
-        /* A cada iteração, no cabeçalho do pacote deve conter as flags cujos sensores foram lidos desde a execução anterior da tarefa de salvar. 
-         * Desta forma, se a flag não estiver setada, aquele byte não deve ser enviado, poupando o downlink. 
-         * Porém, o pacote é salvo no tamanho total no cartão, mesmo que ocupe mais espaço, com os bytes zerados onde a informação será ignorada.
-         */
-
-//        mmcWriteSector(current_position, flash_package);
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, STORE_DATA_TASK_PERIOD_TICKS );
     }
@@ -67,16 +56,23 @@ data_packet_t read_and_pack_data( void ) {
     data_packet_t packet = {0};
 
     packet = satellite_data;
+    packet.package_flags = 0;
 
-    packet.package_flags |= IMU_FLAG;
-    packet.package_flags |= MSP_SENSORS_FLAG;
+    if(xQueueReceive(imu_queue, (void *) satellite_data.imu, IMU_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= IMU_FLAG;
+    }
 
+
+    if(xQueueReceive(internal_sensors_queue, (void *) satellite_data.msp_sensors, INTERNAL_SENSORS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= MSP_SENSORS_FLAG;
+    }
 
     uint32_t systick = xTaskGetTickCount();
     packet.systick[0] = systick & 0xFF;
     packet.systick[1] = systick>>8 & 0xFF;
     packet.systick[2] = systick>>16 & 0xFF;
     packet.systick[3] = systick>>24 & 0xFF;
+    packet.package_flags |= SYSTICK_FLAG;
 
     uint32_t reset = 0;
     packet.system_status[0] = reset & 0xFF;
@@ -84,6 +80,7 @@ data_packet_t read_and_pack_data( void ) {
     packet.system_status[2] = reset>>16 & 0xFF;
     packet.system_status[3] = 0;
     packet.system_status[4] = 0;
+    packet.package_flags |= SYSTEM_STATUS_FLAG;
 
     return packet;
 }
@@ -103,7 +100,7 @@ void store_data_on_flash( data_packet_t *packet ) {
 }
 
 
-uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_packet) {
+uint16_t get_packet(uint8_t* to_send_packet, request_packet_t *rqst_data_packet) {
     uint8_t flash_package[512];
     uint16_t package_size = 0;
     uint32_t read_sector;
@@ -117,6 +114,13 @@ uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_pa
         read_sector = last_write_pointer + rqst_data_packet->packages_offset;;
     }
 
+    if(read_sector < last_read_pointer) { //TODO: incluir o caso do setor de leitura chegar a posição maxima da memoria
+        read_sector = last_read_pointer;
+    }
+    if(read_sector > last_write_pointer) {
+        read_sector = last_write_pointer;
+    }
+
 
     mmcReadSector(read_sector, (unsigned char *) flash_package);
     p_data_packet = (data_packet_t*)flash_package;
@@ -125,7 +129,7 @@ uint16_t get_packet(uint8_t* to_send_packet, request_data_packet_t *rqst_data_pa
     flags = rqst_data_packet->flags & p_data_packet->package_flags;
 
 
-    pack_module_data( 1 , 1,  &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
+    pack_module_data( 1 , 1, (uint8_t*) &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
     pack_module_data(flags, SYSTEM_STATUS_FLAG,  p_data_packet->system_status, sizeof(p_data_packet->system_status), to_send_packet, &package_size);
     pack_module_data(flags, IMU_FLAG,  p_data_packet->imu, sizeof(p_data_packet->imu), to_send_packet, &package_size);
     pack_module_data(flags, MSP_SENSORS_FLAG,  p_data_packet->msp_sensors, sizeof(p_data_packet->msp_sensors), to_send_packet, &package_size);

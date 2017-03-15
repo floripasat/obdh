@@ -17,10 +17,10 @@
  *     The MCLK also is sourced by the 4 MHz crystal with no prescaler.
  */
 //todo separate into one function to each clk
-void clocks_setup(void);
+uint8_t clocks_setup(void);
 void set_vcore_up (unsigned int level);
 void setup_xt1_xt2(void);
-void test_fault_flags(void);
+uint8_t test_fault_flags(void);
 void setup_clks(void);
 
 #endif /* DRIVER_CLOCKS_H_ */

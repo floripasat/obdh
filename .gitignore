@@ -33,6 +33,7 @@
 *.su
 /firmware/Debug/
 /firmware/.launches
+/soldering_verification/*/.launches
 
 # Tracealyzer files
 /firmware/GenericRecorderLibSrc/

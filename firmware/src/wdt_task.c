@@ -14,9 +14,11 @@ void wdt_task( void *pvParameters )
 
     while(1)
     {
-        //TODO: TASK ROUTINE
         wdti_reset_counter();
         wdte_reset_counter();
+    #ifdef _DEBUG
+        BIT_TOGGLE(LED_SYSTEM_OUT, LED_SYSTEM_PIN);
+    #endif
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, WDT_TASK_PERIOD_TICKS);
     }

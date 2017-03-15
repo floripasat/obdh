@@ -14,9 +14,10 @@ void uart_tx_char(char  tx_char);
 void uart_tx_bytes(char *tx_data, int16_t bytes);
 void uart_rx(char *rx_data, int length);
 char uart_rx_char();
-
+void debug(char *tx_data);
 
 void uart_set_baudrate(unsigned long);
+
 
 
 

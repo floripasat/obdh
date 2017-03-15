@@ -12,39 +12,14 @@
 
 volatile uint16_t status;
 
-void clocks_setup(void){
-//    set_vcore_up(3);
-//    status = PMM_setVCore(PMMCOREV_3);
+uint8_t clocks_setup(void){
+    uint8_t test_flag;
+    //TODO: Verify if it's necessary to set the Vcore
     setup_xt1_xt2();
-    test_fault_flags();
+    test_flag = test_fault_flags();
     setup_clks();
+    return test_flag;
 }
-
-void set_vcore_up (unsigned int level){
-    // Open PMM registers for write access
-    PMMCTL0_H = 0xA5;
-    // Make sure no flags are set for iterative sequences
-    while ((PMMIFG & SVSMHDLYIFG) == 0);
-    while ((PMMIFG & SVSMLDLYIFG) == 0);
-    // Set SVS/SVM high side new level
-    SVSMHCTL = SVSHE + SVSHRVL0 * level + SVMHE + SVSMHRRL0 * level;
-    // Set SVM low side to new level
-    SVSMLCTL = SVSLE + SVMLE + SVSMLRRL0 * level;
-    // Wait till SVM is settled
-    while ((PMMIFG & SVSMLDLYIFG) == 0);
-    // Clear already set flags
-    PMMIFG &= ~(SVMLVLRIFG + SVMLIFG);
-    // Set VCore to new level
-    PMMCTL0_L = PMMCOREV0 * level;
-    // Wait till new level reached
-    if ((PMMIFG & SVMLIFG))
-        while ((PMMIFG & SVMLVLRIFG) == 0);
-    // Set SVS/SVM low side to new level
-    SVSMLCTL = SVSLE + SVSLRVL0 * level + SVMLE + SVSMLRRL0 * level;
-    // Lock PMM registers for write access
-    PMMCTL0_H = 0x00;
-}
-
 
 void setup_xt1_xt2(void){
 
@@ -68,9 +43,21 @@ void setup_clks(void){
     UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
 }
 
-void test_fault_flags(void){
+uint8_t test_fault_flags(void){
+    uint16_t attempts = 0;
+    uint8_t result = 0xFF;
+
     do {
         UCSCTL7 &= ~(XT2OFFG | XT1LFOFFG | XT1HFOFFG | DCOFFG);  // Clear XT2,XT1,DCO fault flags
         SFRIFG1 &= ~OFIFG;                      // Clear fault flags
-    } while (SFRIFG1 & OFIFG);
+        attempts++;
+    } while ((SFRIFG1 & OFIFG) && attempts < 500 );
+
+    if( attempts < 500){
+        result = TEST_SUCESS;
+    }
+    else {
+        result = TEST_FAIL;
+    }
+    return result;
 }

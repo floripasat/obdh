@@ -10,7 +10,7 @@
 void wdti_setup(char mode, char time2trigger) {
 	wdti_hold_counter();
 	WDTCTL = WDTPW + WDTHOLD + mode + time2trigger;
-	if (mode == INTERVAL)       //TODO add: WDTTMSEL = 1;
+	if (mode == INTERVAL)           // WDTTMSEL == 1
 	    SFRIE1 |= WDTIE;            // Enable WDT interrupt
 	wdti_release_counter();
 }

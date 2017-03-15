@@ -14,25 +14,22 @@
 #include "../driver/wdti.h"
 #include "../interface/wdte.h"
 
-/*
- * PRIORITY =   5
- * FREQUENCY =  1Hz
- */
 
-#define WDT_TASK_PRIORITY          5
-#define WDT_TASK_PERIOD_MS         500
-#define WDT_TASK_PERIOD_TICKS      ( WDT_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+#define WDT_TASK_PRIORITY          5        /**< Watchdog timer task priority */
+#define WDT_TASK_PERIOD_MS         500      /**< Watchdog timer task period in miliseconds */
+#define WDT_TASK_PERIOD_TICKS      ( WDT_TASK_PERIOD_MS / portTICK_PERIOD_MS ) /**< Watchdog timer task period in ticks */
 
 /**
- * \var static xTaskHandle xWdtTask
- * \brief variable which holds the task reference
+ * \var static xTaskHandle wdt_task_handle
+ * \brief variable which holds the task reference, to allow it handling
  */
 static xTaskHandle wdt_task_handle;
 
 /**
- * \fn void prvWdtTask( void *pvParameters )
- * That task reset the external and internal WatchDog Timers
+ * \fn wdt_task( void *pvParameters )
+ * That task reset the external and internal Watchdog Timers
  * \param pvParameters Not used
+ * \return None
  */
 void wdt_task( void *pvParameters );
 

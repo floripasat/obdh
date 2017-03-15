@@ -1,0 +1,6 @@
+1 - Download and install Code Composer Studio v6.1.3.00034:
+http://processors.wiki.ti.com/index.php/Download_CCS#Code_Composer_Studio_Version_6_Downloads
+
+2 - Open CCS in admin mode and go to "Help">"Install new software". Be sure that the boxes: "Show only the latest versions of available software" and "Hide items that are already installed" are UNCHECKED. Work with All available sites and find for "MSP430 compiler". Install MSP430 Compiler Tools version 16.6.0 and 4.4.8. The CCS will restart.
+
+3 - Go to "Project>Import CCS Projects..." and browse for this folder. Import the "obdh" project. Now you might be able to build and run.

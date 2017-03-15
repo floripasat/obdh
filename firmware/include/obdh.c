@@ -1,19 +1,29 @@
+/*! \file obdh.c
+    \brief This file gather the main functions of the OBDH.
+
+
+*/
 #include <obdh.h>
 
 void create_tasks( void ) {
+    imu_queue = xQueueCreate( 5, sizeof( satellite_data.imu ) );
+    internal_sensors_queue = xQueueCreate( 5, sizeof( satellite_data.msp_sensors ) );
+
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
-    xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL, STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
+    xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
 //    xTaskCreate( communications_task, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( read_internal_sensors_task, "ReadInternal", configMINIMAL_STACK_SIZE, NULL, READ_INTERNAL_SENSORS_TASK_PRIORITY, &read_internal_sensors_task_handle);
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
 //    xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
 //    xTaskCreate( ttc_interface_task, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
-
+#ifdef _DEBUG
     xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
+#endif
 }
 
 void setup_hardware( void ) {
+    uint8_t test_result;
     taskDISABLE_INTERRUPTS();
 
     /*   External watchdog timer reset pin */
@@ -22,27 +32,42 @@ void setup_hardware( void ) {
     wdte_reset_counter();
 
     /*  SETUP CLOCKS */
-    clocks_setup();
+    test_result = clocks_setup();
+
+    /*  SETUP UART */
+
+    uart0_setup(9600);
+    debug(BOOTING_MSG);
+    debug(UART_INFO_MSG);
+    if(test_result == TEST_SUCESS) {
+        debug(CLOCK_INFO_MSG);
+    }
+    else {
+        debug(CLOCK_FAIL_MSG);
+    }
 
     /*  SETUP I2C */
     i2c_setup(0);
     i2c_setup(1);
     i2c_setup(2);
 
+    debug(I2C_INFO_MSG);
+
     /*  SETUP SPI */
 
 
-    /*  SETUP UART */
-    uart0_setup(9600);
 
     /*  SETUP ADC */
     adc_setup();
 
+    debug(ADC_INFO_MSG);
     /*  SETUP GPIO */
     //MAGNETORQUER
     //SD
-    //
-//    adc_setup_temp();
+    //TODO: set the configuration of every pins.
+    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
+
+    debug("\n --- Boot completed ---\n");
 }
 
 
@@ -71,7 +96,7 @@ interrupt vector for the chosen tick interrupt source.  This implementation of
 vApplicationSetupTimerInterrupt() generates the tick from timer A0, so in this
 case configTICK_VECTOR is set to TIMER0_A0_VECTOR. */
 void vApplicationSetupTimerInterrupt( void ) {
-const unsigned short usACLK_Frequency_Hz = 32768;
+    const unsigned short usACLK_Frequency_Hz = 32768;
 
     /* Ensure the timer is stopped. */
     TA0CTL = 0;

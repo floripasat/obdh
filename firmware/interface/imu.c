@@ -23,6 +23,7 @@ uint8_t imu_setup(void){
     i2c_send(IMU_BASE_ADDRESS, imu_temp_data[1], NO_START);
 
     imu_temp_data[0] = MPU9150_ACCEL_CONFIG;
+
 	if (IMU_ACC_RANGE == 2.0) {
 	    imu_temp_data[1] = 0x00;   // config for +-2g range
 	} else {
