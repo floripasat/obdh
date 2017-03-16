@@ -22,6 +22,11 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 * Detailed information can be found [here](https://github.com/floripasat/obdh/firmware/).
 <!-- * Doxygen documentation [here](http://fsat-server.duckdns.org:8000/obdh/). nao foi feito ainda -->
 
+### Toolchain setup
+* Download and install Code Composer Studio: http://processors.wiki.ti.com/index.php/Download_CCS
+* Instructions for for Linux enviroment: http://processors.wiki.ti.com/index.php/Linux_Host_Support_CCSv7
+* Select package: MSP430 Ultra Low Power MCUs 
+
 
 ## References
 
