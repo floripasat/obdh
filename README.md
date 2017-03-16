@@ -26,8 +26,9 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 * Download and install Code Composer Studio: http://processors.wiki.ti.com/index.php/Download_CCS
 * Instructions for for Linux enviroment: http://processors.wiki.ti.com/index.php/Linux_Host_Support_CCSv7
 * Select package: MSP430 Ultra Low Power MCUs 
-
-
+* After installed, open and update CCSv7: Help->Check for Updates->Select All-> Update.. / Restart
+* Get the source code: `git clone https://github.com/floripasat/obdh`
+* Import source project into CCSv7: File->Import->Code Composer Studio->CCS Projects; Select the source folder: obdh/firmware; Leave 'Copy projects into workspace' unchecked.
 ## References
 
 The general documentation of the project can be found in [GitBook](https://www.gitbook.com/book/tuliogomesp/floripasat-technical-manual).
