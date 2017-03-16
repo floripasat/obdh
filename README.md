@@ -17,7 +17,8 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 ## Software
 
 * The programming language is C;
-* All software was developed in the [Code Composer Studio IDE](http://www.ti.com/tool/ccstudio) (version 6.1.3.00034), a.k.a. CCS;
+* All software was developed in the [Code Composer Studio IDE](http://www.ti.com/tool/ccstudio).
+* Tested in compiler TI v16.9.1 LTS (CCS v7.1 7.1.0.00015).
 * Uses FreeRTOS, a RTOS for embedded systems. [FreeRTOS page](http://freertos.org/);
 * Detailed information can be found [here](https://github.com/floripasat/obdh/firmware/).
 <!-- * Doxygen documentation [here](http://fsat-server.duckdns.org:8000/obdh/). nao foi feito ainda -->
