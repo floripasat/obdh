@@ -7,39 +7,24 @@
 
 #include <store_data_task.h>
 
-uint32_t last_read_pointer, last_write_pointer;
+volatile uint32_t last_read_pointer, last_write_pointer;
 volatile uint32_t card_size;
 
 void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
+    data_packet_t new_packet;
     last_wake_time = xTaskGetTickCount();
 
+    card_size = mmc_setup();
 
-    /*** mmc initialization ***/
-    unsigned char status = 1;
-    unsigned int timeout = 0;
-    data_packet_t new_packet;
+    if(card_size < 128000000) { //test if memory card is working
+        //TODO: use another memory
 
-    card_size = 0;
-    last_read_pointer = 512;
-    last_write_pointer = 512;
-
-    while (status != 0) {                      // if return in not NULL an error did occur and the
-                                                // MMC/SD-card will be initialized again
-        status = mmcInit();
-        timeout++;
-        if (timeout == 150) {                     // Try 150 times till error
-          //printf ("No MMC/SD-card found!! %x\n", status);
-            break;
-        }
     }
-
-
-    while ((mmcPing() != MMC_SUCCESS));      // Wait till card is inserted
-
-    // Read the Card Size from the CSD Register
-    card_size =  mmcReadCardSize();
-
+    else {
+        last_read_pointer = FIRST_DATA_SECTOR;
+        last_write_pointer = FIRST_DATA_SECTOR;
+    }
 
     while(1) {
         //save in the begining of the memory the log_status: (packages counter, resets counter, etc).

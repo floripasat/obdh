@@ -89,6 +89,32 @@ char mmcGoIdle();
 // Varialbes
 char mmc_buffer[512] = { 0 };               // Buffer for mmc i/o for data and registers
 
+uint32_t mmc_setup()
+{
+    unsigned char status = 1;
+    unsigned int timeout = 0;
+
+    uint32_t card_size = 0;
+
+    while (status != 0) {                      // if return in not NULL an error did occur and the
+                                                // MMC/SD-card will be initialized again
+        status = mmcInit();
+        timeout++;
+        if (timeout == 150) {                     // Try 150 times till error
+          //printf ("No MMC/SD-card found!! %x\n", status);
+            break;
+        }
+    }
+
+    while ((mmcPing() != MMC_SUCCESS));      // Wait till card is inserted
+
+    // Read the Card Size from the CSD Register
+    card_size =  mmcReadCardSize();
+    return card_size;
+}
+
+
+
 // Initialize MMC card
 char mmcInit(void)
 {
