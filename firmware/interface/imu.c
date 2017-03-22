@@ -11,7 +11,8 @@ uint8_t imu_temp_data[20];
 
 
 uint8_t imu_setup(void){
-//    i2c_setup(1);
+    uint8_t status, who_am_i;
+    //    i2c_setup(1);
 
 	//imu_i2c_write(MPU9150_PWR_MGMT_1, 0x00);
     imu_temp_data[0] = MPU9150_PWR_MGMT_1;   //reg address
@@ -33,12 +34,19 @@ uint8_t imu_setup(void){
 	i2c_send(IMU_BASE_ADDRESS, imu_temp_data[0], NO_STOP);
     i2c_send(IMU_BASE_ADDRESS, imu_temp_data[1], NO_START);
 
-    uint8_t who_am_i = 0;
+
     i2c_send(IMU_BASE_ADDRESS, MPU9150_WHO_AM_I, NO_STOP);
     i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);
     who_am_i = i2c_receive(IMU_BASE_ADDRESS, START_STOP);
 
-    return who_am_i;
+    if(who_am_i == IMU_WHO_AM_I_VALUE) {
+        status = IMU_WORKING;
+    }
+    else {
+        status = IMU_NOT_WORKING;
+    }
+
+    return status;
 }
 
 
