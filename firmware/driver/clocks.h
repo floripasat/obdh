@@ -16,6 +16,9 @@
  *  And the SMCLK to be sourced by the XT2 4 MHz Ext. Crystal. SMCLK outputs 1 MHz.
  *     The MCLK also is sourced by the 4 MHz crystal with no prescaler.
  */
+
+#define XT_MAX_STARTUP_TIME 20000
+
 //todo separate into one function to each clk
 uint8_t clocks_setup(void);
 void set_vcore_up (unsigned int level);
