@@ -16,9 +16,14 @@
 #include "floripasat_def.h"
 #include "stdint.h"
 
+
+//Current sensing circuit definitions
 #define RSENSE_VALUE 47000.0 //ohms
 #define CURRENT_GAIN 0.005 // A/V
 #define RL_VALUE 0.05 // A/V
+
+//Voltage sensing circuit definitions
+#define VOLTAGE_DIVISOR 2.0
 
 
 unsigned int obdhTemperatureBuffer;

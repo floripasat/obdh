@@ -39,7 +39,7 @@ uint16_t obdh_current_read(void){
 }
 
 float obdh_voltage_convert(uint16_t volt_raw){
-    float volt = volt_raw * AVCC / ADC_RANGE;
+    float volt = volt_raw * AVCC * VOLTAGE_DIVISOR / ADC_RANGE;
     return volt;
 }
 
