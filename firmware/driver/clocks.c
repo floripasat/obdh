@@ -48,12 +48,13 @@ uint8_t test_fault_flags(void){
     uint8_t result = 0xFF;
 
     do {
+        _delay_cycles(500); //1ms delay (DCO at ~500KHz)
         UCSCTL7 &= ~(XT2OFFG | XT1LFOFFG | XT1HFOFFG | DCOFFG);  // Clear XT2,XT1,DCO fault flags
         SFRIFG1 &= ~OFIFG;                      // Clear fault flags
         attempts++;
-    } while ((SFRIFG1 & OFIFG) && attempts < 500 );
+    } while ((SFRIFG1 & OFIFG) && attempts < XT_MAX_STARTUP_TIME ); //try for 30 seconds. The datasheet says 1s of typical Startup time.
 
-    if( attempts < 500){
+    if( attempts < XT_MAX_STARTUP_TIME){
         result = TEST_SUCESS;
     }
     else {
