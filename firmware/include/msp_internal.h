@@ -18,13 +18,26 @@
 
 
 //Current sensing circuit definitions
+#if HAL_VERSION == HAL_V2_0
 #define RSENSE_VALUE 47000.0 //ohms
 #define CURRENT_GAIN 0.005 // A/V
 #define RL_VALUE 0.05 // A/V
+#endif
+
+#if HAL_VERSION == HAL_V2_1
+#define RSENSE_VALUE 20000.0 //ohms
+#define CURRENT_GAIN 0.025 // A/V
+#define RL_VALUE 0.05 // A/V
+#endif
 
 //Voltage sensing circuit definitions
-#define VOLTAGE_DIVISOR 2.0
+#if HAL_VERSION == HAL_V2_0
+#define VOLTAGE_DIVISOR 1.0
+#endif
 
+#if HAL_VERSION == HAL_V2_1
+#define VOLTAGE_DIVISOR 2.0
+#endif
 
 unsigned int obdhTemperatureBuffer;
 volatile float temperatureDegC;
