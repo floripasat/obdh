@@ -43,12 +43,12 @@ data_packet_t read_and_pack_data( void ) {
     packet = satellite_data;
     packet.package_flags = 0;
 
-    if(xQueueReceive(imu_queue, (void *) satellite_data.imu, IMU_QUEUE_WAIT_TIME) == pdPASS) {
+    if(xQueueReceive(imu_queue, (void *) packet.imu, IMU_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= IMU_FLAG;
     }
 
 
-    if(xQueueReceive(internal_sensors_queue, (void *) satellite_data.msp_sensors, INTERNAL_SENSORS_QUEUE_WAIT_TIME) == pdPASS) {
+    if(xQueueReceive(internal_sensors_queue, (void *) packet.msp_sensors, INTERNAL_SENSORS_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= MSP_SENSORS_FLAG;
     }
 
