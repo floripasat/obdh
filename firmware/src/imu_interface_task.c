@@ -19,7 +19,10 @@ void imu_interface_task( void *pvParameters ) {
 
     //Set IMU pins and verify the communication
     module_test = imu_setup();
-
+    if (module_test == IMU_NOT_WORKING)
+    {
+        //TODO:  use another IMU
+    }
     last_wake_time = xTaskGetTickCount();
 
     while(1) {
