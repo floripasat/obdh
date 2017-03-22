@@ -10,6 +10,7 @@
 #ifndef _MMCLIB_H
 #define _MMCLIB_H
 
+#include "stdint.h"
 
 // macro defines
 #define HIGH(a) ((a>>8)&0xFF)               // high byte from word
@@ -73,6 +74,8 @@
 #define MMC_READ_OCR               0x67     //CMD39
 #define MMC_CRC_ON_OFF             0x68     //CMD40
 
+// mmc setup
+uint32_t mmc_setup();
 
 // mmc init
 char mmcInit(void);

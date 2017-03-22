@@ -22,6 +22,8 @@
 #define STORE_DATA_TASK_PERIOD_MS         1000          /**< Store data task period in miliseconds */
 #define STORE_DATA_TASK_PERIOD_TICKS      ( STORE_DATA_TASK_PERIOD_MS / portTICK_PERIOD_MS )    /**< Store data task period in ticks */
 
+#define FIRST_DATA_SECTOR   512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
+
 /**
  * \var static xTaskHandle store_data_task_handle
  * \brief variable which holds the task reference

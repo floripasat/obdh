@@ -11,6 +11,12 @@
 #include <msp430.h>
 #include "../hw_memmap.h"
 
+#define HAL_V1     1
+#define HAL_V2_0     2
+#define HAL_V2_1     3
+
+#define HAL_VERSION     HAL_V2_1
+
 //I2C SLAVE ADDRESS
 #define MPU0_I2C_SLAVE_ADRESS      0x68
 #define MPU1_I2C_SLAVE_ADRESS      0x69
@@ -119,6 +125,7 @@
 /***************** ADC12 ******************/
 #define ADC_SEL     P6SEL
 
+#if HAL_VERSION == HAL_V2_0
 #define X_SUNSEN_ADC_CH             0
 #define Y_SUNSEN_ADC_CH             1
 #define Z_SUNSEN_ADC_CH             2
@@ -126,6 +133,16 @@
 #define VREF_TEMP_ADC_CH            4
 #define VCC_3V3_ADC_CH              5
 #define INTERNAL_TEMP_SENSOR_ADC_CH 6
+#endif
+
+#if HAL_VERSION == HAL_V2_1
+#define X_SUNSEN_ADC_CH             0
+#define Y_SUNSEN_ADC_CH             1
+#define Z_SUNSEN_ADC_CH             2
+#define OBDH_CURRENT_ADC_CH         3
+#define VCC_3V3_ADC_CH              4
+#define INTERNAL_TEMP_SENSOR_ADC_CH 5
+#endif
 
 #define X_SUNSEN_ADC_DIR P6DIR
 #define X_SUNSEN_ADC_SEL P6SEL
@@ -143,6 +160,8 @@
 #define OBDH_CURRENT_ADC_SEL P6SEL
 #define OBDH_CURRENT_ADC_PIN BIT3
 
+#if HAL_VERSION == HAL_V2_0
+
 #define ADC_Vref_TEMP_DIR P6DIR
 #define ADC_Vref_TEMP_SEL P6SEL
 #define ADC_Vref_TEMP_PIN BIT4
@@ -151,7 +170,15 @@
 #define VCC_3V3_SEL P6SEL
 #define VCC_3V3_PIN BIT5
 
+#endif
 
+#if HAL_VERSION == HAL_V2_1
+
+#define VCC_3V3_DIR P6DIR
+#define VCC_3V3_SEL P6SEL
+#define VCC_3V3_PIN BIT4
+
+#endif
 
 /***************** I2C ******************/
 #define I2C0_SEL P2SEL
@@ -247,9 +274,18 @@
 #define TTC_GPIO2_MAIN_OUT P1OUT
 #define TTC_GPIO2_MAIN_PIN BIT3
 
+//TODO: GPIO1 pin should be disconnected in future versions
+#if HAL_VERSION == HAL_V2_0
 #define TTC_GPIO1_MAIN_DIR P1DIR
 #define TTC_GPIO1_MAIN_OUT P1OUT
 #define TTC_GPIO1_MAIN_PIN BIT4
+#endif
+
+#if HAL_VERSION == HAL_V2_1
+#define TTC_GPIO1_MAIN_DIR P1DIR
+#define TTC_GPIO1_MAIN_OUT P1OUT
+#define TTC_GPIO1_MAIN_PIN BIT4
+#endif
 
 #define TTC_GPIO0_MAIN_DIR P1DIR
 #define TTC_GPIO0_MAIN_OUT P1OUT
@@ -302,6 +338,9 @@
 #define uSDCard_CE_PIN BIT6
 
 /***************** SENSORS_CS ******************/
+
+//TODO: gyro pins should be disconnected in future versions
+#if HAL_VERSION == HAL_V2_0
 #define GYRO_Z_CSn_DIR P4DIR
 #define GYRO_Z_CSn_OUT P4OUT
 #define GYRO_Z_CSn_PIN BIT0
@@ -325,6 +364,34 @@
 #define TEMP_X_CSn_DIR P4DIR
 #define TEMP_X_CSn_OUT P4OUT
 #define TEMP_X_CSn_PIN BIT5
+#endif
+
+#if HAL_VERSION == HAL_V2_1
+#define GYRO_Z_CSn_DIR P4DIR
+#define GYRO_Z_CSn_OUT P4OUT
+#define GYRO_Z_CSn_PIN BIT0
+
+#define TEMP_Z_CSn_DIR P4DIR
+#define TEMP_Z_CSn_OUT P4OUT
+#define TEMP_Z_CSn_PIN BIT1
+
+#define GYRO_Y_CSn_DIR P4DIR
+#define GYRO_Y_CSn_OUT P4OUT
+#define GYRO_Y_CSn_PIN BIT2
+
+#define TEMP_Y_CSn_DIR P4DIR
+#define TEMP_Y_CSn_OUT P4OUT
+#define TEMP_Y_CSn_PIN BIT3
+
+#define GYRO_X_CSn_DIR P4DIR
+#define GYRO_X_CSn_OUT P4OUT
+#define GYRO_X_CSn_PIN BIT4
+
+#define TEMP_X_CSn_DIR P4DIR
+#define TEMP_X_CSn_OUT P4OUT
+#define TEMP_X_CSn_PIN BIT5
+#endif
+
 
 /***************** CURRENT DRIVER ******************/
 #define DRIVER_CH0_CH1_SLEEP_DIR P3DIR
