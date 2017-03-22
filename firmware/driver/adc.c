@@ -8,6 +8,7 @@ void adc_setup(void) {
 
     ADC12CTL1 = ADC12SHP | ADC12CONSEQ_1;                     // enable sample timer
 
+    #if HAL_VERSION == HAL_V2_0
 //    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;
     BIT_SET(ADC_SEL, (X_SUNSEN_ADC_PIN | Y_SUNSEN_ADC_PIN | Z_SUNSEN_ADC_PIN
                       | OBDH_CURRENT_ADC_PIN | ADC_Vref_TEMP_PIN | VCC_3V3_PIN));
@@ -19,6 +20,20 @@ void adc_setup(void) {
     ADC12MCTL4 = ADC12SREF_2 | ADC12INCH_4;
     ADC12MCTL5 = ADC12SREF_2 | ADC12INCH_5;
     ADC12MCTL6 = ADC12EOS | ADC12SREF_2 | ADC12INCH_10;     // Temp sensor
+    #endif
+
+    #if HAL_VERSION == HAL_V2_1
+//    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;
+    BIT_SET(ADC_SEL, (X_SUNSEN_ADC_PIN | Y_SUNSEN_ADC_PIN | Z_SUNSEN_ADC_PIN
+                      | OBDH_CURRENT_ADC_PIN | VCC_3V3_PIN));
+
+    ADC12MCTL0 = ADC12SREF_2 | ADC12INCH_0;                 // Vr+=Veref+ (3V) and Vr-=AVss
+    ADC12MCTL1 = ADC12SREF_2 | ADC12INCH_1;
+    ADC12MCTL2 = ADC12SREF_2 | ADC12INCH_2;
+    ADC12MCTL3 = ADC12SREF_2 | ADC12INCH_3;
+    ADC12MCTL4 = ADC12SREF_2 | ADC12INCH_4;
+    ADC12MCTL5 = ADC12EOS | ADC12SREF_2 | ADC12INCH_10;     // Temp sensor
+    #endif
 
     __delay_cycles(2000);   // Allow ~100us (at default UCS settings)
                                             // for REF to settle
