@@ -10,28 +10,6 @@
 
 #include "stdint.h"
 
-//typedef struct {
-//    unsigned system_status_flag:1;
-//    unsigned imu_flag:1;
-//    unsigned msp_sensors_flag:1;
-//    unsigned systick_flag:1;
-//    unsigned solar_panels_flag:1;
-//    unsigned rtc_flag:1;
-//    unsigned radio_flag:1;
-//
-//    unsigned adc_solar_panels_flag:1;
-//    unsigned msp430_adc_flag:1;
-//    unsigned battery_monitor_flag:1;
-//    unsigned ads1248_flag:1;
-//    unsigned task_scheduler_flag:1;
-//
-//    unsigned beacon_flag:1;
-//    unsigned transceiver_flag:1;
-//
-//    unsigned payload1_flag:1;
-//    unsigned payload2_flag:1;
-//} module_flags_t;
-
 #define has_flag(x,y)   (x & y)
 
 #define  SYSTEM_STATUS_FLAG         BIT0
@@ -54,13 +32,17 @@
 #define  PAYLOAD1_FLAG              BITE
 #define  PAYLOAD2_FLAG              BITF
 
-
+/**
+ * \struct request_packet_t
+ *
+ * \brief The struct to decode a request command
+ */
 typedef struct {
-    uint8_t request_action;
-    uint16_t flags;
-    uint8_t packages_count;
-    uint8_t packages_origin;
-    int32_t packages_offset;
+    uint8_t request_action; /**< the action (send data, shutdown..) */
+    uint16_t flags;         /**< modules flags to request just the wanted data*/
+    uint8_t packages_count; /**< number of packages to read, from offset */
+    uint8_t packages_origin;/**< position used as reference for the offset */
+    int32_t packages_offset;/**< number of packages to offset from origin */
 } request_packet_t;
 
 

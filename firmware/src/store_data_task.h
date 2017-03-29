@@ -60,8 +60,12 @@ void store_data_on_flash( data_packet_t *packet );
  * \param rqst_data_packet is a pointer to the request
  * \return length, in bytes, of the requested submodules data
  */
-uint16_t get_packet(uint8_t* to_send_packet, request_packet_t *rqst_data_packet);
-void update_last_read_position(uint32_t new_position);
+uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read_sector);
+
+uint32_t get_last_read_pointer();
+
+uint32_t get_last_write_pointer();
+
 void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size);
 
 

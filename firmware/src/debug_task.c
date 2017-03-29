@@ -22,10 +22,13 @@ void debug_task( void *pvParameters ) {
         uart_rx(cmd, 9);
 
         rqt_packet = decode((uint8_t *)cmd);
+        uint32_t read_position;
         
         if(rqt_packet.request_action == SEND_DATA_REQUEST) {
-            while(rqt_packet.packages_count > 0) {
-            	package_size = get_packet(uart_package, &rqt_packet);
+            read_position = calculate_read_position(rqt_packet);
+
+            while(rqt_packet.packages_count-- > 0) {
+            	package_size = get_packet(uart_package, rqt_packet.flags, read_position++);
             	if(package_size > 0) {
             		uart_tx_bytes((char *)uart_package, package_size);
             	}
