@@ -11,21 +11,20 @@
 #include <msp430.h>
 #include "../hw_memmap.h"
 
-#define HAL_V1     1
-#define HAL_V2_0     2
-#define HAL_V2_1     3
+#define HAL_V1          1           /**< Reference value of HAL version V1.0 */
+#define HAL_V2_0        2           /**< Reference value of HAL version V2.0 */
+#define HAL_V2_1        3           /**< Reference value of HAL version V2.1 */
 
-#define HAL_VERSION     HAL_V2_1
+#define HAL_VERSION     HAL_V2_1    /**< Current HAL version */
 
 //I2C SLAVE ADDRESS
-#define MPU0_I2C_SLAVE_ADRESS      0x68
-#define MPU1_I2C_SLAVE_ADRESS      0x69
-#define EPS_I2C_SLAVE_ADRESS      0x13
+#define IMU0_I2C_SLAVE_ADRESS       0x68    /**< I2C SLAVE ADRESS OF IMU0 */
+#define IMU1_I2C_SLAVE_ADRESS       0x69    /**< I2C SLAVE ADRESS OF IMU1 */
+#define EPS_I2C_SLAVE_ADRESS        0x13    /**< I2C SLAVE ADRESS OF EPS INTERFACE */
 
 //USCI CONNECTED DEVICES (DRIVERLIB)
 #define IMU_BASE_ADDRESS USCI_B1_BASE
 #define EPS_BASE_ADDRESS USCI_B0_BASE
-
 
 // @ 16Mhz internal ref, 1 cycle ~= 62.5 nS
 // Delays below adjusted empiricaly based on tests/mesurements (to fix internal clock drift)
@@ -60,15 +59,21 @@
 #define     TEST_SUCESS     0x01
 #define     TEST_FAIL       0x00
 
-#define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)
-#define BIT_SET(REG, BIT)       (REG |= BIT)
-#define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)
+#define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)        /**< macro that toggles a bit in a register */
+#define BIT_SET(REG, BIT)       (REG |= BIT)        /**< macro that set a bit in a register */
+#define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)       /**< macro that clear a bit in a register */
 
-/*
- * PINOUT OBDH ENG MODEL V2
+/**
+ * \defgroup OBDH_pins
+ * \brief MCU pins description
  */
 
-/***************** SUPPLY ******************/
+/**
+ * \defgroup supply
+ * \ingroup OBDH_pins
+ * \brief supply pins of the MCU
+ * \{
+ */
 #define VCC_5V_EN_DIR P1DIR
 #define VCC_5V_EN_OUT P1OUT
 #define VCC_5V_EN_PIN BIT0
@@ -80,14 +85,25 @@
 #define AGND_DIR P5DIR
 #define AGND_SEL P5SEL
 #define AGND_PIN BIT1
+//! \} End of supply
 
-/***************** LED DEBUG ******************/
+/**
+ * \defgroup led
+ * \ingroup OBDH_pins
+ * \brief led pin of the MCU
+ * \{
+ */
 #define LED_SYSTEM_DIR P5DIR
 #define LED_SYSTEM_OUT P5OUT
 #define LED_SYSTEM_PIN BIT3
+//! \} End of led
 
-
-/***************** PAYLOADS ******************/
+/**
+ * \defgroup payloads
+ * \ingroup OBDH_pins
+ * \brief payloads enable pins
+ * \{
+ */
 #define PAYLOAD_0_EN_DIR P5DIR
 #define PAYLOAD_0_EN_OUT P5OUT
 #define PAYLOAD_0_EN_PIN BIT6
@@ -95,8 +111,14 @@
 #define PAYLOAD_1_EN_DIR P5DIR
 #define PAYLOAD_1_EN_OUT P5OUT
 #define PAYLOAD_1_EN_PIN BIT2
+//! \} End of payloads
 
-/***************** HF CRYSTAL ******************/
+/**
+ * \defgroup xt2
+ * \ingroup OBDH_pins
+ * \brief high frequency crystal pins of MCU
+ * \{
+ */
 #define XT2_N_DIR P7DIR
 #define XT2_N_SEL P7SEL
 #define XT2_N_PIN BIT2
@@ -104,15 +126,25 @@
 #define XT2_P_DIR P7DIR
 #define XT2_P_SEL P7SEL
 #define XT2_P_PIN BIT3
+//! \} End of xt2
 
-
-/***************** ANTENNA ******************/
+/**
+ * \defgroup antenna_debbug
+ * \ingroup OBDH_pins
+ * \brief antenna debbug pin
+ * \{
+ */
 #define ANTENNA_DEBUG_DIR P8DIR
 #define ANTENNA_DEBUG_OUT P8OUT
 #define ANTENNA_DEBUG_PIN BIT7
+//! \} End of antenna_debbug
 
-
-/***************** EXTERNAL WATCHDOG TIMER ******************/
+/**
+ * \defgroup watchdog
+ * \ingroup OBDH_pins
+ * \brief watchdog pins
+ * \{
+ */
 #define WDI_EXT_DIR P9DIR
 #define WDI_EXT_OUT P9OUT
 #define WDI_EXT_PIN BIT4
@@ -120,9 +152,14 @@
 #define MR_WDog_DIR P9DIR
 #define MR_WDog_OUT P9OUT
 #define MR_WDog_PIN BIT7
+//! \} End of watchdog
 
-
-/***************** ADC12 ******************/
+/**
+ * \defgroup adc
+ * \ingroup OBDH_pins
+ * \brief adc pins of MCU
+ * \{
+ */
 #define ADC_SEL     P6SEL
 
 #if HAL_VERSION == HAL_V2_0
@@ -179,8 +216,14 @@
 #define VCC_3V3_PIN BIT4
 
 #endif
+//! \} End of adc
 
-/***************** I2C ******************/
+/**
+ * \defgroup i2c
+ * \ingroup OBDH_pins
+ * \brief i2c interface pins of MCU
+ * \{
+ */
 #define I2C0_SEL P2SEL
 #define I2C0_SDA BIT1
 #define I2C0_SCL BIT2
@@ -216,8 +259,15 @@
 #define I2C2_SCL_DIR P9DIR
 #define I2C2_SCL_SEL P9SEL
 #define I2C2_SCL_PIN BIT6
+//! \} End of i2c
 
-/***************** SPI ******************/
+
+/**
+ * \defgroup spi
+ * \ingroup OBDH_pins
+ * \brief spi interface pins of MCU
+ * \{
+ */
 #define SPI1_CLK_DIR P8DIR
 #define SPI1_CLK_SEL P8SEL
 #define SPI1_CLK_PIN BIT1
@@ -245,9 +295,14 @@
 #define SPI0_CSn_DIR P2DIR
 #define SPI0_CSn_SEL P2SEL
 #define SPI0_CSn_PIN BIT3
+//! \} End of spi
 
-
-/***************** UART ******************/
+/**
+ * \defgroup uart
+ * \ingroup OBDH_pins
+ * \brief uart interface pins of MCU
+ * \{
+ */
 #define UART0_SEL P9SEL
 #define UART0_TX BIT2
 #define UART0_RX BIT3
@@ -259,9 +314,14 @@
 #define UART0_RX_DIR P9DIR
 #define UART0_RX_SEL P9SEL
 #define UART0_RX_PIN BIT3
+//! \} End of uart
 
-
-/***************** TTC ******************/
+/**
+ * \defgroup radio
+ * \ingroup OBDH_pins
+ * \brief radio interface pins
+ * \{
+ */
 #define TTC_3V3_PA_EN_DIR P1DIR
 #define TTC_3V3_PA_EN_OUT P1OUT
 #define TTC_3V3_PA_EN_PIN BIT1
@@ -298,7 +358,14 @@
 #define TTC_CTRL_RF_SWT_RX_DIR P1DIR
 #define TTC_CTRL_RF_SWT_RX_OUT P1OUT
 #define TTC_CTRL_RF_SWT_RX_PIN BIT7
+//! \} End of radio
 
+/**
+ * \defgroup mcu_beacon
+ * \ingroup OBDH_pins
+ * \brief mcu beacon interface pins
+ * \{
+ */
 #define uC_BEACON_0_DIR P5DIR
 #define uC_BEACON_0_SEL P5SEL
 #define uC_BEACON_0_PIN BIT4
@@ -314,9 +381,14 @@
 #define uC_BEACON_3_DIR P2DIR
 #define uC_BEACON_3_SEL P2SEL
 #define uC_BEACON_3_PIN BIT7
+//! \} End of mcu_beacon
 
-
-/***************** MEMORIES ******************/
+/**
+ * \defgroup memories
+ * \ingroup OBDH_pins
+ * \brief memories interface with MCU
+ * \{
+ */
 #define Mem_WP_DIR P7DIR
 #define Mem_WP_OUT P7OUT
 #define Mem_WP_PIN BIT4
@@ -336,8 +408,14 @@
 #define uSDCard_CE_DIR P4DIR
 #define uSDCard_CE_OUT P4OUT
 #define uSDCard_CE_PIN BIT6
+//! \} End of memories
 
-/***************** SENSORS_CS ******************/
+/**
+ * \defgroup solar_panel_modules
+ * \ingroup OBDH_pins
+ * \brief interface between MCU and 3 solar panel modules
+ * \{
+ */
 
 //TODO: gyro pins should be disconnected in future versions
 #if HAL_VERSION == HAL_V2_0
@@ -391,9 +469,14 @@
 #define TEMP_X_CSn_OUT P4OUT
 #define TEMP_X_CSn_PIN BIT5
 #endif
+//! \} End of solar_panel_modules
 
-
-/***************** CURRENT DRIVER ******************/
+/**
+ * \defgroup magnetorquers
+ * \ingroup OBDH_pins
+ * \brief output pins from MCU to magnetorquers
+ * \{
+ */
 #define DRIVER_CH0_CH1_SLEEP_DIR P3DIR
 #define DRIVER_CH0_CH1_SLEEP_OUT P3OUT
 #define DRIVER_CH0_CH1_SLEEP_PIN BIT0
@@ -433,7 +516,9 @@
 #define DRIVER_CH2_FAULT_DIR P9DIR
 #define DRIVER_CH2_FAULT_IN P9IN
 #define DRIVER_CH2_FAULT_PIN BIT1
+//! \} End of magnetorquers
 
+//! \} End of pins
 
 #endif /* DRIVER_HAL_OBDH_H_ */
 

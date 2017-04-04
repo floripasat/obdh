@@ -12,6 +12,11 @@
 
 #define has_flag(x,y)   (x & y)
 
+/**
+ * \defgroup flags
+ * \brief submodules flags of the data packet
+ * \{
+ */
 #define  SYSTEM_STATUS_FLAG         BIT0
 #define  IMU_FLAG                   BIT1
 #define  MSP_SENSORS_FLAG           BIT2
@@ -31,6 +36,7 @@
 
 #define  PAYLOAD1_FLAG              BITE
 #define  PAYLOAD2_FLAG              BITF
+//! \} End of flags
 
 /**
  * \struct request_packet_t
@@ -72,12 +78,25 @@ typedef struct {
 } data_packet_t;
 
 
-//UPLINK COMMANDS
-#define SEND_DATA_REQUEST           0x44
-#define SHUTDOWN_REQUEST            0x53
 
-#define OLDER_PACKAGES_ORIGIN       0
-#define NEWER_PACKAGES_ORIGIN       1
+/**
+ * \defgroup uplink_commands
+ * \brief valid commands to be sent from the earth segment
+ * \{
+ */
+#define SEND_DATA_REQUEST           0x44    /**< uplink command to request data */
+#define SHUTDOWN_REQUEST            0x53    /**< uplink command to request a 24 hours shutdown */
+//! \} End of uplink_commands
+
+
+/**
+ * \defgroup packet_origin
+ * \brief used to refers to a position in the memory where are packet to read
+ * \{
+ */
+#define OLDER_PACKAGES_ORIGIN       0   /**< refers to the older packets in the memory */
+#define NEWER_PACKAGES_ORIGIN       1   /**< refers to the newer packets in the memory */
+//! \} End of packet_origin
 
 //INTERFACES
 #define IMU1    0x01

@@ -38,7 +38,7 @@ PROJECT_NAME           = FloripaSat-OBDH
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 1.0-dev
+PROJECT_NUMBER         = 1.0
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -777,7 +777,10 @@ INPUT                  = ./firmware/src \
                          ./firmware/include \
                          ./firmware/interface \
                          ./firmware/util \
+                         ./firmware/docs \
                          ./firmware/main.c \
+                         ./firmware/README.md  \
+                         ./hardware/README.md  \
                          ./README.md
 
 # This tag can be used to specify the character encoding of the source files
@@ -804,7 +807,8 @@ INPUT_ENCODING         = UTF-8
 # *.vhd, *.vhdl, *.ucf, *.qsf, *.as and *.js.
 
 FILE_PATTERNS          = *.c \
-                         *.h
+                         *.h \
+                         *.md
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.

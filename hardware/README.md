@@ -1,6 +1,6 @@
-#FloripaSat - On Board Data Handling - Hardware
+# FloripaSat - On Board Data Handling - Hardware
 <hr>
-##Topology
+## Topology
 
   ![Topology](https://github.com/floripasat/obdh/blob/dev/hardware/img/obdh-hw-topology.png)
 
@@ -8,7 +8,7 @@
 
 <hr>
 
-##Pin Assignaments
+## Pin Assignaments
 
   ![Pin Designation](https://github.com/floripasat/obdh/blob/dev/hardware/img/msp430f6659_pins.png)
 

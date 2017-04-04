@@ -3,7 +3,7 @@
  *
  * \brief main file
  */
-#include <obdh.h>
+#include "obdh.h"
 
 int main(void) {
 
