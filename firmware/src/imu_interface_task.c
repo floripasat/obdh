@@ -13,9 +13,8 @@ void imu_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
 
     float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
-//    float gyroscope_x, gyroscope_y, gyroscope_z;
-//    float magnetometer_x, magnetometer_y, magnetometer_z;
-//    float temperature;
+    float gyroscope_x, gyroscope_y, gyroscope_z, gyroscope_absolute_module;
+    float temperature;
 
     //Set IMU pins and verify the communication
     module_test = imu_setup();
@@ -28,15 +27,19 @@ void imu_interface_task( void *pvParameters ) {
     while(1) {
         imu_read(imu_data_temp, IMU1);
 
+#ifdef _DEBUG
         accelerometer_x = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
         accelerometer_y = imu_acc_raw_to_g(imu_data_temp[2], imu_data_temp[3]);
         accelerometer_z = imu_acc_raw_to_g(imu_data_temp[4], imu_data_temp[5]);
         accelerometer_absolute = sqrtf(accelerometer_z * accelerometer_z + accelerometer_y * accelerometer_y + accelerometer_x * accelerometer_x);
 
-//        sprintf((char *)imu_data, "IMU DATA: acX: %.2fg | acY: %.2fg | acz: %.2fg", accelerometer_x, accelerometer_y, accelerometer_z);
+        temperature = imu_temp_raw_to_degrees(imu_data_temp[6], imu_data_temp[7]);
 
-//        for(int i = 0; i < sizeof(satellite_data.imu); i++)
-//            satellite_data.imu[i] = imu_data_temp[i];
+        gyroscope_x = imu_gyr_raw_to_dps(imu_data_temp[8], imu_data_temp[9]);
+        gyroscope_y = imu_gyr_raw_to_dps(imu_data_temp[10], imu_data_temp[11]);
+        gyroscope_z = imu_gyr_raw_to_dps(imu_data_temp[12], imu_data_temp[13]);
+        gyroscope_absolute_module = sqrtf(gyroscope_z * gyroscope_z + gyroscope_y * gyroscope_y + gyroscope_x * gyroscope_x);
+#endif
 
         xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
 

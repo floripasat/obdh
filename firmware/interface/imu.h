@@ -114,7 +114,9 @@
 
 
 #define IMU_ACC_RANGE   16.0
-#define IMU_GYR_RANGE   2.0
+#define IMU_GYR_RANGE   250.0
+#define IMU_TEMP_RANGE   500.0
+#define ROOM_TEMP_OFFSET 0
 
 #define IMU_NOT_WORKING     0
 #define IMU_WORKING         1
@@ -124,9 +126,9 @@
 
 void imu_read(uint8_t *pucImu1Data, uint8_t ucImuSelect);
 uint8_t imu_setup(void);
-//void imu_read(char* imuData);
 #define imu_acc_raw_to_g(H, L)(float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
-
+#define imu_gyr_raw_to_dps(H, L)(float)  (((H << 8 | L) * IMU_GYR_RANGE) / 32768.0)
+#define imu_temp_raw_to_degrees(H, L)(float) ((((H << 8 | L) - ROOM_TEMP_OFFSET) / IMU_TEMP_RANGE) + 21)
 
 
 

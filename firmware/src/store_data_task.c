@@ -15,8 +15,6 @@ void store_data_task( void *pvParameters ) {
     data_packet_t new_packet;
     last_wake_time = xTaskGetTickCount();
 
-    P7DIR |= BIT5 | BIT6 | BIT7;
-    P7OUT |= BIT5 | BIT6 | BIT7;
 
     card_size = mmc_setup();
 
