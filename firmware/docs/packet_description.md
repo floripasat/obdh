@@ -31,15 +31,16 @@ Contém um contador de resets (3 bytes) e flags que sinalizam quais submódulos 
 Inercial Measure Unit data.
 
 3-axis accelerometer - 6 bytes
-    calculo: (((HIGH_BYTE << 8 | LOW_BYTE) * IMU_ACC_RANGE) / 32768.0) , onde IMU_ACC_RANGE depende da sensibilidade configurada (2g a 16g).
+<p><strong>Cálculo:</strong>   (((HIGH_BYTE << 8 | LOW_BYTE) * IMU_ACC_RANGE) / 32768.0) , onde IMU_ACC_RANGE depende da sensibilidade configurada (2g a 16g).</p>
 
 3-axis gyroscope - 6 bytes
-    calculo: (((HIGH_BYTE << 8 | LOW_BYTE) * IMU_GYRO_RANGE) / 32768.0) , onde IMU_GYRO_RANGE depende da sensibilidade configurada (250º/s a 2000º/s).
+<p><strong>Cálculo:</strong>   (((HIGH_BYTE << 8 | LOW_BYTE) * IMU_GYRO_RANGE) / 32768.0) , onde IMU_GYRO_RANGE depende da sensibilidade configurada (250º/s a 2000º/s).</p>
 
 3-axis magnetometer - 6 bytes
 
 temperature - 2 bytes
-    calculo: (((HIGH_BYTE << 8 | LOW_BYTE) / IMU_TEMP_RANGE ) + 21), onde IMU_TEMP_RANGE = 500.
+
+<p><strong>Cálculo:</strong>   (((HIGH_BYTE << 8 | LOW_BYTE) / IMU_TEMP_RANGE ) + 21), onde IMU_TEMP_RANGE = 500.</p>
 
 
 ## MSP Sensors
@@ -49,13 +50,15 @@ temperature - 2 bytes
 ### Description
 
 MSP internal temperature sensor (2 bytes)
-    calculo: ((HIGH_BYTE << 8 | LOW_BYTE) * 2 - COEF_30C) * 55) / (COEF_85C - COEF_30C) + 30, onde COEF_XX é o coeficiente de calibraçao salvo na memoria flash do MSP.
+
+<p><strong>Cálculo:</strong>   ((HIGH_BYTE << 8 | LOW_BYTE) * 2 - COEF_30C) * 55) / (COEF_85C - COEF_30C) + 30, onde COEF_XX é o coeficiente de calibraçao salvo na memoria flash do MSP.</p>
 
 Supply voltage (2 bytes)
-    calculo:  (HIGH_BYTE << 8 | LOW_BYTE) * AVCC * VOLTAGE_DIVISOR / ADC_RANGE, onde AVCC = 3.3, VOLTAGE_DIVISOR = 2, ADC_RANGE = 3.
+
+<p><strong>Cálculo:</strong>    (HIGH_BYTE << 8 | LOW_BYTE) * AVCC * VOLTAGE_DIVISOR / ADC_RANGE, onde AVCC = 3.3, VOLTAGE_DIVISOR = 2, ADC_RANGE = 3.</p>
 
 Supply current (2 bytes)
-    calculo:  (HIGH_BYTE << 8 | LOW_BYTE) * (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE), onde AVCC = 3.3, ADC_RANGE = 3, RL_VALUE = 0.05, CURRENT_GAIN = 0.025 e RSENSE_VALUE = 20000.
+<p><strong>Cálculo:</strong>    (HIGH_BYTE << 8 | LOW_BYTE) * (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE), onde AVCC = 3.3, ADC_RANGE = 3, RL_VALUE = 0.05, CURRENT_GAIN = 0.025 e RSENSE_VALUE = 20000.</p>
 
 
 ## Systick
