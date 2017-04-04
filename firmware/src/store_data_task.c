@@ -15,6 +15,7 @@ void store_data_task( void *pvParameters ) {
     data_packet_t new_packet;
     last_wake_time = xTaskGetTickCount();
 
+
     card_size = mmc_setup();
 
     if(card_size < 128000000) { //test if memory card is working
@@ -85,34 +86,18 @@ void store_data_on_flash( data_packet_t *packet ) {
 }
 
 
-uint16_t get_packet(uint8_t* to_send_packet, request_packet_t *rqst_data_packet) {
+uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read_sector) {
     uint8_t flash_package[512];
     uint16_t package_size = 0;
-    uint32_t read_sector;
     data_packet_t *p_data_packet;
-
-    //mmcReadSector(older_package_sector, (unsigned char *) status_package);
-    if(rqst_data_packet->packages_origin == OLDER_PACKAGES_ORIGIN) {
-        read_sector =  last_read_pointer + rqst_data_packet->packages_offset;
-    }
-    else {
-        read_sector = last_write_pointer + rqst_data_packet->packages_offset;;
-    }
-
-    if(read_sector < last_read_pointer) { //TODO: incluir o caso do setor de leitura chegar a posição maxima da memoria
-        read_sector = last_read_pointer;
-    }
-    if(read_sector > last_write_pointer) {
-        read_sector = last_write_pointer;
-    }
-
+    uint16_t flags = 0x00;
 
     mmcReadSector(read_sector, (unsigned char *) flash_package);
+    update_last_read_position(read_sector);
+
     p_data_packet = (data_packet_t*)flash_package;
 
-    uint16_t flags = 0x00;
-    flags = rqst_data_packet->flags & p_data_packet->package_flags;
-
+    flags = rqst_flags & p_data_packet->package_flags;
 
     pack_module_data( 1 , 1, (uint8_t*) &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
     pack_module_data(flags, SYSTEM_STATUS_FLAG,  p_data_packet->system_status, sizeof(p_data_packet->system_status), to_send_packet, &package_size);
@@ -132,17 +117,27 @@ uint16_t get_packet(uint8_t* to_send_packet, request_packet_t *rqst_data_packet)
     pack_module_data(flags, PAYLOAD1_FLAG,  p_data_packet->payload1, sizeof(p_data_packet->payload1), to_send_packet, &package_size);
     pack_module_data(flags, PAYLOAD2_FLAG,  p_data_packet->payload2, sizeof(p_data_packet->payload2), to_send_packet, &package_size);
 
-    rqst_data_packet->packages_offset++;
-    rqst_data_packet->packages_count--;
-
     return package_size;
 }
-
+/**
+ * \fn update_last_read_position
+ * Update the last_read_pointer to a new value. Used after a read operation
+ * \param to_send_packet is a pointer to the memory position where the requested data will be write
+ * \param rqst_data_packet is a pointer to the request
+ * \return length, in bytes, of the requested submodules data
+ */
 void update_last_read_position(uint32_t new_position) {
-//    last_read_pointer = new_position;
+    if(new_position > last_read_pointer)
+        last_read_pointer = new_position;
 }
 
+uint32_t get_last_read_pointer() {
+    return last_read_pointer;
+}
 
+uint32_t get_last_write_pointer() {
+    return last_write_pointer;
+}
 
 void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size) {
     uint16_t i;

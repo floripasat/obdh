@@ -10,30 +10,13 @@
 
 #include "stdint.h"
 
-//typedef struct {
-//    unsigned system_status_flag:1;
-//    unsigned imu_flag:1;
-//    unsigned msp_sensors_flag:1;
-//    unsigned systick_flag:1;
-//    unsigned solar_panels_flag:1;
-//    unsigned rtc_flag:1;
-//    unsigned radio_flag:1;
-//
-//    unsigned adc_solar_panels_flag:1;
-//    unsigned msp430_adc_flag:1;
-//    unsigned battery_monitor_flag:1;
-//    unsigned ads1248_flag:1;
-//    unsigned task_scheduler_flag:1;
-//
-//    unsigned beacon_flag:1;
-//    unsigned transceiver_flag:1;
-//
-//    unsigned payload1_flag:1;
-//    unsigned payload2_flag:1;
-//} module_flags_t;
-
 #define has_flag(x,y)   (x & y)
 
+/**
+ * \defgroup flags
+ * \brief submodules flags of the data packet
+ * \{
+ */
 #define  SYSTEM_STATUS_FLAG         BIT0
 #define  IMU_FLAG                   BIT1
 #define  MSP_SENSORS_FLAG           BIT2
@@ -53,14 +36,19 @@
 
 #define  PAYLOAD1_FLAG              BITE
 #define  PAYLOAD2_FLAG              BITF
+//! \} End of flags
 
-
+/**
+ * \struct request_packet_t
+ *
+ * \brief The struct to decode a request command
+ */
 typedef struct {
-    uint8_t request_action;
-    uint16_t flags;
-    uint8_t packages_count;
-    uint8_t packages_origin;
-    int32_t packages_offset;
+    uint8_t request_action; /**< the action (send data, shutdown..) */
+    uint16_t flags;         /**< modules flags to request just the wanted data*/
+    uint8_t packages_count; /**< number of packages to read, from offset */
+    uint8_t packages_origin;/**< position used as reference for the offset */
+    int32_t packages_offset;/**< number of packages to offset from origin */
 } request_packet_t;
 
 
@@ -90,12 +78,25 @@ typedef struct {
 } data_packet_t;
 
 
-//UPLINK COMMANDS
-#define SEND_DATA_REQUEST           0x44
-#define SHUTDOWN_REQUEST            0x53
 
-#define OLDER_PACKAGES_ORIGIN       0
-#define NEWER_PACKAGES_ORIGIN       1
+/**
+ * \defgroup uplink_commands
+ * \brief valid commands to be sent from the earth segment
+ * \{
+ */
+#define SEND_DATA_REQUEST           0x44    /**< uplink command to request data */
+#define SHUTDOWN_REQUEST            0x53    /**< uplink command to request a 24 hours shutdown */
+//! \} End of uplink_commands
+
+
+/**
+ * \defgroup packet_origin
+ * \brief used to refers to a position in the memory where are packet to read
+ * \{
+ */
+#define OLDER_PACKAGES_ORIGIN       0   /**< refers to the older packets in the memory */
+#define NEWER_PACKAGES_ORIGIN       1   /**< refers to the newer packets in the memory */
+//! \} End of packet_origin
 
 //INTERFACES
 #define IMU1    0x01
