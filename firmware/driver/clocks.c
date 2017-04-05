@@ -15,10 +15,25 @@ volatile uint16_t status;
 uint8_t clocks_setup(void){
     uint8_t test_flag;
     //TODO: Verify if it's necessary to set the Vcore
+    setup_dco();
     setup_xt1_xt2();
-    test_flag = test_fault_flags();
     setup_clks();
+    test_flag = test_fault_flags();
+
     return test_flag;
+}
+
+void setup_dco(){
+
+    __bis_SR_register(SCG0);                  // Disable the FLL control loop
+    UCSCTL0 = 0x0000;                         // Set lowest possible DCOx, MODx
+    UCSCTL1 = DCORSEL_6;                      // Select DCO range 32MHz operation
+    UCSCTL2 = FLLD_0 + 975;                   // Set DCO Multiplier for 32MHz
+                                              // (N + 1) * FLLRef = Fdco
+                                              // (975 + 1) * 32768 = 32MHz
+                                              // Set FLL Div = fDCOCLK/(1+0)
+    UCSCTL3 = SELREF__REFOCLK | FLLREFDIV_0;
+    __bic_SR_register(SCG0);                  // Enable the FLL control loop
 }
 
 void setup_xt1_xt2(void){
@@ -39,8 +54,9 @@ void setup_clks(void){
 //    P3DIR |= BIT4;    // SMCLK set out to pin
 //    P3SEL |= BIT4;
 
+
     UCSCTL5 |= DIVA__1 + DIVM__2 + DIVS__2;
-    UCSCTL4 |= SELA_0 + SELS_5 + SELM_5;        // SMCLK = MCLK = XT2 , ACLK = XT1
+    UCSCTL4 |= SELA__XT1CLK + SELS__XT2CLK + SELM__XT2CLK;        // SMCLK = MCLK = XT2 , ACLK = XT1
 }
 
 uint8_t test_fault_flags(void){

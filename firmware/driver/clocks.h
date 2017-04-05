@@ -21,9 +21,6 @@
 
 //todo separate into one function to each clk
 uint8_t clocks_setup(void);
-void set_vcore_up (unsigned int level);
-void setup_xt1_xt2(void);
-uint8_t test_fault_flags(void);
-void setup_clks(void);
+
 
 #endif /* DRIVER_CLOCKS_H_ */
