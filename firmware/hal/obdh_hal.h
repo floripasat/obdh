@@ -26,6 +26,17 @@
 #define IMU_BASE_ADDRESS USCI_B1_BASE
 #define EPS_BASE_ADDRESS USCI_B0_BASE
 
+
+//PMM
+#define OBDH_V_CORE     3           /**< Level of core's voltage */
+#define PMM_STATUS_OK     0
+#define PMM_STATUS_ERROR  1
+#define _HAL_PMM_SVMLE  (SVMLE)
+#define _HAL_PMM_SVSLE  (SVSLE)
+#define _HAL_PMM_SVSFP  (SVSLFP)
+#define _HAL_PMM_SVMFP  (SVMLFP)
+
+
 // @ 16Mhz internal ref, 1 cycle ~= 62.5 nS
 // Delays below adjusted empiricaly based on tests/mesurements (to fix internal clock drift)
 #define DELAY_100_uS_IN_CYCLES        1540
