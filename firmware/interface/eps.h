@@ -11,7 +11,7 @@
 #include "../driver/i2c.h"
 #include "../include/floripasat_def.h"
 
-#define EPS_REQUEST_DATA_CMD   0x54      //an arbitrary value was choosen
+#define EPS_REQUEST_DATA_CMD   0x0F      //an arbitrary value was choosen
 
 
 /* EPS FRAME */

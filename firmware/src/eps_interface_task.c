@@ -1,5 +1,5 @@
 /*
- * epsInterface_task.c
+ * eps_interface_task.c
  *
  *  Created on: 18 de out de 2016
  *      Author: elder

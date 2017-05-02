@@ -18,13 +18,25 @@
 #define HAL_VERSION     HAL_V2_1    /**< Current HAL version */
 
 //I2C SLAVE ADDRESS
-#define IMU0_I2C_SLAVE_ADRESS       0x68    /**< I2C SLAVE ADRESS OF IMU0 */
-#define IMU1_I2C_SLAVE_ADRESS       0x69    /**< I2C SLAVE ADRESS OF IMU1 */
-#define EPS_I2C_SLAVE_ADRESS        0x13    /**< I2C SLAVE ADRESS OF EPS INTERFACE */
+#define IMU0_I2C_SLAVE_ADRESS               0x68    /**< I2C SLAVE ADRESS OF IMU0 */
+#define IMU1_I2C_SLAVE_ADRESS               0x69    /**< I2C SLAVE ADRESS OF IMU1 */
+#define EPS_I2C_SLAVE_ADRESS                0x48    /**< I2C SLAVE ADRESS OF EPS INTERFACE */
+#define ANTENNA_SYSTEM_I2C_SLAVE_ADDRESS    0x12   //TODO: FIX THE ADDRESS
 
 //USCI CONNECTED DEVICES (DRIVERLIB)
 #define IMU_BASE_ADDRESS USCI_B1_BASE
 #define EPS_BASE_ADDRESS USCI_B0_BASE
+
+
+//PMM
+#define OBDH_V_CORE     3           /**< Level of core's voltage */
+#define PMM_STATUS_OK     0
+#define PMM_STATUS_ERROR  1
+#define _HAL_PMM_SVMLE  (SVMLE)
+#define _HAL_PMM_SVSLE  (SVSLE)
+#define _HAL_PMM_SVSFP  (SVSLFP)
+#define _HAL_PMM_SVMFP  (SVMLFP)
+
 
 // @ 16Mhz internal ref, 1 cycle ~= 62.5 nS
 // Delays below adjusted empiricaly based on tests/mesurements (to fix internal clock drift)

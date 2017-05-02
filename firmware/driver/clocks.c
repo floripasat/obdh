@@ -12,16 +12,7 @@
 
 volatile uint16_t status;
 
-uint8_t clocks_setup(void){
-    uint8_t test_flag;
-    //TODO: Verify if it's necessary to set the Vcore
-    setup_dco();
-    setup_xt1_xt2();
-    setup_clks();
-    test_flag = test_fault_flags();
 
-    return test_flag;
-}
 
 void setup_dco(){
 
@@ -54,7 +45,6 @@ void setup_clks(void){
 //    P3DIR |= BIT4;    // SMCLK set out to pin
 //    P3SEL |= BIT4;
 
-
     UCSCTL5 |= DIVA__1 + DIVM__2 + DIVS__2;
     UCSCTL4 |= SELA__XT1CLK + SELS__XT2CLK + SELM__XT2CLK;        // SMCLK = MCLK = XT2 , ACLK = XT1
 }
@@ -77,4 +67,98 @@ uint8_t test_fault_flags(void){
         result = TEST_FAIL;
     }
     return result;
+}
+
+
+uint16_t set_v_core_up (uint8_t level)
+  {
+    uint16_t PMMRIE_backup,SVSMHCTL_backup;
+
+    // Open PMM registers for write access
+    PMMCTL0_H = 0xA5;
+
+    // Disable dedicated Interrupts to prevent that needed flags will be cleared
+    PMMRIE_backup = PMMRIE;
+    PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE);
+    SVSMHCTL_backup = SVSMHCTL;
+    PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG);
+    // Set SVM highside to new level and check if a VCore increase is possible
+    SVSMHCTL = SVMHE | SVSHE | (SVSMHRRL0 * level);
+    // Wait until SVM highside is settled
+    while ((PMMIFG & SVSMHDLYIFG) == 0);
+    // Check if a VCore increase is possible
+    if ((PMMIFG & SVMHIFG) == SVMHIFG){       //-> Vcc is to low for a Vcore increase
+      // recover the previous settings
+      PMMIFG &= ~SVSMHDLYIFG;
+      SVSMHCTL = SVSMHCTL_backup;
+      // Wait until SVM highside is settled
+      while ((PMMIFG & SVSMHDLYIFG) == 0);
+      // Clear all Flags
+      PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
+      // backup PMM-Interrupt-Register
+      PMMRIE = PMMRIE_backup;
+
+      // Lock PMM registers for write access
+      PMMCTL0_H = 0x00;
+      return PMM_STATUS_ERROR;            // return: voltage not set
+    }
+    // Set also SVS highside to new level       //-> Vcc is high enough for a Vcore increase
+    SVSMHCTL |= (SVSHRVL0 * level);
+    // Set SVM low side to new level
+    SVSMLCTL = SVMLE | (SVSMLRRL0 * level);
+    // Wait until SVM low side is settled
+    while ((PMMIFG & SVSMLDLYIFG) == 0);
+    // Clear already set flags
+    PMMIFG &= ~(SVMLVLRIFG | SVMLIFG);
+    // Set VCore to new level
+    PMMCTL0_L = PMMCOREV0 * level;
+    // Wait until new level reached
+    if (PMMIFG & SVMLIFG)
+      while ((PMMIFG & SVMLVLRIFG) == 0);
+    // Set also SVS/SVM low side to new level
+    PMMIFG &= ~SVSMLDLYIFG;
+    SVSMLCTL |= SVSLE | (SVSLRVL0 * level);
+    // wait for lowside delay flags
+    while ((PMMIFG & SVSMLDLYIFG) == 0);
+
+    // Disable SVS/SVM Low
+    // Disable full-performance mode to save energy
+    SVSMLCTL &= ~(_HAL_PMM_SVSLE + _HAL_PMM_SVMLE + _HAL_PMM_SVSFP + _HAL_PMM_SVMFP);
+    SVSMHCTL &= ~(_HAL_PMM_SVSFP + _HAL_PMM_SVMFP);
+
+    // Clear all Flags
+    PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
+    // backup PMM-Interrupt-Register
+    PMMRIE = PMMRIE_backup;
+
+    // Lock PMM registers for write access
+    PMMCTL0_H = 0x00;
+    return PMM_STATUS_OK;                               // return: OK
+  }
+
+uint16_t set_v_core (uint8_t level)
+{
+  uint16_t actlevel;
+  uint16_t status = 0;
+  level &= PMMCOREV_3;                       // Set Mask for Max. level
+  actlevel = (PMMCTL0 & PMMCOREV_3);         // Get actual VCore
+
+  while (((level != actlevel) && (status == 0)) || (level < actlevel))      // step by step increase or decrease
+  {
+    if (level > actlevel)
+      status = set_v_core_up(++actlevel);
+  }
+  return status;
+}
+
+uint8_t clocks_setup(void){
+    uint8_t test_flag;
+    //TODO: Verify if it's necessary to set the Vcore
+//    set_v_core(OBDH_V_CORE);
+    setup_dco();
+    setup_xt1_xt2();
+    setup_clks();
+    test_flag = test_fault_flags();
+
+    return test_flag;
 }

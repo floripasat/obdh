@@ -13,8 +13,9 @@
 #include "task.h"
 #include "queue.h"
 #include "task_queues.h"
+#ifdef _DEBUG
 #include "math.h"
-
+#endif
 
 #define IMU_INTERFACE_TASK_PRIORITY          5          /**< IMU task priority */
 #define IMU_INTERFACE_TASK_PERIOD_MS         1000       /**< IMU task period in miliseconds */
