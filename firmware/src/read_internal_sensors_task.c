@@ -12,7 +12,9 @@
 void read_internal_sensors_task( void *pvParameters ) {
     TickType_t last_wake_time;
     uint16_t temperature_raw, voltage_raw, current_raw;
+#ifdef _DEBUG
     float temperature, voltage, current;
+#endif
     uint8_t internal_sensors_data[6];
 
     last_wake_time = xTaskGetTickCount();
@@ -23,15 +25,17 @@ void read_internal_sensors_task( void *pvParameters ) {
     {
         /* read internal temperature */
         temperature_raw = obdh_temperature_read();
-        temperature = obdh_temperature_convert(temperature_raw);
 
         /* read supply voltage */
         voltage_raw = obdh_voltage_read();
-        voltage = obdh_voltage_convert(voltage_raw);
 
         /* read supply current */
         current_raw = obdh_current_read();
+#ifdef _DEBUG
+        voltage = obdh_voltage_convert(voltage_raw);
+        temperature = obdh_temperature_convert(temperature_raw);
         current = obdh_current_convert(current_raw);
+#endif
 
         internal_sensors_data[0] = temperature_raw>>8 & 0xFF;
         internal_sensors_data[1] = temperature_raw & 0xFF;

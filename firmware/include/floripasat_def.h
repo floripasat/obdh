@@ -106,7 +106,7 @@ typedef struct {
 #define SD      0x05
 
 
-#define _DEBUG_AS_LINK 0
+#define _DEBUG_AS_LINK 1
 
 
 

@@ -12,17 +12,7 @@
 
 volatile uint16_t status;
 
-uint8_t clocks_setup(void){
-    uint8_t test_flag;
-    //TODO: Verify if it's necessary to set the Vcore
-//    set_v_core(OBDH_V_CORE);
-    setup_dco();
-    setup_xt1_xt2();
-    setup_clks();
-    test_flag = test_fault_flags();
 
-    return test_flag;
-}
 
 void setup_dco(){
 
@@ -159,4 +149,16 @@ uint16_t set_v_core (uint8_t level)
       status = set_v_core_up(++actlevel);
   }
   return status;
+}
+
+uint8_t clocks_setup(void){
+    uint8_t test_flag;
+    //TODO: Verify if it's necessary to set the Vcore
+//    set_v_core(OBDH_V_CORE);
+    setup_dco();
+    setup_xt1_xt2();
+    setup_clks();
+    test_flag = test_fault_flags();
+
+    return test_flag;
 }

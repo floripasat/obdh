@@ -10,6 +10,7 @@
 #define LINK_H_
 
 #include "../include/floripasat_def.h"
+#include "../src/store_data_task.h"
 /**
  * \fn decode
  * \brief This function translates a raw command data into a request packet structure

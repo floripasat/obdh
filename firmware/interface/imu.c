@@ -52,19 +52,19 @@ uint8_t imu_setup(void){
 
 void imu_read(uint8_t *p_imu_data, uint8_t imu_select)
 {
-    volatile uint8_t ucSlaveAddress = 0x00;
+    volatile uint8_t imu_slave_address = 0x00;
 
     switch(imu_select)
     {
         case IMU1:
-            ucSlaveAddress = IMU0_I2C_SLAVE_ADRESS;
+            imu_slave_address = IMU0_I2C_SLAVE_ADRESS;
             break;
         case IMU2:
-            ucSlaveAddress = IMU1_I2C_SLAVE_ADRESS;
+            imu_slave_address = IMU1_I2C_SLAVE_ADRESS;
             break;
     }
 
-//    vI2cSetSlave( IMU_BASE_ADDRESS, ucSlaveAddress);
+    i2c_set_slave(IMU_BASE_ADDRESS, imu_slave_address);
     i2c_set_mode(IMU_BASE_ADDRESS, TRANSMIT_MODE);
     i2c_send(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, NO_STOP);
     i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);

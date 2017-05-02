@@ -85,6 +85,17 @@ void store_data_on_flash( data_packet_t *packet ) {
 //    mmcWriteSector(0, (unsigned char *) status_packet);
 }
 
+/**
+ * \fn update_last_read_position
+ * Update the last_read_pointer to a new value. Used after a read operation
+ * \param to_send_packet is a pointer to the memory position where the requested data will be write
+ * \param rqst_data_packet is a pointer to the request
+ * \return length, in bytes, of the requested submodules data
+ */
+void update_last_read_position(uint32_t new_position) {
+    if(new_position > last_read_pointer)
+        last_read_pointer = new_position;
+}
 
 uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read_sector) {
     uint8_t flash_package[512];
@@ -119,17 +130,7 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
 
     return package_size;
 }
-/**
- * \fn update_last_read_position
- * Update the last_read_pointer to a new value. Used after a read operation
- * \param to_send_packet is a pointer to the memory position where the requested data will be write
- * \param rqst_data_packet is a pointer to the request
- * \return length, in bytes, of the requested submodules data
- */
-void update_last_read_position(uint32_t new_position) {
-    if(new_position > last_read_pointer)
-        last_read_pointer = new_position;
-}
+
 
 uint32_t get_last_read_pointer() {
     return last_read_pointer;

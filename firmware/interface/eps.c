@@ -16,7 +16,7 @@ void eps_read(eps_package_t *package) {
 //     Clear frame memory space
     uint8_t *data = (uint8_t *)package;
 
-    i2c_send(EPS_BASE_ADDRESS, EPS_REQUEST_DATA_CMD, START_STOP);
+    i2c_send(EPS_BASE_ADDRESS, EPS_REQUEST_DATA_CMD, NO_STOP);
 
     data[0] = i2c_receive(EPS_BASE_ADDRESS, NO_STOP);
 
