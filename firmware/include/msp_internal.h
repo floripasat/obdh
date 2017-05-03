@@ -52,6 +52,5 @@ uint16_t obdh_current_read(void);
 float obdh_current_convert(uint16_t curr_raw);
 uint16_t obdh_voltage_read(void);
 float obdh_voltage_convert(uint16_t volt_raw);
-void obdh_setup(void);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */

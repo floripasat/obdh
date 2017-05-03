@@ -50,23 +50,4 @@ uint16_t obdh_voltage_read(void){
     return volt_raw;
 }
 
-void obdh_setup(void){
-
-
-
-    //CURRENT SENSING SETUP
-
-
-////	Internal temperature reading setup
-//	  REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
-//	                                            // ADC12_A ref control registers
-//	  ADC12CTL0 = ADC12SHT0_8 | ADC12REFON | ADC12ON;
-//	                                            // Internal ref = 1.5V
-//	  ADC12CTL1 = ADC12SHP;                     // enable sample timer
-//	  ADC12MCTL0 = ADC12SREF_1 | ADC12INCH_10;  // ADC i/p ch A10 = temp sense i/p
-//	  __delay_cycles(DELAY_1_MS_IN_CYCLES);   // Allow ~100us (at default UCS settings)
-//	                                            // for REF to settle
-//	  ADC12CTL0 |= ADC12ENC;
-}
-
 
