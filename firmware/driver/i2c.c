@@ -5,6 +5,20 @@
 #include "i2c.h"
 
 
+void port_mapping_ucb0(void) {
+    // Enable Write-access to modify port mapping registers
+    PMAPPWD = 0x02D52;
+
+    // Allow reconfiguration during runtime
+    PMAPCTL = PMAPRECFG;
+
+    P2MAP1 = PM_UCB0SDA;
+    P2MAP2 = PM_UCB0SCL;
+
+    // Disable Write-Access to modify port mapping registers
+    PMAPPWD = 0;
+}
+
 void i2c_setup(uint8_t interface) {
     switch(interface)
     {
@@ -118,26 +132,3 @@ void i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes
 //        HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCRXIFG);            //UCRXIFG is automatically reset when UCxRXBUF is read.
     }
 }
-
-void port_mapping_ucb0(void) {
-	// Disable Interrupts before altering Port Mapping registers
-//	__disable_interrupt();
-	// Enable Write-access to modify port mapping registers
-	PMAPPWD = 0x02D52;
-
-//#ifdef PORT_MAP_RECFG
-	// Allow reconfiguration during runtime
-	PMAPCTL = PMAPRECFG;
-//#endif
-
-	P2MAP1 = PM_UCB0SDA;
-	P2MAP2 = PM_UCB0SCL;
-
-	// Disable Write-Access to modify port mapping registers
-	PMAPPWD = 0;
-//#ifdef PORT_MAP_EINT
-//	__enable_interrupt();                     // Re-enable all interrupts
-//#endif
-}
-
-

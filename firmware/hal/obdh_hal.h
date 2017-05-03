@@ -24,18 +24,24 @@
 #define ANTENNA_SYSTEM_I2C_SLAVE_ADDRESS    0x12   //TODO: FIX THE ADDRESS
 
 //USCI CONNECTED DEVICES (DRIVERLIB)
-#define IMU_BASE_ADDRESS USCI_B1_BASE
-#define EPS_BASE_ADDRESS USCI_B0_BASE
+#define EPS_BASE_ADDRESS            USCI_B0_BASE
+#define IMU_BASE_ADDRESS            USCI_B1_BASE
+#define ANTENNA_BASE_ADDRESS        USCI_B2_BASE
+
+#define RADIO_BASE_ADDRESS          USCI_A0_BASE
+#define NV_MEM_BASE_ADDRESS         USCI_A1_BASE
+#define SOLAR_PANEL_BASE_ADDRESS    USCI_A1_BASE
+
 
 
 //PMM
-#define OBDH_V_CORE     3           /**< Level of core's voltage */
-#define PMM_STATUS_OK     0
-#define PMM_STATUS_ERROR  1
-#define _HAL_PMM_SVMLE  (SVMLE)
-#define _HAL_PMM_SVSLE  (SVSLE)
-#define _HAL_PMM_SVSFP  (SVSLFP)
-#define _HAL_PMM_SVMFP  (SVMLFP)
+#define OBDH_V_CORE         3           /**< Level of core's voltage */
+#define PMM_STATUS_OK       0
+#define PMM_STATUS_ERROR    1
+#define _HAL_PMM_SVMLE      (SVMLE)
+#define _HAL_PMM_SVSLE      (SVSLE)
+#define _HAL_PMM_SVSFP      (SVSLFP)
+#define _HAL_PMM_SVMFP      (SVMLFP)
 
 
 // @ 16Mhz internal ref, 1 cycle ~= 62.5 nS
@@ -280,6 +286,9 @@
  * \brief spi interface pins of MCU
  * \{
  */
+#define SPI0_SEL P2SEL
+#define SPI1_SEL P8SEL
+
 #define SPI1_CLK_DIR P8DIR
 #define SPI1_CLK_SEL P8SEL
 #define SPI1_CLK_PIN BIT1

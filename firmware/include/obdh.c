@@ -54,7 +54,8 @@ void setup_hardware( void ) {
     debug(I2C_INFO_MSG);
 
     /*  SETUP SPI */
-
+    spi_setup(0);
+    spi_setup(1);
 
 
     /*  SETUP ADC */

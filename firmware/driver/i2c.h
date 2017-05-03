@@ -14,13 +14,6 @@
 
 #define I2C_TIMEOUT                     10000
 
-/**
- * \fn port_mapping_ucb0
- *
- * \brief map the i2c (UCB0) pins of the PORT 2
- * \return None
- */
-void port_mapping_ucb0(void);
 
 /**
  * \fn i2c_setup
