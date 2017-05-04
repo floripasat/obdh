@@ -21,6 +21,8 @@ void eps_interface_task( void *pvParameters )
 
         eps_read(&eps_package);
 
+        xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);
+
         vTaskDelayUntil( (TickType_t *) &last_wake_time, EPS_INTERFACE_TASK_PERIOD_TICKS );
     }
 

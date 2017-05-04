@@ -53,6 +53,15 @@ data_packet_t read_and_pack_data( void ) {
         packet.package_flags |= MSP_SENSORS_FLAG;
     }
 
+
+    if(xQueueReceive(eps_queue, (void *) packet.adc_solar_panels, EPS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= ADC_SOLAR_PANELS_FLAG;
+        packet.package_flags |= MSP430_ADC_FLAG;
+        packet.package_flags |= BATTERY_MONITOR_FLAG;
+        packet.package_flags |= ADS1248_FLAG;
+        packet.package_flags |= TASK_SCHEDULER_FLAG;
+    }
+
     uint32_t systick = xTaskGetTickCount();
     packet.systick[0] = systick & 0xFF;
     packet.systick[1] = systick>>8 & 0xFF;

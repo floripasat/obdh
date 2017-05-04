@@ -52,7 +52,7 @@ void housekeeping_task( void *pvParameters ) {
 
         /* Read fault flags
          * Read reset counter
-         * Receive module status (read a global variable)
+         * Receive modules status (read a global variable)
          * */
 
 
