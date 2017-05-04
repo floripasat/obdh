@@ -242,14 +242,23 @@
  * \brief i2c interface pins of MCU
  * \{
  */
+#define I2C0_DIR P2DIR
+#define I2C0_REN P2REN
+#define I2C0_OUT P2OUT
 #define I2C0_SEL P2SEL
 #define I2C0_SDA BIT1
 #define I2C0_SCL BIT2
 
+#define I2C1_DIR P8DIR
+#define I2C1_REN P8REN
+#define I2C1_OUT P8OUT
 #define I2C1_SEL P8SEL
 #define I2C1_SDA BIT5
 #define I2C1_SCL BIT6
 
+#define I2C2_DIR P9DIR
+#define I2C2_REN P9REN
+#define I2C2_OUT P9OUT
 #define I2C2_SEL P9SEL
 #define I2C2_SDA BIT5
 #define I2C2_SCL BIT6

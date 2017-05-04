@@ -19,10 +19,24 @@ void port_mapping_ucb0(void) {
     PMAPPWD = 0;
 }
 
+void i2c_pin_reset(volatile unsigned char* PREN, volatile unsigned char* PDIR, volatile unsigned char* POUT, uint8_t PIN) {
+    uint8_t i;
+    BIT_CLEAR(*PREN, PIN);           //disable internal pull-up/down resistor
+    BIT_CLEAR(*POUT, PIN);           //output in low level
+    BIT_SET(*PDIR, PIN);             //set the pin as output pin
+
+    for(i = 0; i < 20; i++) {
+        BIT_TOGGLE(*PDIR, PIN);          //toggle the pin between input(high->external pull-up) / output(low)
+        __no_operation();
+    }
+
+    BIT_CLEAR(*PDIR, PIN);           //set the pin as input pin (high impedance, external pull-up)
+}
+
 void i2c_setup(uint8_t interface) {
-    switch(interface)
-    {
+    switch(interface) {
     case 0:
+        i2c_pin_reset(&I2C0_REN, &I2C0_DIR, &I2C0_OUT, I2C0_SCL);
         BIT_SET(I2C0_SEL, I2C0_SDA | I2C0_SCL);
         i2c_set_clock(USCI_B0_BASE);
         i2c_set_slave(USCI_B0_BASE, EPS_I2C_SLAVE_ADRESS);
@@ -30,12 +44,14 @@ void i2c_setup(uint8_t interface) {
         i2c_set_mode(USCI_B2_BASE, TRANSMIT_MODE);
         break;
     case 1:
+        i2c_pin_reset(&I2C1_REN, &I2C1_DIR, &I2C1_OUT, I2C1_SCL);
         BIT_SET(I2C1_SEL, I2C1_SDA | I2C1_SCL);
         i2c_set_clock(USCI_B1_BASE);
         i2c_set_slave(USCI_B1_BASE, IMU0_I2C_SLAVE_ADRESS);
         i2c_set_mode(USCI_B2_BASE, TRANSMIT_MODE);
         break;
     case 2:
+        i2c_pin_reset(&I2C2_REN, &I2C2_DIR, &I2C2_OUT, I2C2_SCL);
         BIT_SET(I2C2_SEL, I2C2_SDA | I2C2_SCL);
         i2c_set_clock(USCI_B2_BASE);
         i2c_set_slave(USCI_B2_BASE, ANTENNA_SYSTEM_I2C_SLAVE_ADDRESS);
