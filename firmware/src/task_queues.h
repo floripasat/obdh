@@ -15,9 +15,13 @@
 #define     IMU_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
 #define     INTERNAL_SENSORS_QUEUE_WAIT_TIME        (100 / portTICK_PERIOD_MS)
 #define     EPS_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
+#define     SYSTEM_STATUS_QUEUE_WAIT_TIME          (100 / portTICK_PERIOD_MS)
 
 
-volatile xQueueHandle imu_queue, internal_sensors_queue, eps_queue;
+volatile xQueueHandle imu_queue;
+volatile xQueueHandle internal_sensors_queue;
+volatile xQueueHandle eps_queue;
+volatile xQueueHandle system_status_queue;
 
 
 #endif /* SRC_TASK_QUEUES_H_ */

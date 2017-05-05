@@ -50,4 +50,8 @@ uint16_t obdh_voltage_read(void){
     return volt_raw;
 }
 
+uint8_t read_fault_flags(void){
+    return (UCSCTL7 & 0x0F); //XT2OFFG | XT1HFOFFG | XT1LFOFFG | DCOFFG
+}
+
 

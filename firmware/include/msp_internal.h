@@ -43,14 +43,63 @@ unsigned int obdhTemperatureBuffer;
 volatile float temperatureDegC;
 volatile float temperatureDegF;
 
-char* obdh_data2string(char* stringBuffer, char* obdhData);
+/**
+ * \fn obdh_temperature_convert(uint16_t temp_raw)
+ * That function converts the 12-bits temperature into a single precision
+ * float value, in degree Celsius.
+ * \param temperature_raw is the adc12 output value of temperature sensor
+ * \return float temperature value, in degree Celsius
+ */
+float obdh_temperature_convert(uint16_t temperature_raw);
 
-//void obdh_read(char* obdhData);
-float obdh_temperature_convert(uint16_t usTempRaw);
+/**
+ * \fn obdh_temperature_read(void)
+ * Read the internal temperature sensor of MSP, over ADC12.
+ * \param None
+ * \return temperature value, 12-bit formated, right-justified
+ */
 uint16_t obdh_temperature_read(void);
+
+/**
+ * \fn obdh_current_read(void)
+ * Read the current sensing circuit, over ADC12.
+ * \param None
+ * \return current value, 12-bit formated, right-justified
+ */
 uint16_t obdh_current_read(void);
+
+/**
+ * \fn obdh_current_convert(uint16_t curr_raw)
+ * That function converts the 12-bits current into a single precision
+ * float value, in Amperes.
+ * \param curr_raw is the adc12 output value of the current sensing circuit
+ * \return float current value, in Amperes
+ */
 float obdh_current_convert(uint16_t curr_raw);
+
+/**
+ * \fn obdh_voltage_read(void)
+ * Read the supply voltage sensing circuit, over ADC12.
+ * \param None
+ * \return voltage value, 12-bit formated, right-justified
+ */
 uint16_t obdh_voltage_read(void);
+
+/**
+ * \fn obdh_voltage_convert(uint16_t volt_raw)
+ * That function converts the 12-bits voltage into a single precision
+ * float value, in Volts.
+ * \param volt_raw is the adc12 output value of the voltage sensing circuit
+ * \return float voltage value, in Volts
+ */
 float obdh_voltage_convert(uint16_t volt_raw);
+
+/**
+ * \fn read_fault_flags(void)
+ * Read the oscillators fault flags
+ * \param None
+ * \return A byte with 4 lsb refers to XT2, XT1HF, XT1LF and DCO fault flags
+ */
+uint8_t read_fault_flags(void);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */

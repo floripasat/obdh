@@ -15,6 +15,7 @@ void housekeeping_task( void *pvParameters ) {
     float temperature, voltage, current;
 #endif
     uint8_t internal_sensors_data[6];
+    uint8_t system_status[5];
 
     last_wake_time = xTaskGetTickCount();
 
@@ -50,11 +51,13 @@ void housekeeping_task( void *pvParameters ) {
         satellite_data.msp_sensors[5] = internal_sensors_data[5];
 #endif
 
-        /* Read fault flags
-         * Read reset counter
+        /* Read reset counter
+         * Read fault flags
          * Receive modules status (read a global variable)
          * */
+        system_status[3] = read_fault_flags();
 
+        xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
 
         xQueueSendToBack(internal_sensors_queue, (void *)internal_sensors_data, portMAX_DELAY);
         vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
