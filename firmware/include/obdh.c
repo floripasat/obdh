@@ -70,6 +70,8 @@ void setup_hardware( void ) {
     //TODO: set the configuration of every pins.
     BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
 
+    update_reset_value();
+
     debug("\n --- Boot completed ---\n");
 }
 

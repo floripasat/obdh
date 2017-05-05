@@ -13,9 +13,11 @@
 
 #include "../hal/obdh_hal.h"
 #include "../driver/adc.h"
+#include "../driver/flash.h"
 #include "floripasat_def.h"
 #include "stdint.h"
 
+#define RESET_ADDR_FLASH    SEGA_ADDR
 
 //Current sensing circuit definitions
 #if HAL_VERSION == HAL_V2_0
@@ -101,5 +103,22 @@ float obdh_voltage_convert(uint16_t volt_raw);
  * \return A byte with 4 lsb refers to XT2, XT1HF, XT1LF and DCO fault flags
  */
 uint8_t read_fault_flags(void);
+
+/**
+ * \fn read_reset_value(void)
+ * Read the reset counter and cause from the MSP flash memory (segment A)
+ * \param None
+ * \return A 3-bytes reset counter (LSB,2SB,3SB) and a 1 byte reset cause(MSB)
+ */
+uint32_t read_reset_value(void);
+
+/**
+ * \fn update_reset_value(void)
+ * Read the previous reset counter, increment it, read the last reset cause
+ * and write the both in the flash memory
+ * \param None
+ * \return None
+ */
+void update_reset_value(void);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */

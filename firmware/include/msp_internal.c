@@ -54,4 +54,22 @@ uint8_t read_fault_flags(void){
     return (UCSCTL7 & 0x0F); //XT2OFFG | XT1HFOFFG | XT1LFOFFG | DCOFFG
 }
 
+uint32_t read_reset_value(void) {
+    return flash_read_long(RESET_ADDR_FLASH);
+}
+
+uint8_t read_reset_cause(void){
+    return (SYSRSTIV & 0xFF);
+}
+
+void update_reset_value(void){
+    uint32_t previous_value;
+    uint32_t new_value;
+
+    previous_value = read_reset_value() & 0xFFFFFF;
+    new_value = ((uint32_t)read_reset_cause())<<24 | ((previous_value + 1) & 0xFFFFFF);
+    flash_erase(RESET_ADDR_FLASH);
+    flash_write_long(new_value, RESET_ADDR_FLASH);
+}
+
 

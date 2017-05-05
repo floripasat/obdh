@@ -16,6 +16,7 @@ void housekeeping_task( void *pvParameters ) {
 #endif
     uint8_t internal_sensors_data[6];
     uint8_t system_status[5];
+    uint32_t reset_value;
 
     last_wake_time = xTaskGetTickCount();
 
@@ -55,7 +56,13 @@ void housekeeping_task( void *pvParameters ) {
          * Read fault flags
          * Receive modules status (read a global variable)
          * */
-        system_status[3] = read_fault_flags();
+        reset_value = read_reset_value();
+        system_status[0] = reset_value      & 0xFF;
+        system_status[1] = reset_value>>8   & 0xFF;
+        system_status[2] = reset_value>>16  & 0xFF;
+        system_status[3] = reset_value>>24  & 0xFF;
+        system_status[4] = read_fault_flags();
+
 
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
 
