@@ -50,9 +50,10 @@ uint8_t imu_setup(void){
 }
 
 
-void imu_read(uint8_t *p_imu_data, uint8_t imu_select)
+uint8_t imu_read(uint8_t *p_imu_data, uint8_t imu_select)
 {
     volatile uint8_t imu_slave_address = 0x00;
+    uint8_t imu_status = IMU_WORKING;
 
     switch(imu_select)
     {
@@ -66,12 +67,22 @@ void imu_read(uint8_t *p_imu_data, uint8_t imu_select)
 
     i2c_set_slave(IMU_BASE_ADDRESS, imu_slave_address);
     i2c_set_mode(IMU_BASE_ADDRESS, TRANSMIT_MODE);
-    i2c_send(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, NO_STOP);
+    if(i2c_send(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, NO_STOP) == I2C_FAIL) {
+        imu_status = IMU_NOT_WORKING;
+    }
     i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);
 
-    i2c_receive(IMU_BASE_ADDRESS, p_imu_data, NO_STOP);
+    if(i2c_receive(IMU_BASE_ADDRESS, p_imu_data, NO_STOP) == I2C_FAIL) {
+        imu_status = IMU_NOT_WORKING;
+    }
 
-    i2c_receive_burst(IMU_BASE_ADDRESS, (p_imu_data + 1), 12);
+    if(i2c_receive_burst(IMU_BASE_ADDRESS, (p_imu_data + 1), 12) == I2C_FAIL) {
+        imu_status = IMU_NOT_WORKING;
+    }
 
-    i2c_receive(IMU_BASE_ADDRESS, (p_imu_data + 13), NO_START);
+    if(i2c_receive(IMU_BASE_ADDRESS, (p_imu_data + 13), NO_START) == I2C_FAIL) {
+        imu_status = IMU_NOT_WORKING;
+    }
+
+    return imu_status;
 }

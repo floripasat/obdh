@@ -11,8 +11,10 @@
 #include "../driver/i2c.h"
 #include "../include/floripasat_def.h"
 
-#define EPS_REQUEST_DATA_CMD   0x0F      //an arbitrary value was choosen
+#define EPS_REQUEST_DATA_CMD    0x0F      //an arbitrary value was choosen
 
+#define EPS_ERROR               0x00
+#define EPS_ALIVE               0x01
 
 /* EPS FRAME */
 typedef struct {
@@ -26,6 +28,6 @@ typedef struct {
 
 
 void eps_setup(void);
-void eps_read(eps_package_t *package);
+uint8_t eps_read(eps_package_t *package);
 
 #endif /* INTERFACE_EPS_H_ */

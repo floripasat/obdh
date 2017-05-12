@@ -23,5 +23,8 @@ volatile xQueueHandle internal_sensors_queue;
 volatile xQueueHandle eps_queue;
 volatile xQueueHandle system_status_queue;
 
+volatile xQueueHandle status_eps_queue, status_payload1_queue, status_payload2_queue, status_imu_queue, status_mem1_queue;
+//TODO: mem2, antenna status_queue
+
 
 #endif /* SRC_TASK_QUEUES_H_ */

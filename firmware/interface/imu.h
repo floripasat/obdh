@@ -124,7 +124,7 @@
 #define IMU_WHO_AM_I_VALUE  0x71
 
 
-void imu_read(uint8_t *pucImu1Data, uint8_t ucImuSelect);
+uint8_t imu_read(uint8_t *pucImu1Data, uint8_t ucImuSelect);
 uint8_t imu_setup(void);
 #define imu_acc_raw_to_g(H, L)(float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
 #define imu_gyr_raw_to_dps(H, L)(float)  (((H << 8 | L) * IMU_GYR_RANGE) / 32768.0)

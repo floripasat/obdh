@@ -15,8 +15,9 @@ void housekeeping_task( void *pvParameters ) {
     float temperature, voltage, current;
 #endif
     uint8_t internal_sensors_data[6];
-    uint8_t system_status[5];
+    uint8_t system_status[6];
     uint32_t reset_value;
+    uint8_t temp_status_flags, status_flags;
 
     last_wake_time = xTaskGetTickCount();
 
@@ -52,17 +53,36 @@ void housekeeping_task( void *pvParameters ) {
         satellite_data.msp_sensors[5] = internal_sensors_data[5];
 #endif
 
-        /* Read reset counter
+        /* Receive modules status
+         * Read reset counter
          * Read fault flags
-         * Receive modules status (read a global variable)
          * */
+
+        status_flags = 0;
+        temp_status_flags = 0;
+        if(xQueuePeek(status_eps_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags<<0;
+        }
+        if(xQueuePeek(status_payload1_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags<<1;
+        }
+        if(xQueuePeek(status_payload2_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags<<2;
+        }
+        if(xQueuePeek(status_mem1_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags<<3;
+        }
+        if(xQueuePeek(status_imu_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags<<4;
+        }
+
         reset_value = read_reset_value();
         system_status[0] = reset_value      & 0xFF;
         system_status[1] = reset_value>>8   & 0xFF;
         system_status[2] = reset_value>>16  & 0xFF;
         system_status[3] = reset_value>>24  & 0xFF;
         system_status[4] = read_fault_flags();
-
+        system_status[5] = status_flags;
 
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
 

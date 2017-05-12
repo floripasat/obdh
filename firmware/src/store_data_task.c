@@ -13,6 +13,7 @@ volatile uint32_t card_size;
 void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
     data_packet_t new_packet;
+    uint8_t mem1_status;
     last_wake_time = xTaskGetTickCount();
 
 
@@ -28,7 +29,13 @@ void store_data_task( void *pvParameters ) {
     }
 
     while(1) {
-        //save in the begining of the memory the log_status: (packages counter, resets counter, etc).
+        mem1_status = 0;
+        card_size = mmcReadCardSize();
+        if(card_size >= 128000000) { //test if memory size is greater than 128MB
+            mem1_status = 1;
+        }
+        xQueueOverwrite(status_mem1_queue, &mem1_status);
+
         new_packet = read_and_pack_data();
         store_data_on_flash(&new_packet);
 
@@ -69,13 +76,10 @@ data_packet_t read_and_pack_data( void ) {
     packet.systick[3] = systick>>24 & 0xFF;
     packet.package_flags |= SYSTICK_FLAG;
 
-    uint32_t reset = 0;
-    packet.system_status[0] = reset & 0xFF;
-    packet.system_status[1] = reset>>8 & 0xFF;
-    packet.system_status[2] = reset>>16 & 0xFF;
-    packet.system_status[3] = 0;
-    packet.system_status[4] = 0;
-    packet.package_flags |= SYSTEM_STATUS_FLAG;
+
+    if(xQueueReceive(system_status_queue, (void *) packet.system_status, SYSTEM_STATUS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= SYSTEM_STATUS_FLAG;
+    }
 
     return packet;
 }
@@ -83,7 +87,7 @@ data_packet_t read_and_pack_data( void ) {
 void store_data_on_flash( data_packet_t *packet ) {
     //write new packet
     unsigned char data[512];
-    int i;
+    unsigned int i;
 
     for(i = 0; i < sizeof(data_packet_t); i++) {
         data[i] = ((uint8_t *)packet)[i];

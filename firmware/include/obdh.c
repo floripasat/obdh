@@ -9,7 +9,13 @@ void create_tasks( void ) {
     imu_queue               = xQueueCreate( 5, sizeof( satellite_data.imu ) );
     internal_sensors_queue  = xQueueCreate( 5, sizeof( satellite_data.msp_sensors ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
-    system_status_queue        = xQueueCreate( 5, sizeof( satellite_data.system_status ) );
+    system_status_queue     = xQueueCreate( 5, sizeof( satellite_data.system_status ) );
+
+    status_eps_queue        = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload1_queue   = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload2_queue   = xQueueCreate( 1, sizeof(uint8_t) );
+    status_mem1_queue       = xQueueCreate( 1, sizeof(uint8_t) );
+    status_imu_queue        = xQueueCreate( 1, sizeof(uint8_t) );
 
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
     xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
