@@ -10,6 +10,7 @@
 void imu_interface_task( void *pvParameters ) {
     uint8_t imu_data_temp[20];
     uint8_t module_test;
+    uint8_t imu_status;
     TickType_t last_wake_time;
 
 #ifdef _DEBUG
@@ -27,7 +28,7 @@ void imu_interface_task( void *pvParameters ) {
     last_wake_time = xTaskGetTickCount();
 
     while(1) {
-        imu_read(imu_data_temp, IMU1);
+        imu_status = imu_read(imu_data_temp, IMU1);
 
 #ifdef _DEBUG
         accelerometer_x = imu_acc_raw_to_g(imu_data_temp[0], imu_data_temp[1]);
@@ -42,6 +43,8 @@ void imu_interface_task( void *pvParameters ) {
         gyroscope_z = imu_gyr_raw_to_dps(imu_data_temp[12], imu_data_temp[13]);
         gyroscope_absolute_module = sqrtf(gyroscope_z * gyroscope_z + gyroscope_y * gyroscope_y + gyroscope_x * gyroscope_x);
 #endif
+
+        xQueueOverwrite(status_imu_queue, &imu_status);
 
         xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
 

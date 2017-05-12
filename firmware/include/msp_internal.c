@@ -50,23 +50,26 @@ uint16_t obdh_voltage_read(void){
     return volt_raw;
 }
 
-void obdh_setup(void){
+uint8_t read_fault_flags(void){
+    return (UCSCTL7 & 0x0F); //XT2OFFG | XT1HFOFFG | XT1LFOFFG | DCOFFG
+}
 
+uint32_t read_reset_value(void) {
+    return flash_read_long(RESET_ADDR_FLASH);
+}
 
+uint8_t read_reset_cause(void){
+    return (SYSRSTIV & 0xFF);
+}
 
-    //CURRENT SENSING SETUP
+void update_reset_value(void){
+    uint32_t previous_value;
+    uint32_t new_value;
 
-
-////	Internal temperature reading setup
-//	  REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
-//	                                            // ADC12_A ref control registers
-//	  ADC12CTL0 = ADC12SHT0_8 | ADC12REFON | ADC12ON;
-//	                                            // Internal ref = 1.5V
-//	  ADC12CTL1 = ADC12SHP;                     // enable sample timer
-//	  ADC12MCTL0 = ADC12SREF_1 | ADC12INCH_10;  // ADC i/p ch A10 = temp sense i/p
-//	  __delay_cycles(DELAY_1_MS_IN_CYCLES);   // Allow ~100us (at default UCS settings)
-//	                                            // for REF to settle
-//	  ADC12CTL0 |= ADC12ENC;
+    previous_value = read_reset_value() & 0xFFFFFF;
+    new_value = ((uint32_t)read_reset_cause())<<24 | ((previous_value + 1) & 0xFFFFFF);
+    flash_erase(RESET_ADDR_FLASH);
+    flash_write_long(new_value, RESET_ADDR_FLASH);
 }
 
 

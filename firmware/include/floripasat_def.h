@@ -56,7 +56,7 @@ typedef struct {
 typedef struct {
     uint16_t package_flags;
     //obdh
-    uint8_t system_status      [5];
+    uint8_t system_status      [6];
     uint8_t imu                [20];
     uint8_t msp_sensors        [6];
     uint8_t systick            [4];
