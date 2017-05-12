@@ -37,7 +37,7 @@ uint8_t imu_setup(void){
 
     i2c_send(IMU_BASE_ADDRESS, MPU9150_WHO_AM_I, NO_STOP);
     i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);
-    who_am_i = i2c_receive(IMU_BASE_ADDRESS, START_STOP);
+    i2c_receive(IMU_BASE_ADDRESS, &who_am_i, START_STOP);
 
     if(who_am_i == IMU_WHO_AM_I_VALUE) {
         status = IMU_WORKING;
@@ -69,9 +69,9 @@ void imu_read(uint8_t *p_imu_data, uint8_t imu_select)
     i2c_send(IMU_BASE_ADDRESS, MPU9150_ACCEL_XOUT_H, NO_STOP);
     i2c_set_mode(IMU_BASE_ADDRESS, RECEIVE_MODE);
 
-    p_imu_data[0] = i2c_receive(IMU_BASE_ADDRESS, NO_STOP);
+    i2c_receive(IMU_BASE_ADDRESS, p_imu_data, NO_STOP);
 
-    i2c_receive_burst(IMU_BASE_ADDRESS, p_imu_data + 1, 12);
+    i2c_receive_burst(IMU_BASE_ADDRESS, (p_imu_data + 1), 12);
 
-    p_imu_data[13] = i2c_receive(IMU_BASE_ADDRESS, NO_START);
+    i2c_receive(IMU_BASE_ADDRESS, (p_imu_data + 13), NO_START);
 }

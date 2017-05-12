@@ -79,7 +79,7 @@ void i2c_set_slave(uint16_t base_address, uint8_t slave_address) {
     HWREG16(base_address + OFS_UCBxI2CSA) = slave_address;
 }
 
-void i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag) {
+uint8_t i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag) {
     uint16_t timeout = 0;
 
     if(!(start_stop_flag & NO_START))
@@ -90,17 +90,23 @@ void i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag) {
     while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT); //wait for finish the transmissions
 
 
-    if(!(start_stop_flag & NO_STOP))
-    {
+    if(!(start_stop_flag & NO_STOP)){
         HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
         HWREG8(base_address + OFS_UCBxIFG) &= ~(UCTXIFG);
     }
+
+    if(timeout < I2C_TIMEOUT) {
+        return I2C_SUCESS;  /**< Sucess */
+    }
+    else {
+        return I2C_FAIL;  /**< Fail / timeout */
+    }
 }
 
-void i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes) {
+uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes) {
     uint16_t timeout = 0;
 
-    HWREG8(base_address + OFS_UCBxCTL1) |= UCTR | UCTXSTT; //começa a transmissao
+    HWREG8(base_address + OFS_UCBxCTL1) |= UCTR | UCTXSTT; //comeca a transmissao
     while(bytes--)
     {
         while(!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
@@ -112,15 +118,21 @@ void i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes) {
 //    HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCTXIFG); //UCTXIFG is automatically reset if a character is written to UCBxTXBUF
 
     HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
+
+    if(timeout < I2C_TIMEOUT) {
+        return I2C_SUCESS;  /**< Sucess */
+    }
+    else {
+        return I2C_FAIL;  /**< Fail / timeout */
+    }
 }
 
 void i2c_clear_flags(uint16_t base_address) {
     HWREG8(base_address + OFS_UCBxIFG) &= ~UCRXIFG & ~UCTXIFG;
 }
 
-uint8_t i2c_receive(uint16_t base_address, uint8_t start_stop_flag) {
+uint8_t i2c_receive(uint16_t base_address, uint8_t *rx_data, uint8_t start_stop_flag) {
     uint16_t timeout = 0;
-    uint8_t rx_data;
 
     if(!(start_stop_flag & NO_START))
     {
@@ -132,13 +144,17 @@ uint8_t i2c_receive(uint16_t base_address, uint8_t start_stop_flag) {
         HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP;
 
     while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);      //wait to receive data and shift data in buffer
-    rx_data = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
+    *rx_data = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
 
-
-    return rx_data;
+    if(timeout < I2C_TIMEOUT) {
+        return I2C_SUCESS;  /**< Sucess */
+    }
+    else {
+        return I2C_FAIL;  /**< Fail / timeout */
+    }
 }
 
-void i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes) {
+uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes) {
     uint16_t timeout = 0;
 
     while(bytes--)
@@ -146,5 +162,13 @@ void i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes
         while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);      //wait to receive data and shift data in buffer
         *(p_rx_data++) = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
 //        HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCRXIFG);            //UCRXIFG is automatically reset when UCxRXBUF is read.
+    }
+
+
+    if(timeout < I2C_TIMEOUT) {
+        return I2C_SUCESS;  /**< Sucess */
+    }
+    else {
+        return I2C_FAIL;  /**< Fail / timeout */
     }
 }

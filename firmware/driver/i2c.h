@@ -14,6 +14,9 @@
 
 #define I2C_TIMEOUT                     10000
 
+#define I2C_SUCESS                      1
+#define I2C_FAIL                        0
+
 
 /**
  * \fn i2c_setup
@@ -60,9 +63,9 @@ void i2c_set_mode(uint16_t base_address, uint8_t mode);
  * \param base_address is the I2C registers base address of the serial interface
  * \param tx_data is the data to transmit
  * \param start_stop_flag switch if there will be a start and/or stop signal between the transmission
- * \return None
+ * \return sucess or timeout
  */
-void i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag);
+uint8_t i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag);
 
 /**
  * \fn i2c_send_burst
@@ -71,9 +74,9 @@ void i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag);
  * \param base_address is the I2C registers base address of the serial interface
  * \param p_tx_data is a pointer to a data buffer, with the data to send
  * \param bytes is the buffer size, in bytes
- * \return None
+ * \return sucess or timeout
  */
-void i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes);
+uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes);
 
 /**
  * \fn i2c_receive_burst
@@ -82,9 +85,9 @@ void i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes);
  * \param base_address is the I2C registers base address of the serial interface
  * \param p_rx_data is a pointer to a data buffer, to store the received data
  * \param bytes is the buffer size, in bytes
- * \return None
+ * \return sucess or timeout
  */
-void i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes);
+uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes);
 
 /**
  * \fn i2c_receive
@@ -92,9 +95,10 @@ void i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes
  * \brief receive 1 byte
  * \param base_address is the I2C registers base address of the serial interface
  * \param start_stop_flag switch if there will be a start and/or stop signal between the transmission
- * \return the received byte
+ * \param rx_data is a pointer where to store the received data
+ * \return sucess or timeout
  */
-uint8_t i2c_receive(uint16_t base_address, uint8_t start_stop_flag);
+uint8_t i2c_receive(uint16_t base_address, uint8_t *rx_data,  uint8_t start_stop_flag);
 
 #define     START_STOP   (0x0001)
 #define     NO_START     (0x0002)
