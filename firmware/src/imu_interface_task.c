@@ -46,7 +46,9 @@ void imu_interface_task( void *pvParameters ) {
 
         xQueueOverwrite(status_imu_queue, &imu_status);
 
-        xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
+        if(imu_status == IMU_WORKING) {
+            xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
+        }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
     }
