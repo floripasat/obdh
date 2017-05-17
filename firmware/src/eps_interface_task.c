@@ -23,7 +23,10 @@ void eps_interface_task( void *pvParameters )
         eps_status = eps_read(&eps_package);
 
         xQueueOverwrite(status_eps_queue, &eps_status);
-        xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);
+
+        if(eps_status == EPS_ALIVE) {
+            xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);
+        }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, EPS_INTERFACE_TASK_PERIOD_TICKS );
     }

@@ -51,22 +51,17 @@ data_packet_t read_and_pack_data( void ) {
     packet = satellite_data;
     packet.package_flags = 0;
 
+
+    if(xQueueReceive(system_status_queue, (void *) packet.system_status, SYSTEM_STATUS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= SYSTEM_STATUS_FLAG;
+    }
+
     if(xQueueReceive(imu_queue, (void *) packet.imu, IMU_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= IMU_FLAG;
     }
 
-
     if(xQueueReceive(internal_sensors_queue, (void *) packet.msp_sensors, INTERNAL_SENSORS_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= MSP_SENSORS_FLAG;
-    }
-
-
-    if(xQueueReceive(eps_queue, (void *) packet.adc_solar_panels, EPS_QUEUE_WAIT_TIME) == pdPASS) {
-        packet.package_flags |= ADC_SOLAR_PANELS_FLAG;
-        packet.package_flags |= MSP430_ADC_FLAG;
-        packet.package_flags |= BATTERY_MONITOR_FLAG;
-        packet.package_flags |= ADS1248_FLAG;
-        packet.package_flags |= TASK_SCHEDULER_FLAG;
     }
 
     uint32_t systick = xTaskGetTickCount();
@@ -76,9 +71,28 @@ data_packet_t read_and_pack_data( void ) {
     packet.systick[3] = systick>>24 & 0xFF;
     packet.package_flags |= SYSTICK_FLAG;
 
+    if(xQueueReceive(solar_panels_queue, (void *) packet.solar_panels, SOLAR_PANELS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= SOLAR_PANELS_FLAG;
+    }
 
-    if(xQueueReceive(system_status_queue, (void *) packet.system_status, SYSTEM_STATUS_QUEUE_WAIT_TIME) == pdPASS) {
-        packet.package_flags |= SYSTEM_STATUS_FLAG;
+    if(xQueueReceive(transceiver_queue, (void *) packet.transceiver, TRANSCEIVER_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= TRANSCEIVER_FLAG;
+    }
+
+    if(xQueueReceive(eps_queue, (void *) packet.adc_solar_panels, EPS_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= ADC_SOLAR_PANELS_FLAG;
+        packet.package_flags |= MSP430_ADC_FLAG;
+        packet.package_flags |= BATTERY_MONITOR_FLAG;
+        packet.package_flags |= ADS1248_FLAG;
+        packet.package_flags |= TASK_SCHEDULER_FLAG;
+    }
+
+    if(xQueueReceive(payload1_queue, (void *) packet.payload1, PAYLOAD1_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= PAYLOAD1_FLAG;
+    }
+
+    if(xQueueReceive(payload2_queue, (void *) packet.payload2, PAYLOAD2_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= PAYLOAD2_FLAG;
     }
 
     return packet;
@@ -129,15 +143,12 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     pack_module_data(flags, MSP_SENSORS_FLAG,  p_data_packet->msp_sensors, sizeof(p_data_packet->msp_sensors), to_send_packet, &package_size);
     pack_module_data(flags, SYSTICK_FLAG,  p_data_packet->systick, sizeof(p_data_packet->systick), to_send_packet, &package_size);
     pack_module_data(flags, SOLAR_PANELS_FLAG,  p_data_packet->solar_panels, sizeof(p_data_packet->solar_panels), to_send_packet, &package_size);
-    pack_module_data(flags, RTC_FLAG,  p_data_packet->rtc, sizeof(p_data_packet->rtc), to_send_packet, &package_size);
-    pack_module_data(flags, RADIO_FLAG,  p_data_packet->radio, sizeof(p_data_packet->radio), to_send_packet, &package_size);
+    pack_module_data(flags, TRANSCEIVER_FLAG,  p_data_packet->transceiver, sizeof(p_data_packet->transceiver), to_send_packet, &package_size);
     pack_module_data(flags, ADC_SOLAR_PANELS_FLAG,  p_data_packet->adc_solar_panels, sizeof(p_data_packet->adc_solar_panels), to_send_packet, &package_size);
     pack_module_data(flags, MSP430_ADC_FLAG,  p_data_packet->msp430_adc, sizeof(p_data_packet->msp430_adc), to_send_packet, &package_size);
     pack_module_data(flags, BATTERY_MONITOR_FLAG,  p_data_packet->battery_monitor, sizeof(p_data_packet->battery_monitor), to_send_packet, &package_size);
     pack_module_data(flags, ADS1248_FLAG,  p_data_packet->ads1248, sizeof(p_data_packet->ads1248), to_send_packet, &package_size);
     pack_module_data(flags, TASK_SCHEDULER_FLAG,  p_data_packet->task_scheduler, sizeof(p_data_packet->task_scheduler), to_send_packet, &package_size);
-    pack_module_data(flags, BEACON_FLAG,  p_data_packet->beacon, sizeof(p_data_packet->beacon), to_send_packet, &package_size);
-    pack_module_data(flags, TRANSCEIVER_FLAG,  p_data_packet->transceiver, sizeof(p_data_packet->transceiver), to_send_packet, &package_size);
     pack_module_data(flags, PAYLOAD1_FLAG,  p_data_packet->payload1, sizeof(p_data_packet->payload1), to_send_packet, &package_size);
     pack_module_data(flags, PAYLOAD2_FLAG,  p_data_packet->payload2, sizeof(p_data_packet->payload2), to_send_packet, &package_size);
 
