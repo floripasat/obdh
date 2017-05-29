@@ -22,20 +22,16 @@
 #define  MSP_SENSORS_FLAG           BIT2
 #define  SYSTICK_FLAG               BIT3
 #define  SOLAR_PANELS_FLAG          BIT4
-#define  RTC_FLAG                   BIT5
-#define  RADIO_FLAG                 BIT6
+#define  TRANSCEIVER_FLAG           BIT5
 
-#define  ADC_SOLAR_PANELS_FLAG      BIT7
-#define  MSP430_ADC_FLAG            BIT8
-#define  BATTERY_MONITOR_FLAG       BIT9
-#define  ADS1248_FLAG               BITA
-#define  TASK_SCHEDULER_FLAG        BITB
+#define  ADC_SOLAR_PANELS_FLAG      BIT6
+#define  MSP430_ADC_FLAG            BIT7
+#define  BATTERY_MONITOR_FLAG       BIT8
+#define  ADS1248_FLAG               BIT9
+#define  TASK_SCHEDULER_FLAG        BITA
 
-#define  BEACON_FLAG                BITC
-#define  TRANSCEIVER_FLAG           BITD
-
-#define  PAYLOAD1_FLAG              BITE
-#define  PAYLOAD2_FLAG              BITF
+#define  PAYLOAD1_FLAG              BITB
+#define  PAYLOAD2_FLAG              BITC
 //! \} End of flags
 
 /**
@@ -57,21 +53,17 @@ typedef struct {
     uint16_t package_flags;
     //obdh
     uint8_t system_status      [6];
-    uint8_t imu                [20];
+    uint8_t imu                [14];
     uint8_t msp_sensors        [6];
     uint8_t systick            [4];
-    uint8_t solar_panels       [42];
-    uint8_t rtc                [8];
-    uint8_t radio              [100];
+    uint8_t solar_panels       [12];
+    uint8_t transceiver        [90];
     //eps
     uint8_t adc_solar_panels   [18];
     uint8_t msp430_adc         [8];
     uint8_t battery_monitor    [21];
     uint8_t ads1248            [21];
     uint8_t task_scheduler     [1];
-    //tt&c
-    uint8_t beacon             [3];
-    uint8_t transceiver        [4];
     //payloads
     uint8_t payload1           [7];
     uint8_t payload2           [100]; 

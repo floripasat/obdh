@@ -6,10 +6,14 @@
 #include <obdh.h>
 
 void create_tasks( void ) {
+    system_status_queue     = xQueueCreate( 5, sizeof( satellite_data.system_status ) );
     imu_queue               = xQueueCreate( 5, sizeof( satellite_data.imu ) );
     internal_sensors_queue  = xQueueCreate( 5, sizeof( satellite_data.msp_sensors ) );
+    solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
+    transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
-    system_status_queue     = xQueueCreate( 5, sizeof( satellite_data.system_status ) );
+    payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );
+    payload2_queue          = xQueueCreate( 5, sizeof( satellite_data.payload2) );
 
     status_eps_queue        = xQueueCreate( 1, sizeof(uint8_t) );
     status_payload1_queue   = xQueueCreate( 1, sizeof(uint8_t) );
