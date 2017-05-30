@@ -11,18 +11,20 @@
 #include "../driver/i2c.h"
 #include "../include/floripasat_def.h"
 
-#define TTC_REQUEST_DATA_CMD   0x54      //an arbitrary value was choosen
+#define TTC_TX_NOT_BUSY     0x00
+#define TTC_TX_BUSY         0x01
 
 
-/* TTC FRAME */
-typedef struct {
-    uint8_t beacon[3];
-} ttc_package_t;
-
-#define TTC_PACKAGE_LENGTH  sizeof(ttc_package_t)
+#define TTC_CMD_SHUTDOWN        0x01
+#define TTC_CMD_REQUEST_TX      0x10
+#define TTC_CMD_FREE_TX         0x20
 
 
 void ttc_setup(void);
-void ttc_read(ttc_package_t *package);
+uint8_t ttc_is_beacon_on(void);
+void ttc_prepare_to_tx(void);
+void ttc_free_to_send_beacon(void);
+void ttc_shutdown(void);
+void ttc_return_from_shutdown(void);
 
 #endif /* INTERFACE_TTC_H_ */

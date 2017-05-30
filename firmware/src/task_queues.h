@@ -11,7 +11,7 @@
 #include "queue.h"
 
 
-/** Queues wait time in ticks. The value should be write in miliseconds and will be converted to ticks. */
+/** Queues wait time in ticks. The value should be write in milliseconds and will be converted to ticks. */
 #define     SYSTEM_STATUS_QUEUE_WAIT_TIME           (100 / portTICK_PERIOD_MS)
 #define     IMU_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
 #define     INTERNAL_SENSORS_QUEUE_WAIT_TIME        (100 / portTICK_PERIOD_MS)
@@ -28,6 +28,7 @@ volatile xQueueHandle internal_sensors_queue;
 volatile xQueueHandle solar_panels_queue;
 volatile xQueueHandle transceiver_queue;
 volatile xQueueHandle eps_queue;
+volatile xQueueHandle ttc_queue;
 volatile xQueueHandle payload1_queue;
 volatile xQueueHandle payload2_queue;
 

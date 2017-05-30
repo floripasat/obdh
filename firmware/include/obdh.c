@@ -12,6 +12,7 @@ void create_tasks( void ) {
     solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
     transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
+    ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
     payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );
     payload2_queue          = xQueueCreate( 5, sizeof( satellite_data.payload2) );
 
@@ -28,7 +29,7 @@ void create_tasks( void ) {
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
-//    xTaskCreate( ttc_interface_task, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
+    xTaskCreate( ttc_interface_task, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
 #ifdef _DEBUG
     xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
 #endif

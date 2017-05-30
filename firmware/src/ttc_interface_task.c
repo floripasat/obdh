@@ -7,17 +7,46 @@
 
 #include <ttc_interface_task.h>
 
-void ttc_interface_task( void *pvParameters )
-{
+void wait_before_transmit(void) {
+    uint8_t counter = 0;
+
+    //wait the tx_busy pin is on low state or until reach 2 seconds
+    while(ttc_is_beacon_on() == TTC_TX_BUSY && counter++ < 20) {
+        vTaskDelay( 100 / portTICK_PERIOD_MS ); //sleeps for 100ms until test again
+    }
+}
+
+
+void ttc_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
+    uint8_t to_send_data = 0;
 
     ttc_setup();
 
-    while(1)
-    {
+    while(1) {
         //TODO: TASK ROUTINE
-//        ttc_read( );
+
+        xQueueReceive(ttc_queue, (void *) &to_send_data, portMAX_DELAY); //wait until receive data
+
+        if(to_send_data & TTC_CMD_SHUTDOWN) {       //if is a shutdown cmd
+            ttc_shutdown();
+            //TODO: Implements the shutdown routine
+            //shutdown_routine(); wait 24 hours
+            ttc_return_from_shutdown();
+        }
+
+        if(to_send_data & TTC_CMD_REQUEST_TX) {     //if is a shutdown cmd
+            wait_before_transmit();
+            ttc_prepare_to_tx();
+            wait_before_transmit();
+
+            //transmit_routine
+        }
+
+        if(to_send_data & TTC_CMD_FREE_TX) {
+            ttc_free_to_send_beacon();
+        }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, TTC_INTERFACE_TASK_PERIOD_TICKS );
     }
