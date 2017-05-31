@@ -4,7 +4,7 @@
 
 
 
-#define DUMMY 0x00
+#define DUMMY 0xFF
 
 void spi_setup(uint8_t interface);
 void spi_clock_setup(uint16_t base_address);

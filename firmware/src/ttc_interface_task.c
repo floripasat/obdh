@@ -21,6 +21,7 @@ void ttc_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint8_t to_send_data = 0;
+    uint8_t tx_allow = 1;
 
     ttc_setup();
 
@@ -32,7 +33,8 @@ void ttc_interface_task( void *pvParameters ) {
         if(to_send_data & TTC_CMD_SHUTDOWN) {       //if is a shutdown cmd
             ttc_shutdown();
             //TODO: Implements the shutdown routine
-            //shutdown_routine(); wait 24 hours
+            vTaskDelay( 2000 / portTICK_RATE_MS );//shutdown_routine(); wait 24 hours
+
             ttc_return_from_shutdown();
         }
 
@@ -41,7 +43,7 @@ void ttc_interface_task( void *pvParameters ) {
             ttc_prepare_to_tx();
             wait_before_transmit();
 
-            //transmit_routine
+            xQueueOverwrite(tx_queue, &tx_allow); //request to beacon a tx permission//transmit_routine
         }
 
         if(to_send_data & TTC_CMD_FREE_TX) {

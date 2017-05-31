@@ -29,6 +29,7 @@ volatile xQueueHandle solar_panels_queue;
 volatile xQueueHandle transceiver_queue;
 volatile xQueueHandle eps_queue;
 volatile xQueueHandle ttc_queue;
+volatile xQueueHandle tx_queue;
 volatile xQueueHandle payload1_queue;
 volatile xQueueHandle payload2_queue;
 

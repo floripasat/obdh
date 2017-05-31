@@ -15,7 +15,7 @@ uint8_t ttc_is_beacon_on(void) {
     uint8_t beacon_status = TTC_TX_NOT_BUSY;
 
     //read tx_busy pin
-    if(BIT_READ(TTC_TX_BUSY_IN, TTC_TX_BUSY_PIN) == 1) {
+    if(BIT_READ(TTC_TX_BUSY_IN, TTC_TX_BUSY_PIN) != 0) {
         beacon_status = TTC_TX_BUSY;
     }
 
@@ -28,8 +28,7 @@ void ttc_prepare_to_tx(void) {
 
     BIT_SET(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //set interrupt pin
 
-    __no_operation();
-    __no_operation();
+    __delay_cycles(16000); //1ms
 
     BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //clear interrupt pin
 }
@@ -40,8 +39,7 @@ void ttc_free_to_send_beacon(void) {
 
     BIT_SET(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //set interrupt pin
 
-    __no_operation();
-    __no_operation();
+    __delay_cycles(16000); //1ms
 
     BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //clear interrupt pin
 }

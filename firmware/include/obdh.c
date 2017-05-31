@@ -13,6 +13,7 @@ void create_tasks( void ) {
     transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
     ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
+    tx_queue                = xQueueCreate( 1, sizeof( uint8_t ) );
     payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );
     payload2_queue          = xQueueCreate( 5, sizeof( satellite_data.payload2) );
 
@@ -33,6 +34,36 @@ void create_tasks( void ) {
 #ifdef _DEBUG
     xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
 #endif
+}
+
+void gpio_setup() {
+    //TODO: set the configuration of every pins. //MAGNETORQUER   //SD
+    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
+
+
+    //DISABLE PERIPHERAL FUNCTION
+    BIT_CLEAR(TTC_INTERRUPT_SEL, TTC_INTERRUPT_PIN);
+    BIT_CLEAR(TTC_SHUTDOWN_SEL, TTC_SHUTDOWN_PIN);
+    BIT_CLEAR(TTC_TX_REQUEST_SEL, TTC_TX_REQUEST_PIN);
+    BIT_CLEAR(TTC_TX_BUSY_SEL, TTC_TX_BUSY_PIN);
+
+    //ENEBLE PULL-UP/DOWN RESISTORS
+//    BIT_SET(TTC_INTERRUPT_REN, TTC_INTERRUPT_PIN);
+//    BIT_SET(TTC_SHUTDOWN_REN, TTC_SHUTDOWN_PIN);
+//    BIT_SET(TTC_TX_REQUEST_REN, TTC_TX_REQUEST_PIN);
+    BIT_SET(TTC_TX_BUSY_REN, TTC_TX_BUSY_PIN);
+
+    //ALL PULL-DOWN / PUSH-DOWN
+    BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);
+    BIT_CLEAR(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);
+    BIT_CLEAR(TTC_TX_REQUEST_OUT, TTC_TX_REQUEST_PIN);
+    BIT_CLEAR(TTC_TX_BUSY_OUT, TTC_TX_BUSY_PIN);
+
+    //set as input/output
+    BIT_SET(TTC_INTERRUPT_DIR, TTC_INTERRUPT_PIN);      //set as output
+    BIT_SET(TTC_SHUTDOWN_DIR, TTC_SHUTDOWN_PIN);        //set as output
+    BIT_SET(TTC_TX_REQUEST_DIR, TTC_TX_REQUEST_PIN);    //set as output
+    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as output
 }
 
 void setup_hardware( void ) {
@@ -75,11 +106,9 @@ void setup_hardware( void ) {
     adc_setup();
 
     debug(ADC_INFO_MSG);
+
     /*  SETUP GPIO */
-    //MAGNETORQUER
-    //SD
-    //TODO: set the configuration of every pins.
-    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
+    gpio_setup();
 
     update_reset_value();
 

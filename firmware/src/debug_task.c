@@ -13,27 +13,44 @@ void debug_task( void *pvParameters ) {
 
     uint8_t uart_package[512];
     uint16_t package_size;
-    char cmd[10];
-    request_packet_t rqt_packet;
+    char cmd[28];
+    request_data_packet_t rqt_packet;
+    telecommand_t telecommand;
+    uint8_t ttc_command;
+    uint8_t ttc_response;
+    uint32_t read_position;
 
     while(1) {
 
 #if _DEBUG_AS_LINK == 1
-        uart_rx(cmd, 9);
+        uart_rx(cmd, sizeof(telecommand_t));
 
-        rqt_packet = decode((uint8_t *)cmd);
-        uint32_t read_position;
-        
-        if(rqt_packet.request_action == SEND_DATA_REQUEST) {
+        telecommand = decode_telecommand(cmd);
+
+        if(telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
+            rqt_packet = decode_request_data_telecommand(telecommand.arguments);
+            ttc_command = TTC_CMD_REQUEST_TX;
+            xQueueOverwrite(ttc_queue, &ttc_command);                        //request to beacon a tx permission
+            xQueueReceive(tx_queue, &ttc_response, 3000 / portTICK_RATE_MS); //wait 3 seconds or until be answered
+
             read_position = calculate_read_position(rqt_packet);
 
             while(rqt_packet.packages_count-- > 0) {
+
             	package_size = get_packet(uart_package, rqt_packet.flags, read_position++);
             	if(package_size > 0) {
             		uart_tx_bytes((char *)uart_package, package_size);
             	}
             }
+            ttc_command = TTC_CMD_FREE_TX;
+            xQueueOverwrite(ttc_queue, &ttc_command);
         }
+
+        if(telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
+            ttc_command = TTC_CMD_SHUTDOWN;
+            xQueueOverwrite(ttc_queue, &ttc_command);
+        }
+
 #else
         uart_rx(cmd, 1);
         char answer[30];
