@@ -12,7 +12,7 @@ void wait_before_transmit(void) {
 
     //wait the tx_busy pin is on low state or until reach 2 seconds
     while(ttc_is_beacon_on() == TTC_TX_BUSY && counter++ < 20) {
-        vTaskDelay( 100 / portTICK_PERIOD_MS ); //sleeps for 100ms until test again
+        vTaskDelayMs(100); //sleeps for 100ms until test again
     }
 }
 
@@ -33,7 +33,8 @@ void ttc_interface_task( void *pvParameters ) {
         if(to_send_data & TTC_CMD_SHUTDOWN) {       //if is a shutdown cmd
             ttc_shutdown();
             //TODO: Implements the shutdown routine
-            vTaskDelay( 2000 / portTICK_RATE_MS );//shutdown_routine(); wait 24 hours
+            vTaskDelayMs(2000); //**this delay is a shutdown simulation **
+            //shutdown_routine(); wait 24 hours
 
             ttc_return_from_shutdown();
         }
