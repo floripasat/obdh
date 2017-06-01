@@ -9,6 +9,7 @@
 #define SRC_TASK_QUEUES_H_
 
 #include "queue.h"
+#include "semphr.h"
 
 
 /** Queues wait time in ticks. The value should be write in milliseconds and will be converted to ticks. */
@@ -20,6 +21,8 @@
 #define     EPS_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
 #define     PAYLOAD1_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
 #define     PAYLOAD2_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
+
+#define     I2C_SEMAPHORE_WAIT_TIME                (10000 / portTICK_PERIOD_MS)
 
 
 volatile xQueueHandle system_status_queue;
@@ -37,5 +40,6 @@ volatile xQueueHandle payload2_queue;
 volatile xQueueHandle status_eps_queue, status_payload1_queue, status_payload2_queue, status_imu_queue, status_mem1_queue;
 //TODO: mem2, antenna status_queue
 
+volatile xSemaphoreHandle i2c0_semaphore;
 
 #endif /* SRC_TASK_QUEUES_H_ */

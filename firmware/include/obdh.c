@@ -23,6 +23,9 @@ void create_tasks( void ) {
     status_mem1_queue       = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue        = xQueueCreate( 1, sizeof(uint8_t) );
 
+
+    i2c0_semaphore = xSemaphoreCreateMutex(); /**< create a semaphore to controls the i2c_0 interface usage*/
+
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
     xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
 //    xTaskCreate( communications_task, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
