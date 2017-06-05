@@ -25,13 +25,13 @@ void payload1_interface_task( void *pvParameters ) {
 
             payload1_status = payload1_read(payload1_data, 0x00000005, 10);
 
+            xSemaphoreGive( i2c0_semaphore );                               //release the mutex
+
             xQueueOverwrite(status_payload1_queue, &payload1_status);
 
             if(payload1_status == PAYLOAD1_ALIVE) {
                 xQueueSendToBack(payload1_queue, &payload1_data, portMAX_DELAY);
             }
-
-            xSemaphoreGive( i2c0_semaphore );                               //release the mutex
         }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, PAYLOAD1_INTERFACE_TASK_PERIOD_TICKS );

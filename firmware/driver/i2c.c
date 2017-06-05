@@ -111,7 +111,7 @@ uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes
 
     while(bytes--)
     {
-        while(!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
+        while(!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)  && (timeout++ < I2C_TIMEOUT)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
         HWREG8(base_address + OFS_UCBxTXBUF) = *(p_tx_data++); //envia o byte atual e aponta para o proximo byte
     }
 
@@ -163,11 +163,11 @@ uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t by
     if(!(start_stop_flag & NO_START))
     {
         HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;        //send start
-        while((HWREG8(base_address + OFS_UCBxCTL1) & UCTXSTT) && timeout++ < I2C_TIMEOUT);    //wait Slave Address ACK
+        while((HWREG8(base_address + OFS_UCBxCTL1) & UCTXSTT) && timeout++ < I2C_TIMEOUT);    //wait start be sent
     }
 
-    while(bytes-- > 1)
-    {
+    while(bytes-- > 1) {
+//        timeout = 0;
         while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);      //wait to receive data and shift data in buffer
         *(p_rx_data++) = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
 //        HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCRXIFG);            //UCRXIFG is automatically reset when UCxRXBUF is read.

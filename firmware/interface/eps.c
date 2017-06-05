@@ -21,11 +21,13 @@ uint8_t eps_read(eps_package_t *package) {
 
     i2c_set_mode(EPS_BASE_ADDRESS, TRANSMIT_MODE);
 
-    i2c_send(EPS_BASE_ADDRESS, EPS_REQUEST_DATA_CMD, NO_STOP);
+    if(i2c_send(EPS_BASE_ADDRESS, EPS_REQUEST_DATA_CMD, NO_STOP) == I2C_FAIL) {
+        eps_status = EPS_ERROR;
+    }
 
     i2c_set_mode(EPS_BASE_ADDRESS, RECEIVE_MODE);
 
-    if(i2c_receive_burst(EPS_BASE_ADDRESS, data, EPS_PACKAGE_LENGTH, START_STOP) == I2C_FAIL) {
+    if(i2c_receive_burst(EPS_BASE_ADDRESS, data, EPS_PACKAGE_LENGTH + 1, START_STOP) == I2C_FAIL) {
         eps_status = EPS_ERROR;
     }
 

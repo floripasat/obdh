@@ -22,7 +22,7 @@
 #define     PAYLOAD1_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
 #define     PAYLOAD2_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
 
-#define     I2C_SEMAPHORE_WAIT_TIME                (10000 / portTICK_PERIOD_MS)
+#define     I2C_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
 
 
 volatile xQueueHandle system_status_queue;
