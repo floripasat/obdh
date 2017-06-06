@@ -13,6 +13,7 @@
 #include "../include/msp_internal.h"
 #include "../include/floripasat_def.h"
 #include "../driver/uart.h"
+#include "../interface/ttc.h"
 #include "../util/link.h"
 #include "store_data_task.h"
 

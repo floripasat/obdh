@@ -21,10 +21,14 @@
 #define IMU0_I2C_SLAVE_ADRESS               0x68    /**< I2C SLAVE ADRESS OF IMU0 */
 #define IMU1_I2C_SLAVE_ADRESS               0x69    /**< I2C SLAVE ADRESS OF IMU1 */
 #define EPS_I2C_SLAVE_ADRESS                0x48    /**< I2C SLAVE ADRESS OF EPS INTERFACE */
-#define ANTENNA_SYSTEM_I2C_SLAVE_ADDRESS    0x12   //TODO: FIX THE ADDRESS
+#define PAYLOAD1_I2C_SLAVE_ADDRESS          0x29
+#define PAYLOAD2_I2C_SLAVE_ADDRESS          0x81//TODO: FIX THE ADDRESS *************
+#define ANTENNA_SYSTEM_I2C_SLAVE_ADDRESS    0x12//TODO: FIX THE ADDRESS ***********
 
 //USCI CONNECTED DEVICES (DRIVERLIB)
 #define EPS_BASE_ADDRESS            USCI_B0_BASE
+#define PAYLOAD1_BASE_ADDRESS       USCI_B0_BASE
+#define PAYLOAD2_BASE_ADDRESS       USCI_B0_BASE
 #define IMU_BASE_ADDRESS            USCI_B1_BASE
 #define ANTENNA_BASE_ADDRESS        USCI_B2_BASE
 
@@ -80,7 +84,7 @@
 #define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)        /**< macro that toggles a bit in a register */
 #define BIT_SET(REG, BIT)       (REG |= BIT)        /**< macro that set a bit in a register */
 #define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)       /**< macro that clear a bit in a register */
-
+#define BIT_READ(REG, BIT)      (REG & BIT)         /**< macro that read a bit in a register */
 /**
  * \defgroup OBDH_pins
  * \brief MCU pins description
@@ -398,19 +402,53 @@
  */
 #define uC_BEACON_0_DIR P5DIR
 #define uC_BEACON_0_SEL P5SEL
+#define uC_BEACON_0_OUT P5OUT
+#define uC_BEACON_0_REN P5REN
 #define uC_BEACON_0_PIN BIT4
 
 #define uC_BEACON_1_DIR P5DIR
 #define uC_BEACON_1_SEL P5SEL
+#define uC_BEACON_1_OUT P5OUT
+#define uC_BEACON_1_REN P5REN
 #define uC_BEACON_1_PIN BIT5
 
 #define uC_BEACON_2_DIR P2DIR
 #define uC_BEACON_2_SEL P2SEL
+#define uC_BEACON_2_OUT P2OUT
+#define uC_BEACON_2_REN P2REN
 #define uC_BEACON_2_PIN BIT6
 
 #define uC_BEACON_3_DIR P2DIR
 #define uC_BEACON_3_SEL P2SEL
+#define uC_BEACON_3_OUT P2OUT
+#define uC_BEACON_3_REN P2REN
+#define uC_BEACON_3_IN  P2IN
 #define uC_BEACON_3_PIN BIT7
+
+#define TTC_INTERRUPT_DIR   uC_BEACON_0_DIR
+#define TTC_INTERRUPT_SEL   uC_BEACON_0_SEL
+#define TTC_INTERRUPT_OUT   uC_BEACON_0_OUT
+#define TTC_INTERRUPT_REN   uC_BEACON_0_REN
+#define TTC_INTERRUPT_PIN   uC_BEACON_0_PIN
+
+#define TTC_SHUTDOWN_DIR    uC_BEACON_1_DIR
+#define TTC_SHUTDOWN_SEL    uC_BEACON_1_SEL
+#define TTC_SHUTDOWN_OUT    uC_BEACON_1_OUT
+#define TTC_SHUTDOWN_REN    uC_BEACON_1_REN
+#define TTC_SHUTDOWN_PIN    uC_BEACON_1_PIN
+
+#define TTC_TX_REQUEST_DIR  uC_BEACON_2_DIR
+#define TTC_TX_REQUEST_SEL  uC_BEACON_2_SEL
+#define TTC_TX_REQUEST_OUT  uC_BEACON_2_OUT
+#define TTC_TX_REQUEST_REN  uC_BEACON_2_REN
+#define TTC_TX_REQUEST_PIN  uC_BEACON_2_PIN
+
+#define TTC_TX_BUSY_DIR     uC_BEACON_3_DIR
+#define TTC_TX_BUSY_SEL     uC_BEACON_3_SEL
+#define TTC_TX_BUSY_OUT     uC_BEACON_3_OUT
+#define TTC_TX_BUSY_IN      uC_BEACON_3_IN
+#define TTC_TX_BUSY_REN     uC_BEACON_3_REN
+#define TTC_TX_BUSY_PIN     uC_BEACON_3_PIN
 //! \} End of mcu_beacon
 
 /**

@@ -63,6 +63,7 @@ void uart_tx_char(char tx_char){
 }
 
 void uart_rx(char *rx_data, int length){
+    *rx_data =  UCA2RXBUF; //to flush the buffer
     while (length--) {
         while (!(UCA2IFG & UCRXIFG));
         *rx_data =  UCA2RXBUF;

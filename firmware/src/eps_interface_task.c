@@ -18,14 +18,16 @@ void eps_interface_task( void *pvParameters )
 
     while(1)
     {
-        //TODO: TASK ROUTINE
+        if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    //try to get the mutex
 
-        eps_status = eps_read(&eps_package);
+            eps_status = eps_read(&eps_package);
+            xSemaphoreGive( i2c0_semaphore );                               //release the mutex
 
-        xQueueOverwrite(status_eps_queue, &eps_status);
+            xQueueOverwrite(status_eps_queue, &eps_status);
 
-        if(eps_status == EPS_ALIVE) {
-            xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);
+            if(eps_status == EPS_ALIVE) {
+                xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);
+            }
         }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, EPS_INTERFACE_TASK_PERIOD_TICKS );

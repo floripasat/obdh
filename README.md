@@ -29,6 +29,7 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 * Select package: MSP430 Ultra Low Power MCUs 
 * After installed, open and update CCSv7: Help->Check for Updates->Select All-> Update.. / Restart
 * Get the source code: `git clone https://github.com/floripasat/obdh`
+* Add the project compiler version: CCS->Help->Install New Software->Work with: All available sites->Disable 'Show only latest version'->Check TI Compoler Updates: MSP430 Compiler Tools 16.6.0 ->Finish/Install/Restart
 * Import source project into CCSv7: File->Import->Code Composer Studio->CCS Projects; Select the source folder: obdh/firmware; Leave 'Copy projects into workspace' unchecked.
 ## References
 

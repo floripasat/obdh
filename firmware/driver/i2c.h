@@ -74,9 +74,10 @@ uint8_t i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag
  * \param base_address is the I2C registers base address of the serial interface
  * \param p_tx_data is a pointer to a data buffer, with the data to send
  * \param bytes is the buffer size, in bytes
+ * \param start_stop_flag switch if there will be a start and/or stop signal between the transmission
  * \return sucess or timeout
  */
-uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes);
+uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes, uint8_t start_stop_flag);
 
 /**
  * \fn i2c_receive_burst
@@ -85,9 +86,10 @@ uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes
  * \param base_address is the I2C registers base address of the serial interface
  * \param p_rx_data is a pointer to a data buffer, to store the received data
  * \param bytes is the buffer size, in bytes
+ * \param start_stop_flag switch if there will be a start and/or stop signal between the transmission
  * \return sucess or timeout
  */
-uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes);
+uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t bytes, uint8_t start_stop_flag);
 
 /**
  * \fn i2c_receive

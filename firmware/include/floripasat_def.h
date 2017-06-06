@@ -40,14 +40,18 @@
  * \brief The struct to decode a request command
  */
 typedef struct {
-    uint8_t request_action; /**< the action (send data, shutdown..) */
     uint16_t flags;         /**< modules flags to request just the wanted data*/
     uint8_t packages_count; /**< number of packages to read, from offset */
     uint8_t packages_origin;/**< position used as reference for the offset */
     int32_t packages_offset;/**< number of packages to offset from origin */
-} request_packet_t;
+} request_data_packet_t;
 
-
+typedef struct {
+    uint8_t ID[6];
+    uint16_t request_action; /**< the action (send data, shutdown..) */
+    uint8_t arguments[8];
+    uint8_t reserved[12];
+} telecommand_t;
 
 typedef struct {
     uint16_t package_flags;
@@ -76,8 +80,9 @@ typedef struct {
  * \brief valid commands to be sent from the earth segment
  * \{
  */
-#define SEND_DATA_REQUEST           0x44    /**< uplink command to request data */
-#define SHUTDOWN_REQUEST            0x53    /**< uplink command to request a 24 hours shutdown */
+#define REQUEST_DATA_TELECOMMAND            0x7764    /**< uplink command to request whole data orbit - dw */
+#define REQUEST_SHUTDOWN_TELECOMMAND        0x6473    /**< uplink command to request a 24 hours shutdown - sd */
+#define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
 //! \} End of uplink_commands
 
 

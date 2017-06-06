@@ -12,6 +12,8 @@ void create_tasks( void ) {
     solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
     transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
+    ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
+    tx_queue                = xQueueCreate( 1, sizeof( uint8_t ) );
     payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );
     payload2_queue          = xQueueCreate( 5, sizeof( satellite_data.payload2) );
 
@@ -21,6 +23,9 @@ void create_tasks( void ) {
     status_mem1_queue       = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue        = xQueueCreate( 1, sizeof(uint8_t) );
 
+
+    i2c0_semaphore = xSemaphoreCreateMutex(); /**< create a semaphore to controls the i2c_0 interface usage*/
+
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
     xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
 //    xTaskCreate( communications_task, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
@@ -28,10 +33,41 @@ void create_tasks( void ) {
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
-//    xTaskCreate( ttc_interface_task, "TTC", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
+    xTaskCreate( ttc_interface_task, "TT&C", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
+    xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
 #ifdef _DEBUG
     xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
 #endif
+}
+
+void gpio_setup() {
+    //TODO: set the configuration of every pins. //MAGNETORQUER   //SD
+    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
+
+
+    //DISABLE PERIPHERAL FUNCTION
+    BIT_CLEAR(TTC_INTERRUPT_SEL, TTC_INTERRUPT_PIN);
+    BIT_CLEAR(TTC_SHUTDOWN_SEL, TTC_SHUTDOWN_PIN);
+    BIT_CLEAR(TTC_TX_REQUEST_SEL, TTC_TX_REQUEST_PIN);
+    BIT_CLEAR(TTC_TX_BUSY_SEL, TTC_TX_BUSY_PIN);
+
+    //ENEBLE PULL-UP/DOWN RESISTORS
+//    BIT_SET(TTC_INTERRUPT_REN, TTC_INTERRUPT_PIN);
+//    BIT_SET(TTC_SHUTDOWN_REN, TTC_SHUTDOWN_PIN);
+//    BIT_SET(TTC_TX_REQUEST_REN, TTC_TX_REQUEST_PIN);
+    BIT_SET(TTC_TX_BUSY_REN, TTC_TX_BUSY_PIN);
+
+    //ALL PULL-DOWN / PUSH-DOWN
+    BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);
+    BIT_CLEAR(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);
+    BIT_CLEAR(TTC_TX_REQUEST_OUT, TTC_TX_REQUEST_PIN);
+    BIT_CLEAR(TTC_TX_BUSY_OUT, TTC_TX_BUSY_PIN);
+
+    //set as input/output
+    BIT_SET(TTC_INTERRUPT_DIR, TTC_INTERRUPT_PIN);      //set as output
+    BIT_SET(TTC_SHUTDOWN_DIR, TTC_SHUTDOWN_PIN);        //set as output
+    BIT_SET(TTC_TX_REQUEST_DIR, TTC_TX_REQUEST_PIN);    //set as output
+    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as output
 }
 
 void setup_hardware( void ) {
@@ -74,11 +110,9 @@ void setup_hardware( void ) {
     adc_setup();
 
     debug(ADC_INFO_MSG);
+
     /*  SETUP GPIO */
-    //MAGNETORQUER
-    //SD
-    //TODO: set the configuration of every pins.
-    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
+    gpio_setup();
 
     update_reset_value();
 
