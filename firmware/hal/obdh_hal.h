@@ -21,7 +21,7 @@
 #define IMU0_I2C_SLAVE_ADRESS               0x68    /**< I2C SLAVE ADRESS OF IMU0 */
 #define IMU1_I2C_SLAVE_ADRESS               0x69    /**< I2C SLAVE ADRESS OF IMU1 */
 #define EPS_I2C_SLAVE_ADRESS                0x48    /**< I2C SLAVE ADRESS OF EPS INTERFACE */
-#define PAYLOAD1_I2C_SLAVE_ADDRESS          0x55//TODO: FIX THE ADDRESS *************
+#define PAYLOAD1_I2C_SLAVE_ADDRESS          0x29
 #define PAYLOAD2_I2C_SLAVE_ADDRESS          0x81//TODO: FIX THE ADDRESS *************
 #define ANTENNA_SYSTEM_I2C_SLAVE_ADDRESS    0x12//TODO: FIX THE ADDRESS ***********
 

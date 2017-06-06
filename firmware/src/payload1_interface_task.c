@@ -21,9 +21,9 @@ void payload1_interface_task( void *pvParameters ) {
 
         if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    //try to get the mutex
 
-            payload1_status = payload1_write(test_data, 0x00000005, 10);
+//            payload1_status = payload1_write(test_data, 0x00000005, 10);  //write 10 bytes starting on the address 5
 
-            payload1_status = payload1_read(payload1_data, 0x00000005, 10);
+            payload1_status = payload1_read(payload1_data, 0x00000005, 2);  //read the temperature register (2 bytes)
 
             xSemaphoreGive( i2c0_semaphore );                               //release the mutex
 
