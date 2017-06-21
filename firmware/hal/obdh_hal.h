@@ -81,10 +81,13 @@
 #define     TEST_SUCESS     0x01
 #define     TEST_FAIL       0x00
 
-#define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)        /**< macro that toggles a bit in a register */
-#define BIT_SET(REG, BIT)       (REG |= BIT)        /**< macro that set a bit in a register */
-#define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)       /**< macro that clear a bit in a register */
-#define BIT_READ(REG, BIT)      (REG & BIT)         /**< macro that read a bit in a register */
+#define BIT_TOGGLE(REG, BIT)            (REG ^= BIT)        /**< macro that toggles a bit in a register */
+#define BIT_SET(REG, BIT)               (REG |= BIT)        /**< macro that set a bit in a register */
+#define BIT_CLEAR(REG, BIT)             (REG &= ~BIT)       /**< macro that clear a bit in a register */
+#define BIT_READ(REG, BIT)              (REG & BIT)         /**< macro that read a bit in a register */
+#define BIT_PUT(REG, BIT, BIT_VALUE)    ((BIT_VALUE & 1) == 1) ? BIT_SET(REG, BIT) : BIT_CLEAR(REG, BIT)
+/**< macro that put the BIT_VALUE in the BIT position of the REG address */
+
 
 #define gpio_init() {               \
                         P1DIR = 0;  \
@@ -461,6 +464,19 @@
 #define TTC_TX_BUSY_IN      uC_BEACON_3_IN
 #define TTC_TX_BUSY_REN     uC_BEACON_3_REN
 #define TTC_TX_BUSY_PIN     uC_BEACON_3_PIN
+
+#define TTC_CLK_DIR         uC_BEACON_1_DIR
+#define TTC_CLK_OUT         uC_BEACON_1_OUT
+#define TTC_CLK_PIN         uC_BEACON_1_PIN
+#define TTC_MOSI_DIR        uC_BEACON_2_DIR
+#define TTC_MOSI_OUT        uC_BEACON_2_OUT
+#define TTC_MOSI_PIN        uC_BEACON_2_PIN
+#define TTC_MISO_DIR        uC_BEACON_3_DIR
+#define TTC_MISO_IN         uC_BEACON_3_IN
+#define TTC_MISO_PIN        uC_BEACON_3_PIN
+
+
+
 //! \} End of mcu_beacon
 
 /**
