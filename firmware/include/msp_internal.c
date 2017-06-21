@@ -10,6 +10,7 @@
 #include <msp_internal.h>
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
+uint32_t count = 0;
 
 float obdh_temperature_convert(uint16_t temperature_raw){
 	float temperature = (float)(((long)temperature_raw * 2 - CALADC12_15V_30C) * (85 - 30)) /
@@ -70,6 +71,34 @@ void update_reset_value(void){
     new_value = ((uint32_t)read_reset_cause())<<24 | ((previous_value + 1) & 0xFFFFFF);
     flash_erase(RESET_ADDR_FLASH);
     flash_write_long(new_value, RESET_ADDR_FLASH);
+}
+
+void update_counter_value(void) {
+
+    uint32_t addr;
+
+    addr = 4 * (++count % 32);
+
+    if (addr == 0) {
+        flash_erase(COUNTER_ADDR_FLASH);
+    }
+    flash_write_long(count, (COUNTER_ADDR_FLASH + addr));
+}
+
+void restore_counter_value(void) {
+
+    uint32_t *addr_check;
+    uint32_t zero = 0;
+    addr_check = (uint32_t*) (END_COUNTER_ADDR_FLASH);
+
+    while( *addr_check == 0xFFFFFFFF) {
+        addr_check--;
+        if( addr_check < COUNTER_ADDR_FLASH) {
+            addr_check = &zero;
+            break;
+        }
+    }
+    count = *addr_check;
 }
 
 uint8_t read_current_state() {

@@ -18,6 +18,8 @@
 #include "stdint.h"
 
 #define RESET_ADDR_FLASH            SEGA_ADDR
+#define COUNTER_ADDR_FLASH          SEGB_ADDR
+#define END_COUNTER_ADDR_FLASH      (SEGC_ADDR-4)
 #define CURRENT_STATE_ADDR_FLASH    SEGC_ADDR
 
 //Current sensing circuit definitions
@@ -122,6 +124,21 @@ uint32_t read_reset_value(void);
  */
 void update_reset_value(void);
 
+/**
+ * \fn update_counter_value(void)
+ * Read the previous time counter, increment it and rewrites in the flash memory
+ * \param None
+ * \return None
+ */
+void update_counter_value(void);
+
+/**
+ * \fn restore_counter_value(void)
+ * Read the time counter from the flash and store this value in a variable
+ * \param None
+ * \return None
+ */
+void restore_counter_value(void);
 /**
  * \fn read_current_mode(void)
  * Read the current satellite operation mode from the MSP flash memory (segment C)

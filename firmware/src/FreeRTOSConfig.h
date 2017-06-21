@@ -93,10 +93,10 @@
 
 #define configUSE_PREEMPTION			1 //0 - cooperative scheduler / 1 - preemptive scheduler
 #define configUSE_IDLE_HOOK				1
-#define configUSE_TICK_HOOK				1
+#define configUSE_TICK_HOOK				0
 #define configCPU_CLOCK_HZ				( 16000000UL )
 #define configLFXT_CLOCK_HZ       		( 32768L )
-#define configTICK_RATE_HZ				( ( TickType_t ) 1000 ) //the bigger, more overload
+#define configTICK_RATE_HZ				( ( TickType_t ) 100 ) //the bigger, more overload
 #define configMAX_PRIORITIES			( 5 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 30 * 1024 ) )
 #define configMAX_TASK_NAME_LEN			( 20 )

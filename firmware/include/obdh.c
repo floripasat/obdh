@@ -117,6 +117,7 @@ void setup_hardware( void ) {
     gpio_setup();
 
     update_reset_value();
+    restore_counter_value();
 
     debug("\n --- Boot completed ---\n");
 }

@@ -18,6 +18,7 @@ void housekeeping_task( void *pvParameters ) {
     uint8_t system_status[6];
     uint32_t reset_value;
     uint8_t temp_status_flags, status_flags;
+    uint8_t seconds_counter = 0;
 
     last_wake_time = xTaskGetTickCount();
 
@@ -83,6 +84,11 @@ void housekeeping_task( void *pvParameters ) {
         system_status[3] = reset_value>>24  & 0xFF;
         system_status[4] = read_fault_flags();
         system_status[5] = status_flags;
+
+        if( ++seconds_counter >= (60000 / HOUSEKEEPING_TASK_PERIOD_MS) ) {
+            update_counter_value();
+            seconds_counter = 0;
+        }
 
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
 
