@@ -72,4 +72,26 @@ void update_reset_value(void){
     flash_write_long(new_value, RESET_ADDR_FLASH);
 }
 
+uint8_t read_current_state() {
+    return flash_read_single(CURRENT_STATE_ADDR_FLASH);
+}
 
+void update_energy_level(uint8_t new_energy_level) {
+    uint8_t operation_mode;
+    uint8_t new_state;
+
+    operation_mode = read_current_state() & OPERATION_MODE_MASK;
+    new_state = operation_mode | (new_energy_level & ENERGY_LEVEL_MASK);
+    flash_erase(CURRENT_STATE_ADDR_FLASH);
+    flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
+}
+
+void update_operation_mode(uint8_t new_operation_mode) {
+    uint8_t energy_level;
+    uint8_t new_state;
+
+    energy_level = read_current_state() & ENERGY_LEVEL_MASK;
+    new_state = energy_level | (new_operation_mode & OPERATION_MODE_MASK);
+    flash_erase(CURRENT_STATE_ADDR_FLASH);
+    flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
+}

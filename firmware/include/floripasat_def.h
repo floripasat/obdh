@@ -73,7 +73,36 @@ typedef struct {
     uint8_t payload2           [100]; 
 } data_packet_t;
 
+/**
+ * \defgroup current_state_masks
+ * \{
+ */
+#define OPERATION_MODE_MASK         0xF0    /**< to retrieve from current state register just the operation mode */
+#define ENERGY_LEVEL_MASK           0x0F    /**< to retrieve from current state register just the energy level */
+//! \} End of current_state_masks
 
+/**
+ * \defgroup operation_modes
+ * \brief valid operation modes of the satellite
+ * \{
+ */
+#define FULL_OPERATION_MODE         0x10    /**< Normal operation               */
+#define TELECOMMAND_MODE            0x20    /**< While answering a telecommand  */
+#define SHUTDOWN_MODE               0x30    /**< 24-hours shutdown              */
+#define ANTENNA_DEPLOYMENT_MODE     0x40    /**< While waiting to do the deployment (45 minutes) */
+//! \} End of operation_modes
+
+
+/**
+ * \defgroup energy_levels
+ * \brief valid operation modes of the satellite
+ * \{
+ */
+#define ENERGY_L1_MODE              0x01    /**< Energy level 1 - Tx on , Beacon 10s, TLM 60s , Payload on  */
+#define ENERGY_L2_MODE              0x02    /**< Energy level 2 - Tx on , Beacon 10s, TLM 60s , Payload off */
+#define ENERGY_L3_MODE              0x03    /**< Energy level 3 - Tx on , Beacon 20s, TLM 120s, Payload off */
+#define ENERGY_L4_MODE              0x04    /**< Energy level 4 - Tx off, Beacon 30s, TLM off , Payload off */
+//! \} End of energy_levels
 
 /**
  * \defgroup uplink_commands

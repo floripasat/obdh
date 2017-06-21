@@ -17,7 +17,8 @@
 #include "floripasat_def.h"
 #include "stdint.h"
 
-#define RESET_ADDR_FLASH    SEGA_ADDR
+#define RESET_ADDR_FLASH            SEGA_ADDR
+#define CURRENT_STATE_ADDR_FLASH    SEGC_ADDR
 
 //Current sensing circuit definitions
 #if HAL_VERSION == HAL_V2_0
@@ -120,5 +121,32 @@ uint32_t read_reset_value(void);
  * \return None
  */
 void update_reset_value(void);
+
+/**
+ * \fn read_current_mode(void)
+ * Read the current satellite operation mode from the MSP flash memory (segment C)
+ * \param None
+ * \return A byte where the upper nibble refers to the satellite current operation mode and the lower
+ *  nibble refers to the satellite current energy level.
+ */
+uint8_t read_current_state();
+
+/**
+ * \fn update_energy_level(uint8_t new_energy_level)
+ * Read the previous state, maintain the operation mode, update the
+ * energy level and rewrites in the flash memory.
+ * \param new_energy_level is a energy level value (1-4). A Macro must be used.
+ * \return None
+ */
+void update_energy_level(uint8_t new_energy_level);
+
+/**
+ * \fn update_operation_mode(uint8_t new_operation_mode)
+ * Read the previous state, maintain the energy level, update the
+ * operation mode and rewrites in the flash memory
+ * \param new_energy_level is a energy level value (1-4). A Macro must be used.
+ * \return None
+ */
+void update_operation_mode(uint8_t new_operation_mode);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */
