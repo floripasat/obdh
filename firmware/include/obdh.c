@@ -67,12 +67,14 @@ void gpio_setup() {
     BIT_SET(TTC_INTERRUPT_DIR, TTC_INTERRUPT_PIN);      //set as output
     BIT_SET(TTC_SHUTDOWN_DIR, TTC_SHUTDOWN_PIN);        //set as output
     BIT_SET(TTC_TX_REQUEST_DIR, TTC_TX_REQUEST_PIN);    //set as output
-    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as output
+    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as input
 }
 
 void setup_hardware( void ) {
     uint8_t test_result;
     taskDISABLE_INTERRUPTS();
+
+    gpio_init();
 
     /*   External watchdog timer reset pin */
     wdti_setup(WATCHDOG, WD_16_SEC);

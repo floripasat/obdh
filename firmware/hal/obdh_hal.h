@@ -85,6 +85,18 @@
 #define BIT_SET(REG, BIT)       (REG |= BIT)        /**< macro that set a bit in a register */
 #define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)       /**< macro that clear a bit in a register */
 #define BIT_READ(REG, BIT)      (REG & BIT)         /**< macro that read a bit in a register */
+
+#define gpio_init() {               \
+                        P1DIR = 0;  \
+                        P2DIR = 0;  \
+                        P3DIR = 0;  \
+                        P4DIR = 0;  \
+                        P5DIR = 0;  \
+                        P6DIR = 0;  \
+                        P7DIR = 0;  \
+                        P8DIR = 0;  \
+                        P9DIR = 0;  \
+                    }
 /**
  * \defgroup OBDH_pins
  * \brief MCU pins description
