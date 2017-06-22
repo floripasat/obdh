@@ -1,5 +1,5 @@
 /*
- * obdh.h
+ * msp_internal.h
  *
  *  Created on: 30 de mai de 2016
  *      Author: mario
@@ -17,10 +17,11 @@
 #include "floripasat_def.h"
 #include "stdint.h"
 
-#define RESET_ADDR_FLASH            SEGA_ADDR
-#define COUNTER_ADDR_FLASH          SEGB_ADDR
-#define END_COUNTER_ADDR_FLASH      (SEGC_ADDR-4)
-#define CURRENT_STATE_ADDR_FLASH    SEGC_ADDR
+#define RESET_ADDR_FLASH                    (uint32_t *) SEGA_ADDR
+#define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGB_ADDR
+#define END_TIME_COUNTER_ADDR_FLASH         (uint32_t *)(SEGC_ADDR-4)
+#define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGC_ADDR
+#define TIME_STATE_CHANGED_ADDR_FLASH       (uint32_t *)(CURRENT_STATE_ADDR_FLASH+4)
 
 //Current sensing circuit definitions
 #if HAL_VERSION == HAL_V2_0
@@ -146,7 +147,7 @@ void restore_counter_value(void);
  * \return A byte where the upper nibble refers to the satellite current operation mode and the lower
  *  nibble refers to the satellite current energy level.
  */
-uint8_t read_current_state();
+uint8_t read_current_state(void);
 
 /**
  * \fn update_energy_level(uint8_t new_energy_level)
@@ -156,6 +157,14 @@ uint8_t read_current_state();
  * \return None
  */
 void update_energy_level(uint8_t new_energy_level);
+
+/**
+ * \fn read_time_state_changed(void)
+ * Read the time that the last change of the state occurred, stored into the Memory Segment C
+ * \param None
+ * \return A unsigned 32-bit minutes counter
+ */
+uint8_t read_time_state_changed(void);
 
 /**
  * \fn update_operation_mode(uint8_t new_operation_mode)

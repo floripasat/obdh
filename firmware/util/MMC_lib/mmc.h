@@ -16,7 +16,6 @@
 #define HIGH(a) ((a>>8)&0xFF)               // high byte from word
 #define LOW(a)  (a&0xFF)                    // low byte from word
 
-#define DUMMY 0xff
 
 
 // Tokens (necessary  because at NPO/IDLE (and CS active) only 0xff is on the data/command line)

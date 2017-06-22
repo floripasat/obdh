@@ -1,5 +1,5 @@
 /*
- * obdh.c
+ * msp_internal.c
  *
  *  Created on: 30 de mai de 2016
  *      Author: mario
@@ -10,7 +10,7 @@
 #include <msp_internal.h>
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
-uint32_t count = 0;
+uint32_t minutes_counter = 0;
 
 float obdh_temperature_convert(uint16_t temperature_raw){
 	float temperature = (float)(((long)temperature_raw * 2 - CALADC12_15V_30C) * (85 - 30)) /
@@ -77,31 +77,31 @@ void update_counter_value(void) {
 
     uint32_t addr;
 
-    addr = 4 * (++count % 32);
+    addr = ++minutes_counter % 32;
 
     if (addr == 0) {
-        flash_erase(COUNTER_ADDR_FLASH);
+        flash_erase(TIME_COUNTER_ADDR_FLASH);
     }
-    flash_write_long(count, (COUNTER_ADDR_FLASH + addr));
+    flash_write_long(minutes_counter, (TIME_COUNTER_ADDR_FLASH + addr));
 }
 
 void restore_counter_value(void) {
 
     uint32_t *addr_check;
     uint32_t zero = 0;
-    addr_check = (uint32_t*) (END_COUNTER_ADDR_FLASH);
+    addr_check = (uint32_t*) (END_TIME_COUNTER_ADDR_FLASH);
 
     while( *addr_check == 0xFFFFFFFF) {
         addr_check--;
-        if( addr_check < COUNTER_ADDR_FLASH) {
+        if( addr_check < TIME_COUNTER_ADDR_FLASH) {
             addr_check = &zero;
             break;
         }
     }
-    count = *addr_check;
+    minutes_counter = *addr_check;
 }
 
-uint8_t read_current_state() {
+uint8_t read_current_state(void) {
     return flash_read_single(CURRENT_STATE_ADDR_FLASH);
 }
 
@@ -115,6 +115,10 @@ void update_energy_level(uint8_t new_energy_level) {
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
 }
 
+uint8_t read_time_state_changed(void) {
+    return flash_read_long(TIME_STATE_CHANGED_ADDR_FLASH);
+}
+
 void update_operation_mode(uint8_t new_operation_mode) {
     uint8_t energy_level;
     uint8_t new_state;
@@ -123,4 +127,6 @@ void update_operation_mode(uint8_t new_operation_mode) {
     new_state = energy_level | (new_operation_mode & OPERATION_MODE_MASK);
     flash_erase(CURRENT_STATE_ADDR_FLASH);
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
+
+    flash_write_long(minutes_counter, TIME_STATE_CHANGED_ADDR_FLASH);
 }

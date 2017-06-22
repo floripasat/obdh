@@ -86,8 +86,8 @@ typedef struct {
  * \brief valid operation modes of the satellite
  * \{
  */
-#define FULL_OPERATION_MODE         0x10    /**< Normal operation               */
-#define TELECOMMAND_MODE            0x20    /**< While answering a telecommand  */
+#define NORMAL_OPERATION_MODE       0x10    /**< Normal operation               */
+#define BOOT_MODE                   0x20    /**< While configuring the basic settings and buses  */
 #define SHUTDOWN_MODE               0x30    /**< 24-hours shutdown              */
 #define ANTENNA_DEPLOYMENT_MODE     0x40    /**< While waiting to do the deployment (45 minutes) */
 //! \} End of operation_modes

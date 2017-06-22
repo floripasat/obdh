@@ -1,5 +1,7 @@
 #include "spi.h"
 
+#define DUMMY 0xFF
+
 void port_mapping_uca0(void) {
     // Enable Write-access to modify port mapping registers
     PMAPPWD = 0x02D52;

@@ -3,9 +3,6 @@
 #include "../hal/obdh_hal.h"
 
 
-
-#define DUMMY 0xFF
-
 void spi_setup(uint8_t interface);
 void spi_clock_setup(uint16_t base_address);
 void spi_tx(uint16_t base_address, uint8_t data);

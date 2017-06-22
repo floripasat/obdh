@@ -1,5 +1,7 @@
 #include "mem.h"
 
+#define DUMMY 0xFF
+
 void mem_disable(uint8_t mem_number){
 
 	switch(mem_number){
