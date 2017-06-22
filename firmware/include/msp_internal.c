@@ -73,7 +73,11 @@ void update_reset_value(void){
     flash_write_long(new_value, RESET_ADDR_FLASH);
 }
 
-void update_counter_value(void) {
+uint32_t read_time_counter(void) {
+    return minutes_counter;
+}
+
+void update_time_counter(void) {
 
     uint32_t addr;
 
@@ -85,7 +89,7 @@ void update_counter_value(void) {
     flash_write_long(minutes_counter, (TIME_COUNTER_ADDR_FLASH + addr));
 }
 
-void restore_counter_value(void) {
+void restore_time_counter(void) {
 
     uint32_t *addr_check;
     uint32_t zero = 0;
@@ -129,4 +133,8 @@ void update_operation_mode(uint8_t new_operation_mode) {
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
 
     flash_write_long(minutes_counter, TIME_STATE_CHANGED_ADDR_FLASH);
+}
+
+void low_power_mode_sleep(void) {
+    __bis_SR_register(LPM1_bits | GIE);       // Enter LPM1, enable interrupts
 }

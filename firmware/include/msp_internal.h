@@ -126,20 +126,27 @@ uint32_t read_reset_value(void);
 void update_reset_value(void);
 
 /**
- * \fn update_counter_value(void)
+ * \fn update_time_counter(void)
  * Read the previous time counter, increment it and rewrites in the flash memory
  * \param None
  * \return None
  */
-void update_counter_value(void);
+void update_time_counter(void);
 
 /**
- * \fn restore_counter_value(void)
+ * \fn read_time_counter(void)
+ * Read the time counter from the flash memory
+ * \param None
+ * \return a 4-byte minutes counter
+ */
+uint32_t read_time_counter(void);
+/**
+ * \fn restore_time_counter(void)
  * Read the time counter from the flash and store this value in a variable
  * \param None
  * \return None
  */
-void restore_counter_value(void);
+void restore_time_counter(void);
 /**
  * \fn read_current_mode(void)
  * Read the current satellite operation mode from the MSP flash memory (segment C)
@@ -174,5 +181,14 @@ uint8_t read_time_state_changed(void);
  * \return None
  */
 void update_operation_mode(uint8_t new_operation_mode);
+
+
+/**
+ * \fn low_power_mode_sleep(void)
+ * Enter in Low Power Mode, disabling the MCLK and SMCLK until that a interrupt occurs.
+ * \param None
+ * \return None
+ */
+void low_power_mode_sleep(void);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */

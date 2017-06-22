@@ -86,7 +86,7 @@ void housekeeping_task( void *pvParameters ) {
         system_status[5] = status_flags;
 
         if( ++seconds_counter >= (60000 / HOUSEKEEPING_TASK_PERIOD_MS) ) {
-            update_counter_value();
+            update_time_counter();
             seconds_counter = 0;
         }
 
