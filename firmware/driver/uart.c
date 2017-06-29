@@ -62,8 +62,15 @@ void uart_tx_char(char tx_char){
 	UCA2TXBUF = tx_char;
 }
 
+void uart_flush(){
+    uint8_t x;
+    while (UCA2IFG & UCRXIFG){
+        x = UCA2RXBUF;
+    }
+}
+
 void uart_rx(char *rx_data, int length){
-    *rx_data =  UCA2RXBUF; //to flush the buffer
+    uart_flush();
     while (length--) {
         while (!(UCA2IFG & UCRXIFG));
         *rx_data =  UCA2RXBUF;

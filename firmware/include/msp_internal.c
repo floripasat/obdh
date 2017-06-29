@@ -113,9 +113,9 @@ void update_energy_level(uint8_t new_energy_level) {
     uint8_t operation_mode;
     uint8_t new_state;
 
-    operation_mode = read_current_state() & OPERATION_MODE_MASK;
+    operation_mode = read_current_operation_mode();
     new_state = operation_mode | (new_energy_level & ENERGY_LEVEL_MASK);
-    flash_erase(CURRENT_STATE_ADDR_FLASH);
+    flash_erase((uint32_t *)CURRENT_STATE_ADDR_FLASH);
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
 }
 
@@ -127,12 +127,12 @@ void update_operation_mode(uint8_t new_operation_mode) {
     uint8_t energy_level;
     uint8_t new_state;
 
-    energy_level = read_current_state() & ENERGY_LEVEL_MASK;
+    energy_level = read_current_energy_level();
     new_state = energy_level | (new_operation_mode & OPERATION_MODE_MASK);
-    flash_erase(CURRENT_STATE_ADDR_FLASH);
+    flash_erase((uint32_t *)CURRENT_STATE_ADDR_FLASH);
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
 
-    flash_write_long(minutes_counter, TIME_STATE_CHANGED_ADDR_FLASH);
+    flash_write_long(read_time_counter(), TIME_STATE_CHANGED_ADDR_FLASH);
 }
 
 void low_power_mode_sleep(void) {

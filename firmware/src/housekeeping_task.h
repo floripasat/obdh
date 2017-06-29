@@ -18,6 +18,8 @@
 #define HOUSEKEEPING_TASK_PERIOD_MS         1000       /**< Housekeeping task period in miliseconds */
 #define HOUSEKEEPING_TASK_PERIOD_TICKS      ( HOUSEKEEPING_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< Housekeeping task period in ticks*/
 
+
+#define MINUTES_IN_A_DAY    1440 /**< 24 hours * 60 minutes = 1440 minutes */
 /**
  * \var static xTaskHandle housekeeping_task_handle
  * \brief variable which holds the task reference, to allow it handling

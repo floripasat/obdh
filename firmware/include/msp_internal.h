@@ -15,7 +15,6 @@
 #include "../driver/adc.h"
 #include "../driver/flash.h"
 #include "floripasat_def.h"
-#include "stdint.h"
 
 #define RESET_ADDR_FLASH                    (uint32_t *) SEGA_ADDR
 #define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGB_ADDR
@@ -155,6 +154,9 @@ void restore_time_counter(void);
  *  nibble refers to the satellite current energy level.
  */
 uint8_t read_current_state(void);
+
+#define read_current_operation_mode() (read_current_state() & OPERATION_MODE_MASK)
+#define read_current_energy_level() (read_current_state() & ENERGY_LEVEL_MASK)
 
 /**
  * \fn update_energy_level(uint8_t new_energy_level)

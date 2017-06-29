@@ -19,6 +19,8 @@ void housekeeping_task( void *pvParameters ) {
     uint32_t reset_value;
     uint8_t temp_status_flags, status_flags;
     uint8_t seconds_counter = 0;
+    uint8_t current_mode;
+    uint32_t time_now, time_state_last_change;
 
     last_wake_time = xTaskGetTickCount();
 
@@ -88,6 +90,16 @@ void housekeeping_task( void *pvParameters ) {
         if( ++seconds_counter >= (60000 / HOUSEKEEPING_TASK_PERIOD_MS) ) {
             update_time_counter();
             seconds_counter = 0;
+        }
+
+        current_mode = read_current_operation_mode();
+
+        if(current_mode  == SHUTDOWN_MODE) {
+            time_now = read_time_counter();
+            time_state_last_change = read_time_state_changed();
+            if( time_now - time_state_last_change >= (MINUTES_IN_A_DAY)  ) {
+                update_operation_mode(NORMAL_OPERATION_MODE);
+            }
         }
 
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
