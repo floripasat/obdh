@@ -133,7 +133,7 @@ void hibernate(void) {
         wdti_reset_counter();
 
         low_power_mode_sleep();     //enter in lpm
-        //wakeup after a interrupt event
+        //wake-up after a interrupt event
 
         if(seconds_counter++ == 60) {   //  count 1 minute
             seconds_counter = 0;

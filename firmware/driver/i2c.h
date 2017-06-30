@@ -12,7 +12,7 @@
 #define TRANSMIT_MODE                   UCTR        /**< Tx mode bit set    */
 #define RECEIVE_MODE                    0x00        /**< Tx mode bit clear  */
 
-#define I2C_TIMEOUT                     10000
+#define I2C_TIMEOUT                     0xFFFF//10000
 
 #define I2C_SUCESS                      1
 #define I2C_FAIL                        0
