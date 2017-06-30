@@ -1,24 +1,72 @@
 /*
  * crc.c
- *
- *  Created on: 26 de mai de 2016
- *      Author: mario
+ * 
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * 
+ * This file is part of FloripaSat-TTC.
+ * 
+ * FloripaSat-TTC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * FloripaSat-TTC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-TTC.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 
-#include "crc.h"
+/**
+ * \file crc.c
+ * 
+ * \brief Implementation of the CRC functions.
+ * 
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ * 
+ * \version 1.0-dev
+ * 
+ * \date 23/03/2017
+ * 
+ * \addtogroup crc
+ * \{
+ */
 
-char CRC8(char *data, uint16_t length) {
-	char CRC, inbyte, Mix;    		// CRC, inbyte e Mix tem 8 bits
-	int i, j;
-	for (i = 1; i < length - 2 ; i++) {          // contagem dos bytes(de 1 a n-2 para o floripa sat)
-		inbyte = data[i];
-		for (j = 0; j < 8; j++) { 			// contagem dos bits de cada byte
-			Mix = (CRC ^ inbyte) & 0x01;	// Mix eh a divisao (xor) dos bytes da mensagem pelo polinomio crc
-			CRC >>= 1;						// CRC comeca em 0 e eh shiftado para a direita a cada iteracao
-			if (Mix != 0)					// se Mix for diferente de zero, o CRC vira o XOR dele mesmo com a mascara de bits 0x8C
-				CRC ^= 0x8C;
-			inbyte >>= 1;
-		}
-	}
-	return CRC;
+#include "../inc/crc.h"
+
+uint8_t crc8(uint8_t initial_value, uint8_t polynomial, uint8_t *data, uint8_t len)
+{
+    uint8_t crc = initial_value;
+    while(len--)
+    {
+        crc ^= *data++;
+        uint8_t j = 0;
+        for (j=0; j<8; j++)
+        {
+            crc = (crc << 1) ^ ((crc & 0x80)? polynomial: 0);
+        }
+        crc &= 0xFF;
+    }
+    
+    return crc;
 }
+
+uint16_t crc16_CCITT(uint16_t initial_value, uint8_t* data, uint8_t size)
+{
+    uint8_t x;
+    uint16_t crc = initial_value;
+
+    while(size--)
+    {
+        x = crc >> 8 ^ *data++;
+        x ^= x >> 4;
+        crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
+    }
+    
+    return crc;
+}
+
+//! \} End of crc implementation group
