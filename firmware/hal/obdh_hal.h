@@ -327,6 +327,7 @@
 
 #define SPI1_MISO_DIR P8DIR
 #define SPI1_MISO_SEL P8SEL
+#define SPI1_MISO_OUT P8OUT
 #define SPI1_MISO_PIN BIT3
 
 #define SPI0_CLK_DIR P2DIR
@@ -541,25 +542,14 @@
 #endif
 
 #if HAL_VERSION == HAL_V2_1
-#define GYRO_Z_CSn_DIR P4DIR
-#define GYRO_Z_CSn_OUT P4OUT
-#define GYRO_Z_CSn_PIN BIT0
 
 #define TEMP_Z_CSn_DIR P4DIR
 #define TEMP_Z_CSn_OUT P4OUT
 #define TEMP_Z_CSn_PIN BIT1
 
-#define GYRO_Y_CSn_DIR P4DIR
-#define GYRO_Y_CSn_OUT P4OUT
-#define GYRO_Y_CSn_PIN BIT2
-
 #define TEMP_Y_CSn_DIR P4DIR
 #define TEMP_Y_CSn_OUT P4OUT
 #define TEMP_Y_CSn_PIN BIT3
-
-#define GYRO_X_CSn_DIR P4DIR
-#define GYRO_X_CSn_OUT P4OUT
-#define GYRO_X_CSn_PIN BIT4
 
 #define TEMP_X_CSn_DIR P4DIR
 #define TEMP_X_CSn_OUT P4OUT
