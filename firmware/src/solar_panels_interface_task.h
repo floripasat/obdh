@@ -10,14 +10,15 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "../interface/solar_panel.h"
 
 /*
  * PRIORITY =   5
- * FREQUENCY =  1Hz
+ * FREQUENCY =  0.2Hz
  */
 
 #define SOLAR_PANELS_INTERFACE_TASK_PRIORITY          5
-#define SOLAR_PANELS_INTERFACE_TASK_PERIOD_MS         100
+#define SOLAR_PANELS_INTERFACE_TASK_PERIOD_MS         5000
 #define SOLAR_PANELS_INTERFACE_TASK_PERIOD_TICKS      ( SOLAR_PANELS_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**

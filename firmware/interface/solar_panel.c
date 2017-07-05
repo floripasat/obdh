@@ -18,7 +18,7 @@ void solar_panel_setup(void) {
     BIT_SET(TEMP_Z_CSn_DIR, TEMP_Z_CSn_PIN);
 }
 
-int16_t read_temperature(uint8_t panel_selection) {
+int16_t solar_panel_read_temperature(uint8_t panel_selection) {
 
     int16_t temperature_raw;
 
