@@ -7,19 +7,19 @@
 #include <antenna.h>
 
 void deploy_antenna(void){
-    //TODO: I2C communication
-    uint8_t deploy_status;
-    /* communicates with antenna */
-    deploy_status = verify_deployment_status();
+    //TODO: include the I2C code to send the deployment command
+}
 
-    if(deploy_status == NOT_DEPLOYED) {
-        //WAIT 45 MINUTES
-        //TRY TO DEPLOY ANTENNA
-    }
+void antenna_deployment_routine(void){
+
+    do {
+        deploy_antenna();
+    } while(verify_deployment_status() == ANTENNA_NOT_DEPLOYED);
 
 }
 
+
 uint8_t verify_deployment_status(void){
     //send I2C cmd to read deployment status
-
+    return ANTENNA_DEPLOYED;   //while the routine was not implemented TODO: implements the antenna communication
 }

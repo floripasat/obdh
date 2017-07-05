@@ -54,11 +54,11 @@
 char *flash_ptr;                         	// Initialize Flash pointer
 long *current_flash_ptr;					//place holder to save flash pointer to boot
 
-void flash_write(char*, int);
-void flash_write_single(char ,long *);
-void flash_write_long(long data, long *addr);
-void flash_erase(long*);
-char flash_read_single(char *addr);
-long flash_read_long(long *addr);
+void flash_write(uint8_t* data, uint16_t bytes);
+void flash_write_single(uint8_t data, uint8_t *addr);
+void flash_write_long(uint32_t data, uint32_t *addr);
+void flash_erase(uint32_t*);
+uint8_t flash_read_single(uint8_t *addr);
+uint32_t flash_read_long(uint32_t *addr);
 
 #endif /* UTIL_FLASH_H_ */

@@ -1,5 +1,5 @@
 /*
- * obdh.c
+ * msp_internal.c
  *
  *  Created on: 30 de mai de 2016
  *      Author: mario
@@ -10,6 +10,7 @@
 #include <msp_internal.h>
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
+uint32_t minutes_counter = 0;
 
 float obdh_temperature_convert(uint16_t temperature_raw){
 	float temperature = (float)(((long)temperature_raw * 2 - CALADC12_15V_30C) * (85 - 30)) /
@@ -72,4 +73,68 @@ void update_reset_value(void){
     flash_write_long(new_value, RESET_ADDR_FLASH);
 }
 
+uint32_t read_time_counter(void) {
+    return minutes_counter;
+}
 
+void update_time_counter(void) {
+
+    uint32_t addr;
+
+    addr = ++minutes_counter % 32;
+
+    if (addr == 0) {
+        flash_erase(TIME_COUNTER_ADDR_FLASH);
+    }
+    flash_write_long(minutes_counter, (TIME_COUNTER_ADDR_FLASH + addr));
+}
+
+void restore_time_counter(void) {
+
+    uint32_t *addr_check;
+    uint32_t zero = 0;
+    addr_check = (uint32_t*) (END_TIME_COUNTER_ADDR_FLASH);
+
+    while( *addr_check == 0xFFFFFFFF) {
+        addr_check--;
+        if( addr_check < TIME_COUNTER_ADDR_FLASH) {
+            addr_check = &zero;
+            break;
+        }
+    }
+    minutes_counter = *addr_check;
+}
+
+uint8_t read_current_state(void) {
+    return flash_read_single(CURRENT_STATE_ADDR_FLASH);
+}
+
+void update_energy_level(uint8_t new_energy_level) {
+    uint8_t operation_mode;
+    uint8_t new_state;
+
+    operation_mode = read_current_operation_mode();
+    new_state = operation_mode | (new_energy_level & ENERGY_LEVEL_MASK);
+    flash_erase((uint32_t *)CURRENT_STATE_ADDR_FLASH);
+    flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
+}
+
+uint8_t read_time_state_changed(void) {
+    return flash_read_long(TIME_STATE_CHANGED_ADDR_FLASH);
+}
+
+void update_operation_mode(uint8_t new_operation_mode) {
+    uint8_t energy_level;
+    uint8_t new_state;
+
+    energy_level = read_current_energy_level();
+    new_state = energy_level | (new_operation_mode & OPERATION_MODE_MASK);
+    flash_erase((uint32_t *)CURRENT_STATE_ADDR_FLASH);
+    flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
+
+    flash_write_long(read_time_counter(), TIME_STATE_CHANGED_ADDR_FLASH);
+}
+
+void low_power_mode_sleep(void) {
+    __bis_SR_register(LPM1_bits | GIE);       // Enter LPM1, enable interrupts
+}

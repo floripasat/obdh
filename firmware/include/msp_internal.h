@@ -1,5 +1,5 @@
 /*
- * obdh.h
+ * msp_internal.h
  *
  *  Created on: 30 de mai de 2016
  *      Author: mario
@@ -15,9 +15,12 @@
 #include "../driver/adc.h"
 #include "../driver/flash.h"
 #include "floripasat_def.h"
-#include "stdint.h"
 
-#define RESET_ADDR_FLASH    SEGA_ADDR
+#define RESET_ADDR_FLASH                    (uint32_t *) SEGA_ADDR
+#define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGB_ADDR
+#define END_TIME_COUNTER_ADDR_FLASH         (uint32_t *)(SEGC_ADDR-4)
+#define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGC_ADDR
+#define TIME_STATE_CHANGED_ADDR_FLASH       (uint32_t *)(CURRENT_STATE_ADDR_FLASH+4)
 
 //Current sensing circuit definitions
 #if HAL_VERSION == HAL_V2_0
@@ -120,5 +123,74 @@ uint32_t read_reset_value(void);
  * \return None
  */
 void update_reset_value(void);
+
+/**
+ * \fn update_time_counter(void)
+ * Read the previous time counter, increment it and rewrites in the flash memory
+ * \param None
+ * \return None
+ */
+void update_time_counter(void);
+
+/**
+ * \fn read_time_counter(void)
+ * Read the time counter from the flash memory
+ * \param None
+ * \return a 4-byte minutes counter
+ */
+uint32_t read_time_counter(void);
+/**
+ * \fn restore_time_counter(void)
+ * Read the time counter from the flash and store this value in a variable
+ * \param None
+ * \return None
+ */
+void restore_time_counter(void);
+/**
+ * \fn read_current_mode(void)
+ * Read the current satellite operation mode from the MSP flash memory (segment C)
+ * \param None
+ * \return A byte where the upper nibble refers to the satellite current operation mode and the lower
+ *  nibble refers to the satellite current energy level.
+ */
+uint8_t read_current_state(void);
+
+#define read_current_operation_mode() (read_current_state() & OPERATION_MODE_MASK)
+#define read_current_energy_level() (read_current_state() & ENERGY_LEVEL_MASK)
+
+/**
+ * \fn update_energy_level(uint8_t new_energy_level)
+ * Read the previous state, maintain the operation mode, update the
+ * energy level and rewrites in the flash memory.
+ * \param new_energy_level is a energy level value (1-4). A Macro must be used.
+ * \return None
+ */
+void update_energy_level(uint8_t new_energy_level);
+
+/**
+ * \fn read_time_state_changed(void)
+ * Read the time that the last change of the state occurred, stored into the Memory Segment C
+ * \param None
+ * \return A unsigned 32-bit minutes counter
+ */
+uint8_t read_time_state_changed(void);
+
+/**
+ * \fn update_operation_mode(uint8_t new_operation_mode)
+ * Read the previous state, maintain the energy level, update the
+ * operation mode and rewrites in the flash memory
+ * \param new_energy_level is a energy level value (1-4). A Macro must be used.
+ * \return None
+ */
+void update_operation_mode(uint8_t new_operation_mode);
+
+
+/**
+ * \fn low_power_mode_sleep(void)
+ * Enter in Low Power Mode, disabling the MCLK and SMCLK until that a interrupt occurs.
+ * \param None
+ * \return None
+ */
+void low_power_mode_sleep(void);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */

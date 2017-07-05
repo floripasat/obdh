@@ -19,6 +19,7 @@
 #include "../driver/uart.h"
 #include "../driver/i2c.h"
 #include "../driver/spi.h"
+#include "../driver/timer_b.h"
 #include "../driver/wdti.h"
 #include "../interface/antenna.h"
 #include "../interface/wdte.h"
@@ -49,6 +50,8 @@ void create_tasks( void );
  */
 void setup_hardware( void );
 
+
+void hibernate(void);
 
 #endif
 

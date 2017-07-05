@@ -9,7 +9,10 @@ int main(void) {
 
     setup_hardware();
 
-    deploy_antenna();
+    if(verify_deployment_status() == ANTENNA_NOT_DEPLOYED){
+        hibernate();
+        antenna_deployment_routine();
+    }
 
     create_tasks();
 

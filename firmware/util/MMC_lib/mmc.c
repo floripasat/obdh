@@ -78,7 +78,7 @@
 #include "hal_hardware_board.h"
 
 //#define withDMA
-
+#define DUMMY 0xff
 
 // Function Prototypes
 char mmcGetResponse(void);

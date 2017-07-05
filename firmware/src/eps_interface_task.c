@@ -21,11 +21,12 @@ void eps_interface_task( void *pvParameters )
         if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    //try to get the mutex
 
             eps_status = eps_read(&eps_package);
+
             xSemaphoreGive( i2c0_semaphore );                               //release the mutex
 
             xQueueOverwrite(status_eps_queue, &eps_status);
 
-            if(eps_status == EPS_ALIVE) {
+            if(eps_status == EPS_OK) {
                 xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);
             }
         }

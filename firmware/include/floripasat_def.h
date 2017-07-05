@@ -73,7 +73,52 @@ typedef struct {
     uint8_t payload2           [100]; 
 } data_packet_t;
 
+typedef struct {
+    uint8_t batteries[12];          /**< bat_1_voltage[2], bat_2_voltage[2], bat_1_temp[3], bat_2_temp[3], bat_charge[2] */
+    uint8_t solar_panels[18];       /**< sp_1_volt[2], sp_2_volt[2], sp_3_volt[2], sp_1_cur[2], sp_2_cur[2], sp_3_cur[2], sp_4_cur[2], sp_5_cur[2], sp_6_cur[2] */
+    uint8_t imu[12];                /**< accel_0_x[1], accel_0_y[1], accel_0_z[1], gyr_0_x[1], gyr_0_y[1], gyr_0_z[1], accel_1_x[1], accel_1_y[1], accel_1_z[1], gyr_1_x[1], gyr_1_y[1], gyr_1_z[1] */
+    uint8_t system_time[4];         /**< time, in minutes, since deploy */
+    uint8_t satellite_status[2];    /**< energy_mode,  */
+    uint8_t reset_counter[3];       /**< increment each time a reset happens */
+} beacon_packet_t;
 
+typedef struct {
+    uint8_t start_of_byte;          /**< 0x7E */
+    beacon_packet_t data;           /**< valid data */
+    uint8_t crc_result;             /**< 8-bit crc value of the data */
+} ttc_packet_t;
+
+
+/**
+ * \defgroup current_state_masks
+ * \{
+ */
+#define OPERATION_MODE_MASK         0xF0    /**< to retrieve from current state register just the operation mode */
+#define ENERGY_LEVEL_MASK           0x0F    /**< to retrieve from current state register just the energy level */
+//! \} End of current_state_masks
+
+/**
+ * \defgroup operation_modes
+ * \brief valid operation modes of the satellite
+ * \{
+ */
+#define NORMAL_OPERATION_MODE       0x10    /**< Normal operation               */
+#define BOOT_MODE                   0x20    /**< While configuring the basic settings and buses  */
+#define SHUTDOWN_MODE               0x30    /**< 24-hours shutdown              */
+#define ANTENNA_DEPLOYMENT_MODE     0x40    /**< While waiting to do the deployment (45 minutes) */
+//! \} End of operation_modes
+
+
+/**
+ * \defgroup energy_levels
+ * \brief valid operation modes of the satellite
+ * \{
+ */
+#define ENERGY_L1_MODE              0x01    /**< Energy level 1 - Tx on , Beacon 10s, TLM 60s , Payload on  */
+#define ENERGY_L2_MODE              0x02    /**< Energy level 2 - Tx on , Beacon 10s, TLM 60s , Payload off */
+#define ENERGY_L3_MODE              0x03    /**< Energy level 3 - Tx on , Beacon 20s, TLM 120s, Payload off */
+#define ENERGY_L4_MODE              0x04    /**< Energy level 4 - Tx off, Beacon 30s, TLM off , Payload off */
+//! \} End of energy_levels
 
 /**
  * \defgroup uplink_commands

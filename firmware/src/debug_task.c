@@ -19,13 +19,14 @@ void debug_task( void *pvParameters ) {
     uint8_t ttc_command;
     uint8_t ttc_response;
     uint32_t read_position;
+    uint8_t operation_mode;
 
     while(1) {
 
 #if _DEBUG_AS_LINK == 1
         uart_rx(cmd, sizeof(telecommand_t));
 
-        telecommand = decode_telecommand(cmd);
+        telecommand = decode_telecommand((uint8_t*)cmd);
 
         if(telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
             rqt_packet = decode_request_data_telecommand(telecommand.arguments);
@@ -39,7 +40,10 @@ void debug_task( void *pvParameters ) {
 
             	package_size = get_packet(uart_package, rqt_packet.flags, read_position++);
             	if(package_size > 0) {
-            		uart_tx_bytes((char *)uart_package, package_size);
+            	    operation_mode = read_current_operation_mode();
+            	    if(operation_mode == NORMAL_OPERATION_MODE){
+            	        uart_tx_bytes((char *)uart_package, package_size);
+            	    }
             	}
             }
             ttc_command = TTC_CMD_FREE_TX;
@@ -48,6 +52,7 @@ void debug_task( void *pvParameters ) {
 
         if(telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
             ttc_command = TTC_CMD_SHUTDOWN;
+            update_operation_mode(SHUTDOWN_MODE);
             xQueueOverwrite(ttc_queue, &ttc_command);
         }
 

@@ -51,7 +51,7 @@ void gpio_setup() {
     BIT_CLEAR(TTC_TX_REQUEST_SEL, TTC_TX_REQUEST_PIN);
     BIT_CLEAR(TTC_TX_BUSY_SEL, TTC_TX_BUSY_PIN);
 
-    //ENEBLE PULL-UP/DOWN RESISTORS
+    //ENABLE PULL-UP/DOWN RESISTORS
 //    BIT_SET(TTC_INTERRUPT_REN, TTC_INTERRUPT_PIN);
 //    BIT_SET(TTC_SHUTDOWN_REN, TTC_SHUTDOWN_PIN);
 //    BIT_SET(TTC_TX_REQUEST_REN, TTC_TX_REQUEST_PIN);
@@ -67,12 +67,14 @@ void gpio_setup() {
     BIT_SET(TTC_INTERRUPT_DIR, TTC_INTERRUPT_PIN);      //set as output
     BIT_SET(TTC_SHUTDOWN_DIR, TTC_SHUTDOWN_PIN);        //set as output
     BIT_SET(TTC_TX_REQUEST_DIR, TTC_TX_REQUEST_PIN);    //set as output
-    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as output
+    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as input
 }
 
 void setup_hardware( void ) {
     uint8_t test_result;
     taskDISABLE_INTERRUPTS();
+
+    gpio_init();
 
     /*   External watchdog timer reset pin */
     wdti_setup(WATCHDOG, WD_16_SEC);
@@ -115,10 +117,33 @@ void setup_hardware( void ) {
     gpio_setup();
 
     update_reset_value();
+    restore_time_counter();
 
     debug("\n --- Boot completed ---\n");
 }
 
+void hibernate(void) {
+    uint8_t seconds_counter = 0;
+
+    start_timer_b();
+
+    do {
+        //reset wdt
+        wdte_reset_counter();
+        wdti_reset_counter();
+
+        low_power_mode_sleep();     //enter in lpm
+        //wake-up after a interrupt event
+
+        if(seconds_counter++ == 60) {   //  count 1 minute
+            seconds_counter = 0;
+            update_time_counter();
+        }
+
+    } while (read_time_counter() < 45);
+
+    stop_timer_b();
+}
 
 void vApplicationTickHook( void ) {
     /*
@@ -131,8 +156,7 @@ void vApplicationTickHook( void ) {
     /* Is it time to toggle the LED again? */
     ulCounter++;
 
-    if( ( ulCounter & 0xff ) == 0 )
-    {
+    if( ( ulCounter & 0xff ) == 0 ) {
         /* Once in 256 tick counts, do that */
     }
 }
