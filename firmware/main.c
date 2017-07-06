@@ -20,7 +20,7 @@ int main(void) {
 
     for( ;; );
 
-	return 0; //never will reach here
+	return 0; //will never reach here
 }
 
 

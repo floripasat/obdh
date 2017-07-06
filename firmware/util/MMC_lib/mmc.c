@@ -524,6 +524,7 @@ unsigned long mmcReadCardSize(void)
   for(i = 2,j=mmc_READ_BL_LEN; j>1; j--)
     i <<= 1;
   MMC_CardSize *= i;
+  CS_HIGH();
 
   return (MMC_CardSize);
 

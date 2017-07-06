@@ -23,15 +23,15 @@ void create_tasks( void ) {
     status_mem1_queue       = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue        = xQueueCreate( 1, sizeof(uint8_t) );
 
-
+    spi1_semaphore = xSemaphoreCreateMutex(); /**< create a semaphore to controls the spi_1 interface usage*/
     i2c0_semaphore = xSemaphoreCreateMutex(); /**< create a semaphore to controls the i2c_0 interface usage*/
 
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
-    xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
+    xTaskCreate( store_data_task, "StoreData", 8 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
 //    xTaskCreate( communications_task, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
-//    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
+    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
     xTaskCreate( ttc_interface_task, "TT&C", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
     xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
@@ -68,6 +68,9 @@ void gpio_setup() {
     BIT_SET(TTC_SHUTDOWN_DIR, TTC_SHUTDOWN_PIN);        //set as output
     BIT_SET(TTC_TX_REQUEST_DIR, TTC_TX_REQUEST_PIN);    //set as output
     BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as input
+
+    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            //disable memory
+    BIT_SET(uSDCard_CE_DIR, uSDCard_CE_PIN);
 }
 
 void setup_hardware( void ) {

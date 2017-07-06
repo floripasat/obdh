@@ -23,6 +23,7 @@
 #define     PAYLOAD2_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
 
 #define     I2C_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
+#define     SPI_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
 
 
 volatile xQueueHandle system_status_queue;
@@ -41,5 +42,6 @@ volatile xQueueHandle status_eps_queue, status_payload1_queue, status_payload2_q
 //TODO: mem2, antenna status_queue
 
 volatile xSemaphoreHandle i2c0_semaphore;
+volatile xSemaphoreHandle spi1_semaphore;
 
 #endif /* SRC_TASK_QUEUES_H_ */

@@ -28,6 +28,8 @@ void spi_setup(uint8_t interface) {
     case 1:
         BIT_SET(SPI1_SEL, SPI1_CLK_PIN | SPI1_MOSI_PIN | SPI1_MISO_PIN );
         spi_clock_setup(USCI_A1_BASE);
+        BIT_SET(SPI1_MISO_REN, SPI1_MISO_PIN);
+        BIT_SET(SPI1_MISO_OUT, SPI1_MISO_PIN);
         break;
     }
 

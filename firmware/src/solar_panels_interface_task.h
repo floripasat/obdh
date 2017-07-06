@@ -10,6 +10,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "../src/task_queues.h"
 #include "../interface/solar_panel.h"
 
 /*
