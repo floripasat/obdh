@@ -4,15 +4,9 @@
 #include "i2c.h"
 #include "antenna.h"
 
-#define CLOSE               1
-#define OPEN                0
-#define switch_control()    (P1IN & BIT1)
-
 int main(void) {
 
   uint8_t command;
-  uint8_t armed;
-  uint8_t STATUS_ANT_1 = CLOSE, STATUS_ANT_2 = CLOSE, STATUS_ANT_3 = CLOSE, STATUS_ANT_4 = CLOSE;
 
   WDTCTL = WDTPW + WDTHOLD;
 
@@ -30,104 +24,31 @@ int main(void) {
 
     switch (command) {
       case ARMING:
-
-        if (switch_control() == CLOSE) {
-          armed = 1;
-          P1OUT = BIT0;
-        }
-
+        arming_ant();
         break;
 
       case DISARMING:
-
-        if (armed == 1) {
-          armed = 0;
-          P1OUT = ~BIT0;
-        }
-
+        disarming_ant();
         break;
 
       case DEPLOY_ANT_1:
-
-        while (switch_control() == CLOSE) {
-          P4OUT ^= BIT7;
-          __delay_cycles(1000);
-        }
-
-        STATUS_ANT_2 = OPEN;
-        P4OUT = BIT7;
+        deploy_ant(1);
         break;
 
       case DEPLOY_ANT_2:
-
-        while (switch_control() == CLOSE) {
-          P4OUT ^= BIT7;
-          __delay_cycles(1000);
-        }
-
-        STATUS_ANT_2 = OPEN;
-        P4OUT = BIT7;
+        deploy_ant(2);
         break;
 
       case DEPLOY_ANT_3:
-
-        while (switch_control() == CLOSE) {
-          P4OUT ^= BIT7;
-          __delay_cycles(1000);
-        }
-
-        STATUS_ANT_3 = OPEN;
-        P4OUT = BIT7;
+        deploy_ant(3);
         break;
 
       case DEPLOY_ANT_4:
-
-        while (switch_control() == CLOSE) {
-          P4OUT ^= BIT7;
-          __delay_cycles(1000);
-        }
-
-        STATUS_ANT_4 = OPEN;
-        P4OUT = BIT7;
+        deploy_ant(4);
         break;
 
       case DEPLOY_SEQUENCIAL:
-
-        if (STATUS_ANT_1 || STATUS_ANT_2 || STATUS_ANT_3 || STATUS_ANT_4) {
-
-          while (STATUS_ANT_1) {
-            P4OUT ^= BIT7;
-            __delay_cycles(1000);
-          }
-
-          STATUS_ANT_1 = OPEN;
-          P4OUT = BIT7;
-
-          while (STATUS_ANT_2) {
-            P4OUT ^= BIT7;
-            __delay_cycles(1000);
-          }
-
-          STATUS_ANT_2 = OPEN;
-          P4OUT = BIT7;
-
-          while (STATUS_ANT_3) {
-            P4OUT ^= BIT7;
-            __delay_cycles(1000);
-          }
-
-          STATUS_ANT_3 = OPEN;
-          P4OUT = BIT7;
-
-          while (STATUS_ANT_4) {
-            P4OUT ^= BIT7;
-            __delay_cycles(1000);
-          }
-
-          STATUS_ANT_4 = OPEN;
-          P4OUT = BIT7;
-        }
-
+        deploy_sequencial_ant();
         break;
 
       default:

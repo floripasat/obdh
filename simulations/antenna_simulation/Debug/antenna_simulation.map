@@ -1,7 +1,7 @@
 ******************************************************************************
                   MSP430 Linker Unix v16.9.3                   
 ******************************************************************************
->> Linked Mon Jul 10 15:46:09 2017
+>> Linked Mon Jul 10 16:30:18 2017
 
 OUTPUT FILE NAME:   <antenna_simulation.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 0000442a
@@ -19,7 +19,7 @@ MEMORY CONFIGURATION
   INFOB                 00001900   00000080  00000000  00000080  RWIX
   INFOA                 00001980   00000080  00000000  00000080  RWIX
   USBRAM                00001c00   00000800  00000000  00000800  RWIX
-  RAM                   00002400   00002000  000000a1  00001f5f  RWIX
+  RAM                   00002400   00002000  000000a6  00001f5a  RWIX
   FLASH                 00004400   0000bb80  0000005e  0000bb22  RWIX
   INT00                 0000ff80   00000002  00000000  00000002  RWIX
   INT01                 0000ff82   00000002  00000000  00000002  RWIX
@@ -85,7 +85,7 @@ MEMORY CONFIGURATION
   INT61                 0000fffa   00000002  00000002  00000000  RWIX
   INT62                 0000fffc   00000002  00000002  00000000  RWIX
   RESET                 0000fffe   00000002  00000002  00000000  RWIX
-  FLASH2                00010000   00014400  000002c0  00014140  RWIX
+  FLASH2                00010000   00014400  00000264  0001419c  RWIX
 
 
 SECTION ALLOCATION MAP
@@ -93,8 +93,10 @@ SECTION ALLOCATION MAP
  output                                  attributes/
 section   page    origin      length       input sections
 --------  ----  ----------  ----------   ----------------
-.bss       0    00002400    00000001     UNINITIALIZED
-                  00002400    00000001     (.common:ant_command)
+.bss       0    00002400    00000006     UNINITIALIZED
+                  00002400    00000004     (.common:STATUS_ANT)
+                  00002404    00000001     (.common:ant_command)
+                  00002405    00000001     (.common:armed)
 
 .stack     0    00004360    000000a0     UNINITIALIZED
                   00004360    00000004     rts430x_lc_rd_eabi.lib : boot.obj (.stack)
@@ -193,28 +195,33 @@ SYSNMI     0    0000fffc    00000002
 .reset     0    0000fffe    00000002     
                   0000fffe    00000002     rts430x_lc_rd_eabi.lib : boot.obj (.reset)
 
-.text      0    00010000    000002c0     
-                  00010000    00000140     main.obj (.text:main)
-                  00010140    00000082     rts430x_lc_rd_eabi.lib : autoinit_wdt.obj (.text:_auto_init_hold_wdt)
-                  000101c2    00000066                            : cpy_tbl.obj (.text:copy_in)
-                  00010228    00000034     i2c.obj (.text:SetupI2C)
-                  0001025c    00000024     rts430x_lc_rd_eabi.lib : copy_zero_init.obj (.text:decompress:ZI:__TI_zero_init)
-                  00010280    00000018                            : mult16_f5hw.obj (.text)
-                  00010298    00000014                            : memcpy.obj (.text:memcpy)
-                  000102ac    00000008     i2c.obj (.text:get_command)
-                  000102b4    00000006     rts430x_lc_rd_eabi.lib : exit.obj (.text:abort)
-                  000102ba    00000004                            : pre_init.obj (.text:_system_pre_init)
-                  000102be    00000002                            : startup.obj (.text:_system_post_cinit)
+.text      0    00010000    00000264     
+                  00010000    00000084     main.obj (.text:main)
+                  00010084    00000082     rts430x_lc_rd_eabi.lib : autoinit_wdt.obj (.text:_auto_init_hold_wdt)
+                  00010106    00000066                            : cpy_tbl.obj (.text:copy_in)
+                  0001016c    00000034     i2c.obj (.text:SetupI2C)
+                  000101a0    00000034     antenna.obj (.text:deploy_sequencial_ant)
+                  000101d4    00000024     rts430x_lc_rd_eabi.lib : copy_zero_init.obj (.text:decompress:ZI:__TI_zero_init)
+                  000101f8    00000018                            : mult16_f5hw.obj (.text)
+                  00010210    00000014     antenna.obj (.text:deploy_ant)
+                  00010224    00000014     rts430x_lc_rd_eabi.lib : memcpy.obj (.text:memcpy)
+                  00010238    00000012     antenna.obj (.text:disarming_ant)
+                  0001024a    00000008     i2c.obj (.text:get_command)
+                  00010252    00000006     rts430x_lc_rd_eabi.lib : exit.obj (.text:abort)
+                  00010258    00000006     antenna.obj (.text:arming_ant)
+                  0001025e    00000004     rts430x_lc_rd_eabi.lib : pre_init.obj (.text:_system_pre_init)
+                  00010262    00000002                            : startup.obj (.text:_system_post_cinit)
 
 MODULE SUMMARY
 
        Module               code   ro data   rw data
        ------               ----   -------   -------
     ./
-       main.obj             320    0         0      
+       main.obj             132    0         0      
        i2c.obj              102    2         1      
+       antenna.obj          96     0         5      
     +--+--------------------+------+---------+---------+
-       Total:               422    2         1      
+       Total:               330    2         6      
                                                     
     /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/lib/rts430x_lc_rd_eabi.lib
        autoinit_wdt.obj     130    0         0      
@@ -255,13 +262,13 @@ MODULE SUMMARY
        Stack:               0      0         160    
        Linker Generated:    0      18        0      
     +--+--------------------+------+---------+---------+
-       Grand Total:         780    64        161    
+       Grand Total:         688    64        166    
 
 
 LINKER GENERATED COPY TABLES
 
 __TI_cinit_table @ 00004456 records: 1, size/record: 8, table size: 8
-	.bss: load addr=0000444c, load size=00000006 bytes, run addr=00002400, run size=00000001 bytes, compression=zero_init
+	.bss: load addr=0000444c, load size=00000006 bytes, run addr=00002400, run size=00000006 bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
@@ -356,7 +363,7 @@ address   name
 00000732  ADC12MEM9               
 00000733  ADC12MEM9_H             
 00000732  ADC12MEM9_L             
-000102b4  C$$EXIT                 
+00010252  C$$EXIT                 
 000008c0  CBCTL0                  
 000008c1  CBCTL0_H                
 000008c0  CBCTL0_L                
@@ -688,6 +695,7 @@ address   name
 00000104  SFRRPCR                 
 00000105  SFRRPCR_H               
 00000104  SFRRPCR_L               
+00002400  STATUS_ANT              
 000004ce  SUMEXT                  
 000004cf  SUMEXT_H                
 000004ce  SUMEXT_L                
@@ -733,7 +741,7 @@ address   name
 0000019a  SYSUNIV                 
 0000019b  SYSUNIV_H               
 0000019a  SYSUNIV_L               
-00010228  SetupI2C                
+0001016c  SetupI2C                
 00000352  TA0CCR0                 
 00000354  TA0CCR1                 
 00000356  TA0CCR2                 
@@ -1061,21 +1069,26 @@ UNDEFED   __TI_INITARRAY_Limit
 ffffffff  __TI_pprof_out_hndl     
 ffffffff  __TI_prof_data_size     
 ffffffff  __TI_prof_data_start    
-0001025c  __TI_zero_init          
+000101d4  __TI_zero_init          
 ffffffff  __c_args__              
-00010280  __mspabi_mpyi_f5hw      
-00010140  _auto_init_hold_wdt     
+000101f8  __mspabi_mpyi_f5hw      
+00010084  _auto_init_hold_wdt     
 0000442a  _c_int00_noargs_noexit  
 0000fffe  _reset_vector           
 00004360  _stack                  
-000102be  _system_post_cinit      
-000102ba  _system_pre_init        
-000102b4  abort                   
-00002400  ant_command             
-000101c2  copy_in                 
-000102ac  get_command             
+00010262  _system_post_cinit      
+0001025e  _system_pre_init        
+00010252  abort                   
+00002404  ant_command             
+00002405  armed                   
+00010258  arming_ant              
+00010106  copy_in                 
+00010210  deploy_ant              
+000101a0  deploy_sequencial_ant   
+00010238  disarming_ant           
+0001024a  get_command             
 00010000  main                    
-00010298  memcpy                  
+00010224  memcpy                  
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -1831,7 +1844,9 @@ address   name
 000023fd  USBIEPBBAY_7            
 000023fe  USBIEPBCTY_7            
 000023ff  USBIEPSIZXY_7           
-00002400  ant_command             
+00002400  STATUS_ANT              
+00002404  ant_command             
+00002405  armed                   
 00004360  _stack                  
 00004400  USCI_B0_ISR             
 00004400  __STACK_END             
@@ -1865,17 +1880,21 @@ address   name
 0000fffc  __TI_int62              
 0000fffe  _reset_vector           
 00010000  main                    
-00010140  _auto_init_hold_wdt     
-000101c2  copy_in                 
-00010228  SetupI2C                
-0001025c  __TI_zero_init          
-00010280  __mspabi_mpyi_f5hw      
-00010298  memcpy                  
-000102ac  get_command             
-000102b4  C$$EXIT                 
-000102b4  abort                   
-000102ba  _system_pre_init        
-000102be  _system_post_cinit      
+00010084  _auto_init_hold_wdt     
+00010106  copy_in                 
+0001016c  SetupI2C                
+000101a0  deploy_sequencial_ant   
+000101d4  __TI_zero_init          
+000101f8  __mspabi_mpyi_f5hw      
+00010210  deploy_ant              
+00010224  memcpy                  
+00010238  disarming_ant           
+0001024a  get_command             
+00010252  C$$EXIT                 
+00010252  abort                   
+00010258  arming_ant              
+0001025e  _system_pre_init        
+00010262  _system_post_cinit      
 ffffffff  __TI_pprof_out_hndl     
 ffffffff  __TI_prof_data_size     
 ffffffff  __TI_prof_data_start    
@@ -1885,4 +1904,4 @@ UNDEFED   __TI_BINIT_Limit
 UNDEFED   __TI_INITARRAY_Base     
 UNDEFED   __TI_INITARRAY_Limit    
 
-[802 symbols]
+[808 symbols]
