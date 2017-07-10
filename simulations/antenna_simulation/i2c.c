@@ -13,14 +13,13 @@
 
 #include "i2c.h"
 
-void SetupI2C(uint8_t* data) {
+uint8_t ant_command;
 
-  uint8_t ant_command = 0;
+void SetupI2C(void) {
 
-  Data = data;
-  P3REN |= 0x03;                                      // Enable resistor on P3.0 and P3.1
-  P3OUT  = 0x03;                                      // Set resistor to pull-up, P3.0 and P3.1 high
-  P3SEL |= 0x03;                                      // Assign I2C pins to USCI_B0
+  P3REN |= BIT0 | BIT1;                               // Enable resistor on P3.0 and P3.1
+  P3OUT  = BIT0 | BIT1;                               // Set resistor to pull-up, P3.0 and P3.1 high
+  P3SEL |= BIT0 | BIT1;                               // Assign I2C pins to USCI_B0
   UCB0CTL1 |= UCSWRST;                                // Enable SW reset
   UCB0CTL0 = UCMODE_3 + UCSYNC;                       // I2C Slave, synchronous mode
   UCB0I2COA = SLAVE_ADDRESS_A;                        
@@ -30,7 +29,7 @@ void SetupI2C(uint8_t* data) {
 }
 
 void get_command (uint8_t* command) {
-  command = ant_command;
+  *command = ant_command;
 }
 
 #pragma vector = USCI_B0_VECTOR
@@ -51,10 +50,6 @@ __interrupt void USCI_B0_ISR(void)
     break;
   
   case 10:                                              // Vector 10: RXIFG
-
-    //recebe o comando enviado pelo master
-    //atualiza uma variavel para usar no loop do main
-
     ant_command = UCB0RXBUF;
     
     break;

@@ -7,7 +7,7 @@
 #define SLAVE_ADDRESS_A		0x31
 #define SLAVE_ADDRESS_B		0x32
 
-void SetupI2C(uint8_t* data);
-void get_command(uint8_t* ant_command);
+void SetupI2C(void);
+void get_command(uint8_t* command);
 
 #endif
