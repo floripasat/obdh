@@ -8,6 +8,5 @@
 #define SLAVE_ADDRESS_B		0x32
 
 void SetupI2C(void);
-void get_command(uint8_t* command);
 
 #endif
