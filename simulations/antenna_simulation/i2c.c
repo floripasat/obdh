@@ -16,7 +16,7 @@
 
 uint8_t ant_command;
 
-void SetupI2C(void) {
+void i2c_setup(void) {
 
     P3REN |= BIT0 | BIT1;                               // Enable resistor on P3.0 and P3.1
     P3OUT  = BIT0 | BIT1;                               // Set resistor to pull-up, P3.0 and P3.1 high
@@ -47,7 +47,7 @@ __interrupt void USCI_B0_ISR(void)
         break;
 
     case 10:                                              // Vector 10: RXIFG
-        switch_command(UCB0RXBUF);
+        ant_switch_command(UCB0RXBUF);
         break;
 
     case 12:                                  					// Vector 12: TXIFG

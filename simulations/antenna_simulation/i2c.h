@@ -7,6 +7,6 @@
 #define SLAVE_ADDRESS_A		0x31
 #define SLAVE_ADDRESS_B		0x32
 
-void SetupI2C(void);
+void i2c_setup(void);
 
 #endif
