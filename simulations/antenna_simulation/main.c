@@ -11,5 +11,7 @@ int main(void) {
     ant_setup();
     i2c_setup();
 
-    while(1);
+    while(1) {
+        switch_command();
+    }
 }

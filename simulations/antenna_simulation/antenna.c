@@ -1,11 +1,9 @@
 #include "antenna.h"
 
-uint8_t STATUS_DEPLOY[4];
-volatile uint8_t ARM_STATUS = 0;
+uint8_t state = STATE_DISARM;
 
+// This function setup the antenna pins for simulation purposes.
 void ant_setup(void) {
-
-    //Represent the burn-wire system
 
     BIT_SET(LED_ARM_DIR, LED_ARM_PIN);
     BIT_CLEAR(LED_ARM_OUT, LED_ARM_PIN);
@@ -37,157 +35,206 @@ void ant_setup(void) {
     BIT_SET(SWITCH_4_OUT, SWITCH_4_PIN);
 }
 
+// This one simulates the antenna arming process
 void ant_arm(void) {
-
-    volatile uint8_t SWITCH_STATUS_1, SWITCH_STATUS_2, SWITCH_STATUS_3, SWITCH_STATUS_4;
-
-    SWITCH_STATUS_1 = BIT_READ(SWITCH_1_IN, SWITCH_1_PIN);
-    SWITCH_STATUS_2 = BIT_READ(SWITCH_2_IN, SWITCH_2_PIN);
-    SWITCH_STATUS_3 = BIT_READ(SWITCH_3_IN, SWITCH_3_PIN);
-    SWITCH_STATUS_4 = BIT_READ(SWITCH_4_IN, SWITCH_4_PIN);
-
-    if (ARM_STATUS == DISARMED) {
-        if (SWITCH_STATUS_1 || SWITCH_STATUS_2 || SWITCH_STATUS_3 || SWITCH_STATUS_4) {
-            ARM_STATUS = ARMED;
-            BIT_SET(LED_ARM_OUT, LED_ARM_PIN);
-        }
-    }
+    BIT_SET(LED_ARM_OUT, LED_ARM_PIN);
 }
 
+// Simulates the antenna disarming process
 void ant_disarm(void) {
-    if (ARM_STATUS == ARMED) {
-        ARM_STATUS = DISARMED;
-        BIT_CLEAR(LED_ARM_OUT, LED_ARM_PIN);
-    }
+    BIT_CLEAR(LED_ARM_OUT, LED_ARM_PIN);
 }
 
-void ant_deploy(uint8_t antenna) {
+// This simulates the deployment of one of the antennas
+void ant_deploy(uint8_t antenna, uint16_t time_limit) {
 
-    uint8_t time = 0;
+    uint16_t time = 0;
 
-    if (ARM_STATUS == ARMED) {
-        switch (antenna) {
-        case ANTENNA_1:
-            while (BIT_READ(SWITCH_1_IN, SWITCH_1_PIN) != CLOSE) {
-                BIT_TOGGLE(LED_1_OUT, LED_1_PIN);
-                __delay_cycles(1000000);
-                time++;
+    switch (antenna) {
+    case ANTENNA_1:
+        while (BIT_READ(SWITCH_1_IN, SWITCH_1_PIN) != CLOSE) {
+            BIT_SET(LED_1_OUT, LED_1_PIN);
+            __delay_cycles(1000);
+            time++;
 
-                if (time >= SAFETY_TIME) {
-                    STATUS_DEPLOY[0] = CLOSE;
-                    BIT_CLEAR(LED_1_OUT, LED_1_PIN);
-                    break;
-                }
+            if (time >= SAFETY_TIME || time >= time_limit)
+                break;
+
+            if (command == DISARM) {
+                ant_disarm();
+                state = STATE_DISARM;
+                break;
             }
-            if (time < SAFETY_TIME) {
-                STATUS_DEPLOY[0] = OPEN;
-                BIT_SET(LED_1_OUT, LED_1_PIN);
-            }
-            break;
 
-        case ANTENNA_2:
-            while (BIT_READ(SWITCH_2_IN, SWITCH_2_PIN) != CLOSE) {
-                BIT_TOGGLE(LED_2_OUT, LED_2_PIN);
-                __delay_cycles(1000000);
-                time++;
-
-                if (time >= SAFETY_TIME) {
-                    STATUS_DEPLOY[1] = CLOSE;
-                    BIT_CLEAR(LED_2_OUT, LED_2_PIN);
-                    break;
-                }
+            if (command == DEPLOY_CANCEL) {
+                state = STATE_ARM;
+                break;
             }
-            if (time < SAFETY_TIME) {
-                STATUS_DEPLOY[1] = OPEN;
-                BIT_SET(LED_2_OUT, LED_2_PIN);
-            }
-            break;
-
-        case ANTENNA_3:
-            while (BIT_READ(SWITCH_3_IN, SWITCH_3_PIN) != CLOSE) {
-                BIT_TOGGLE(LED_3_OUT, LED_3_PIN);
-                __delay_cycles(1000000);
-                time++;
-
-                if (time >= SAFETY_TIME) {
-                    STATUS_DEPLOY[2] = CLOSE;
-                    BIT_CLEAR(LED_3_OUT, LED_3_PIN);
-                    break;
-                }
-            }
-            if (time < SAFETY_TIME) {
-                STATUS_DEPLOY[2] = OPEN;
-                BIT_SET(LED_3_OUT, LED_3_PIN);
-            }
-            break;
-
-        case ANTENNA_4:
-            while (BIT_READ(SWITCH_4_IN, SWITCH_4_PIN) != CLOSE) {
-                BIT_TOGGLE(LED_4_OUT, LED_4_PIN);
-                __delay_cycles(1000000);
-                time++;
-
-                if (time >= SAFETY_TIME) {
-                    STATUS_DEPLOY[3] = CLOSE;
-                    BIT_CLEAR(LED_4_OUT, LED_4_PIN);
-                    break;
-                }
-            }
-            if (time < SAFETY_TIME) {
-                STATUS_DEPLOY[3] = OPEN;
-                BIT_SET(LED_4_OUT, LED_4_PIN);
-            }
-            break;
         }
-    }
-}
+        BIT_CLEAR(LED_1_OUT, LED_1_PIN);
 
-void ant_deploy_sequencial(void) {
+    case ANTENNA_2:
+        while (BIT_READ(SWITCH_2_IN, SWITCH_2_PIN) != CLOSE) {
+            BIT_SET(LED_2_OUT, LED_2_PIN);
+            __delay_cycles(1000);
+            time++;
 
-    if (!(STATUS_DEPLOY[0] || STATUS_DEPLOY[1] || STATUS_DEPLOY[2] || STATUS_DEPLOY[3])) {
-        ant_deploy(ANTENNA_1);
-        ant_deploy(ANTENNA_2);
-        ant_deploy(ANTENNA_3);
-        ant_deploy(ANTENNA_4);
-    }
-}
+            if (time >= SAFETY_TIME || time >= time_limit)
+                break;
 
-void ant_switch_command(uint8_t command) {
+            if (command == DISARM) {
+                ant_disarm();
+                state = STATE_DISARM;
+                break;
+            }
 
-    __disable_interrupt();
-
-    switch (command) {
-    case ARMING:
-        ant_arm();
+            if (command == DEPLOY_CANCEL) {
+                state = STATE_ARM;
+                break;
+            }
+        }
+        BIT_CLEAR(LED_2_OUT, LED_2_PIN);
         break;
 
-    case DISARMING:
+    case ANTENNA_3:
+        while (BIT_READ(SWITCH_3_IN, SWITCH_3_PIN) != CLOSE) {
+            BIT_SET(LED_3_OUT, LED_3_PIN);
+            __delay_cycles(1000);
+            time++;
+
+            if (time >= SAFETY_TIME || time >= time_limit)
+                break;
+
+            if (command == DISARM) {
+                ant_disarm();
+                state = STATE_DISARM;
+                break;
+            }
+
+            if (command == DEPLOY_CANCEL) {
+                state = STATE_ARM;
+                break;
+            }
+        }
+        BIT_CLEAR(LED_3_OUT, LED_3_PIN);
+        break;
+
+    case ANTENNA_4:
+        while (BIT_READ(SWITCH_4_IN, SWITCH_4_PIN) != CLOSE) {
+            BIT_SET(LED_4_OUT, LED_4_PIN);
+            __delay_cycles(1000);
+            time++;
+
+            if (time >= SAFETY_TIME || time >= time_limit)
+                break;
+
+            if (command == DISARM) {
+                ant_disarm();
+                state = STATE_DISARM;
+                break;
+            }
+
+            if (command == DEPLOY_CANCEL) {
+                state = STATE_ARM;
+                break;
+            }
+        }
+        BIT_CLEAR(LED_4_OUT, LED_4_PIN);
+        break;
+    }
+}
+
+// This simulates the sequential deployment of all antennas
+void ant_deploy_sequencial(uint16_t time_limit) {
+
+    ant_deploy(ANTENNA_1, time_limit);
+    if (state == STATE_DISARM || state == STATE_ARM)
+        return;
+    ant_deploy(ANTENNA_2, time_limit);
+    if (state == STATE_DISARM || state == STATE_ARM)
+        return;
+    ant_deploy(ANTENNA_3, time_limit);
+    if (state == STATE_DISARM || state == STATE_ARM)
+        return;
+    ant_deploy(ANTENNA_4, time_limit);
+
+}
+
+void switch_command(void) {
+
+    switch (command) {
+
+    case RESET:
+        WDTCTL = 0;
+
+    case DISARM:
         ant_disarm();
+        state = STATE_DISARM;
+        break;
+
+    case ARM:
+        if (state == STATE_DISARM) {
+            ant_arm();
+            state = STATE_ARM;
+        }
         break;
 
     case DEPLOY_ANT_1:
-        ant_deploy(ANTENNA_1);
+        if (state == STATE_ARM) {
+            state = STATE_DEPLOY_1;
+            ant_deploy(ANTENNA_1, 10000);
+            if (state == STATE_DISARM) {
+                break;
+            }
+            state = STATE_ARM;
+        }
         break;
 
     case DEPLOY_ANT_2:
-        ant_deploy(ANTENNA_2);
+        if (state == STATE_ARM) {
+            state = STATE_DEPLOY_2;
+            ant_deploy(ANTENNA_2, 10000);
+            if (state == STATE_DISARM) {
+                break;
+            }
+            state = STATE_ARM;
+        }
         break;
 
     case DEPLOY_ANT_3:
-        ant_deploy(ANTENNA_3);
+        if (state == STATE_ARM) {
+            state = STATE_DEPLOY_3;
+            ant_deploy(ANTENNA_3, 10000);
+            if (state == STATE_DISARM) {
+                break;
+            }
+            state = STATE_ARM;
+        }
         break;
 
     case DEPLOY_ANT_4:
-        ant_deploy(ANTENNA_4);
+        if (state == STATE_ARM) {
+            state = STATE_DEPLOY_4;
+            ant_deploy(ANTENNA_4, 10000);
+            if (state == STATE_DISARM) {
+                break;
+            }
+            state = STATE_ARM;
+        }
         break;
 
     case DEPLOY_SEQUENCIAL:
-        ant_deploy_sequencial();
+        if (state == STATE_ARM) {
+            state = STATE_DEPLOY_SEQ;
+            ant_deploy_sequencial(10000);
+            if (state == STATE_ARM) {
+                break;
+            }
+            state = STATE_DISARM;
+        }
         break;
 
     default:
         break;
     }
-    __enable_interrupt();
 }
-

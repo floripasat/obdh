@@ -1,27 +1,42 @@
 #include <msp430.h>
 #include <stdint.h>
 
+uint8_t command;
+
 //Macros
 #define BIT_TOGGLE(REG, BIT)    (REG ^= BIT)        /**< macro that toggles a bit in a register */
 #define BIT_SET(REG, BIT)       (REG |= BIT)        /**< macro that set a bit in a register */
 #define BIT_CLEAR(REG, BIT)     (REG &= ~BIT)       /**< macro that clear a bit in a register */
 #define BIT_READ(REG, BIT)      (REG & BIT)         /**< macro that read a bit in a register */
 
+//States
+#define STATE_ARM               1
+#define STATE_DISARM            2
+#define STATE_DEPLOY_1          3
+#define STATE_DEPLOY_2          4
+#define STATE_DEPLOY_3          5
+#define STATE_DEPLOY_4          6
+#define STATE_DEPLOY_SEQ        7
+
 //Commands
-#define ARMING				    0xAD
-#define DISARMING			    0xAC
+#define RESET                   0xAA
+#define ARM				        0xAD
+#define DISARM			        0xAC
 #define DEPLOY_ANT_1		    0xA1
 #define DEPLOY_ANT_2		    0xA2
 #define DEPLOY_ANT_3		    0xA3
 #define DEPLOY_ANT_4		    0xA4
 #define DEPLOY_SEQUENCIAL	    0xA5
+#define DEPLOY_CANCEL           0xA9
 
 //Software Setup
 #define ARMED           1
 #define DISARMED        0
+
 #define OPEN            1
 #define CLOSE           0
-#define SAFETY_TIME     30
+
+#define SAFETY_TIME     30000               // In milliseconds
 
 #define ANTENNA_1       1
 #define ANTENNA_2       2
@@ -78,7 +93,7 @@
 void ant_setup(void);
 void ant_arm(void);
 void ant_disarm(void);
-void ant_deploy(uint8_t antenna);
-void ant_deploy_sequencial(void);
-void ant_switch_command(uint8_t command);
+void ant_deploy(uint8_t antenna, uint16_t time_limit);
+void ant_deploy_sequencial(uint16_t time_limit);
+void switch_command(void);
 
