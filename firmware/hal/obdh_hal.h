@@ -84,11 +84,14 @@
 #define BIT_TOGGLE(REG, BIT)            (REG ^= BIT)        /**< macro that toggles a bit in a register */
 #define BIT_SET(REG, BIT)               (REG |= BIT)        /**< macro that set a bit in a register */
 #define BIT_CLEAR(REG, BIT)             (REG &= ~BIT)       /**< macro that clear a bit in a register */
-#define BIT_READ(REG, BIT)              (REG & BIT)         /**< macro that read a bit in a register */
-#define BIT_PUT(REG, BIT, BIT_VALUE)    ((BIT_VALUE & 1) == 1) ? BIT_SET(REG, BIT) : BIT_CLEAR(REG, BIT)
+#define BIT_READ(REG, BIT)              ((REG & BIT) != 0)  /**< macro that read a bit in a register */
 /**< macro that put the BIT_VALUE in the BIT position of the REG address */
+#define BIT_PUT(REG, BIT, BIT_VALUE)    ((BIT_VALUE & 1) == 1) ? BIT_SET(REG, BIT) : BIT_CLEAR(REG, BIT)
 
 
+/**
+ * Initializes all pins as inputs
+ */
 #define gpio_init() {               \
                         P1DIR = 0;  \
                         P2DIR = 0;  \
@@ -417,68 +420,21 @@
  * \brief mcu beacon interface pins
  * \{
  */
-#define uC_BEACON_0_DIR P5DIR
-#define uC_BEACON_0_SEL P5SEL
-#define uC_BEACON_0_OUT P5OUT
-#define uC_BEACON_0_REN P5REN
-#define uC_BEACON_0_PIN BIT4
+#define TTC_CLK_DIR         P5DIR
+#define TTC_CLK_OUT         P5OUT
+#define TTC_CLK_PIN         BIT4
 
-#define uC_BEACON_1_DIR P5DIR
-#define uC_BEACON_1_SEL P5SEL
-#define uC_BEACON_1_OUT P5OUT
-#define uC_BEACON_1_REN P5REN
-#define uC_BEACON_1_PIN BIT5
+#define TTC_MOSI_DIR        P5DIR
+#define TTC_MOSI_OUT        P5OUT
+#define TTC_MOSI_PIN        BIT5
 
-#define uC_BEACON_2_DIR P2DIR
-#define uC_BEACON_2_SEL P2SEL
-#define uC_BEACON_2_OUT P2OUT
-#define uC_BEACON_2_REN P2REN
-#define uC_BEACON_2_PIN BIT6
+#define TTC_MISO_DIR        P2DIR
+#define TTC_MISO_IN         P2IN
+#define TTC_MISO_PIN        BIT6
 
-#define uC_BEACON_3_DIR P2DIR
-#define uC_BEACON_3_SEL P2SEL
-#define uC_BEACON_3_OUT P2OUT
-#define uC_BEACON_3_REN P2REN
-#define uC_BEACON_3_IN  P2IN
-#define uC_BEACON_3_PIN BIT7
-
-#define TTC_INTERRUPT_DIR   uC_BEACON_0_DIR
-#define TTC_INTERRUPT_SEL   uC_BEACON_0_SEL
-#define TTC_INTERRUPT_OUT   uC_BEACON_0_OUT
-#define TTC_INTERRUPT_REN   uC_BEACON_0_REN
-#define TTC_INTERRUPT_PIN   uC_BEACON_0_PIN
-
-#define TTC_SHUTDOWN_DIR    uC_BEACON_1_DIR
-#define TTC_SHUTDOWN_SEL    uC_BEACON_1_SEL
-#define TTC_SHUTDOWN_OUT    uC_BEACON_1_OUT
-#define TTC_SHUTDOWN_REN    uC_BEACON_1_REN
-#define TTC_SHUTDOWN_PIN    uC_BEACON_1_PIN
-
-#define TTC_TX_REQUEST_DIR  uC_BEACON_2_DIR
-#define TTC_TX_REQUEST_SEL  uC_BEACON_2_SEL
-#define TTC_TX_REQUEST_OUT  uC_BEACON_2_OUT
-#define TTC_TX_REQUEST_REN  uC_BEACON_2_REN
-#define TTC_TX_REQUEST_PIN  uC_BEACON_2_PIN
-
-#define TTC_TX_BUSY_DIR     uC_BEACON_3_DIR
-#define TTC_TX_BUSY_SEL     uC_BEACON_3_SEL
-#define TTC_TX_BUSY_OUT     uC_BEACON_3_OUT
-#define TTC_TX_BUSY_IN      uC_BEACON_3_IN
-#define TTC_TX_BUSY_REN     uC_BEACON_3_REN
-#define TTC_TX_BUSY_PIN     uC_BEACON_3_PIN
-
-#define TTC_CLK_DIR         uC_BEACON_1_DIR
-#define TTC_CLK_OUT         uC_BEACON_1_OUT
-#define TTC_CLK_PIN         uC_BEACON_1_PIN
-#define TTC_MOSI_DIR        uC_BEACON_2_DIR
-#define TTC_MOSI_OUT        uC_BEACON_2_OUT
-#define TTC_MOSI_PIN        uC_BEACON_2_PIN
-#define TTC_MISO_DIR        uC_BEACON_3_DIR
-#define TTC_MISO_IN         uC_BEACON_3_IN
-#define TTC_MISO_PIN        uC_BEACON_3_PIN
-
-
-
+#define TTC_STE_DIR         P2DIR
+#define TTC_STE_OUT         P2OUT
+#define TTC_STE_PIN         BIT7
 //! \} End of mcu_beacon
 
 /**

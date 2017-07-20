@@ -30,7 +30,7 @@ uint8_t eps_read(eps_package_t *package) {
     if(i2c_receive_burst(EPS_BASE_ADDRESS, data, EPS_PACKAGE_LENGTH, START_STOP) == I2C_FAIL) {
         eps_status = EPS_TIMEOUT_ERROR;
     }
-    if( crc8(0x03, (BIT7 | BIT4 | BIT1), package->msp430, EPS_PACKAGE_LENGTH-2) != package->crc_value){
+    if( crc8(CRC_SEED, CRC_POLYNOMIAL, package->msp430, EPS_PACKAGE_LENGTH-2) != package->crc_value){
         eps_status = EPS_CRC_ERROR;
     }
 

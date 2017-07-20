@@ -13,16 +13,16 @@
 #include "task.h"
 #include "task_queues.h"
 #include "../interface/ttc.h"
-
+#include "../util/crc.h"
 /*
  * PRIORITY =   5
- * FREQUENCY =  1Hz
+ * FREQUENCY =  0.2Hz
  */
 
-#define TTC_INTERFACE_TASK_PRIORITY          5
-#define TTC_INTERFACE_TASK_PERIOD_MS         1000
-#define TTC_INTERFACE_TASK_PERIOD_TICKS      ( TTC_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
-
+#define TTC_INTERFACE_TASK_PRIORITY         5
+#define TTC_INTERFACE_TASK_PERIOD_MS        5000
+#define TTC_INTERFACE_TASK_PERIOD_TICKS     ( TTC_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+#define TTC_QUEUE_WAIT_TIME                 ( 10 / portTICK_PERIOD_MS )
 /**
  * \var static xTaskHandle xTtcInterfaceTask
  * \brief variable which holds the task reference

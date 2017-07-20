@@ -30,7 +30,7 @@ void debug_task( void *pvParameters ) {
 
         if(telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
             rqt_packet = decode_request_data_telecommand(telecommand.arguments);
-            ttc_command = TTC_CMD_REQUEST_TX;
+            ttc_command = TTC_CMD_TX_MUTEX_REQUEST;
             xQueueOverwrite(ttc_queue, &ttc_command);                        //request to beacon a tx permission
             xQueueReceive(tx_queue, &ttc_response, 3000 / portTICK_RATE_MS); //wait 3 seconds or until be answered
 
@@ -46,7 +46,7 @@ void debug_task( void *pvParameters ) {
             	    }
             	}
             }
-            ttc_command = TTC_CMD_FREE_TX;
+            ttc_command = TTC_CMD_TX_MUTEX_RELEASE;
             xQueueOverwrite(ttc_queue, &ttc_command);
         }
 

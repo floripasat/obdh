@@ -95,6 +95,8 @@ data_packet_t read_and_pack_data( void ) {
         packet.package_flags |= PAYLOAD2_FLAG;
     }
 
+    satellite_data = packet;
+
     return packet;
 }
 

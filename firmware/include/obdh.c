@@ -42,54 +42,34 @@ void create_tasks( void ) {
 
 void gpio_setup() {
     //TODO: set the configuration of every pins. //MAGNETORQUER   //SD
-    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN); /**< Led pin setup */
+    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            /**< Led pin setup */
 
 
-    //DISABLE PERIPHERAL FUNCTION
-    BIT_CLEAR(TTC_INTERRUPT_SEL, TTC_INTERRUPT_PIN);
-    BIT_CLEAR(TTC_SHUTDOWN_SEL, TTC_SHUTDOWN_PIN);
-    BIT_CLEAR(TTC_TX_REQUEST_SEL, TTC_TX_REQUEST_PIN);
-    BIT_CLEAR(TTC_TX_BUSY_SEL, TTC_TX_BUSY_PIN);
-
-    //ENABLE PULL-UP/DOWN RESISTORS
-//    BIT_SET(TTC_INTERRUPT_REN, TTC_INTERRUPT_PIN);
-//    BIT_SET(TTC_SHUTDOWN_REN, TTC_SHUTDOWN_PIN);
-//    BIT_SET(TTC_TX_REQUEST_REN, TTC_TX_REQUEST_PIN);
-    BIT_SET(TTC_TX_BUSY_REN, TTC_TX_BUSY_PIN);
-
-    //ALL PULL-DOWN / PUSH-DOWN
-    BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);
-    BIT_CLEAR(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);
-    BIT_CLEAR(TTC_TX_REQUEST_OUT, TTC_TX_REQUEST_PIN);
-    BIT_CLEAR(TTC_TX_BUSY_OUT, TTC_TX_BUSY_PIN);
-
-    //set as input/output
-    BIT_SET(TTC_INTERRUPT_DIR, TTC_INTERRUPT_PIN);      //set as output
-    BIT_SET(TTC_SHUTDOWN_DIR, TTC_SHUTDOWN_PIN);        //set as output
-    BIT_SET(TTC_TX_REQUEST_DIR, TTC_TX_REQUEST_PIN);    //set as output
-    BIT_CLEAR(TTC_TX_BUSY_DIR, TTC_TX_BUSY_PIN);        //set as input
-
-    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            //disable memory
+    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            /**< disable memory */
     BIT_SET(uSDCard_CE_DIR, uSDCard_CE_PIN);
 }
 
 void setup_hardware( void ) {
     uint8_t test_result;
+
     taskDISABLE_INTERRUPTS();
 
     gpio_init();
 
-    /*   External watchdog timer reset pin */
+    /**
+     *  Configure and reset the watchdog timers
+     */
     wdti_setup(WATCHDOG, WD_16_SEC);
     wdte_setup();
     wdte_reset_counter();
 
-    /*  SETUP CLOCKS */
-    test_result = clocks_setup();
+    test_result = clocks_setup();   /**< Setup clocks */
 
-    /*  SETUP UART */
+    uart0_setup(9600);              /**< Setup UART */
 
-    uart0_setup(9600);
+    /*
+     * Print some booting messages
+     */
     debug(BOOTING_MSG);
     debug(UART_INFO_MSG);
     if(test_result == TEST_SUCESS) {
@@ -118,6 +98,7 @@ void setup_hardware( void ) {
 
     /*  SETUP GPIO */
     gpio_setup();
+    sspi_setup();                   /**< Setup software SPI                                                 */
 
     update_reset_value();
     restore_time_counter();
