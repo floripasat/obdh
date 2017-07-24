@@ -1,8 +1,33 @@
 /*
  * task_queues.h
  *
- *  Created on: 14 de mar de 2017
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file task_queues.h
+ *
+ * \brief That file contains definitions and declarations used in queues to
+ * do the communication between tasks
+ *
+ * \author Elder Tramontin
+ *
  */
 
 #ifndef SRC_TASK_QUEUES_H_

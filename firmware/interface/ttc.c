@@ -1,11 +1,35 @@
 /*
  * ttc.c
  *
- *  Created on: 09 de fev de 2017
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-#include <ttc.h>
+ /**
+ * \file ttc.c
+ *
+ * \brief Interface to deals with TT&C module
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "ttc.h"
 
 #define TIME_TO_PROCESS_CMD     1600        /**< 100 microseconds */
 
@@ -17,6 +41,18 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.batteries[1]  = satellite_data.battery_monitor[5];
     beacon_packet.batteries[2]  = satellite_data.battery_monitor[6];
     beacon_packet.batteries[3]  = satellite_data.battery_monitor[7];
+
+    /**< T_Batteries */
+    beacon_packet.batteries[4] = satellite_data.ads1248[3];
+    beacon_packet.batteries[5] = satellite_data.ads1248[4];
+    beacon_packet.batteries[6] = satellite_data.ads1248[5];
+    beacon_packet.batteries[7] = satellite_data.ads1248[6];
+    beacon_packet.batteries[8] = satellite_data.ads1248[7];
+    beacon_packet.batteries[9] = satellite_data.ads1248[8];
+
+    /**< Q_Batteries */
+    beacon_packet.batteries[10] = satellite_data.battery_monitor[10];
+    beacon_packet.batteries[11] = satellite_data.battery_monitor[11];
 
     /**< I_SolarPanels */
     beacon_packet.solar_panels[0]  = satellite_data.adc_solar_panels[0];
@@ -40,17 +76,7 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.solar_panels[16] = satellite_data.adc_solar_panels[16];
     beacon_packet.solar_panels[17] = satellite_data.adc_solar_panels[17];
 
-    /**< T_Batteries */
-    beacon_packet.batteries[4] = satellite_data.ads1248[3];
-    beacon_packet.batteries[5] = satellite_data.ads1248[4];
-    beacon_packet.batteries[6] = satellite_data.ads1248[5];
-    beacon_packet.batteries[7] = satellite_data.ads1248[6];
-    beacon_packet.batteries[8] = satellite_data.ads1248[7];
-    beacon_packet.batteries[9] = satellite_data.ads1248[8];
 
-    /**< Q_Batteries */
-    beacon_packet.batteries[10] = satellite_data.battery_monitor[10];
-    beacon_packet.batteries[11] = satellite_data.battery_monitor[11];
 
     /**< IMU */
     beacon_packet.imu[0] = satellite_data.imu[0];
@@ -73,8 +99,9 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.system_time[3] = satellite_data.systick[3];
 
     /**< FSat status */
-    beacon_packet.satellite_status[0] = satellite_data.system_status[5];
-    beacon_packet.satellite_status[1] = satellite_data.task_scheduler[0];
+    beacon_packet.satellite_status[0] = satellite_data.task_scheduler[0];
+    beacon_packet.satellite_status[1] = satellite_data.system_status[5];
+
 
     /**< Reset counter */
     beacon_packet.reset_counter[0] = satellite_data.system_status[1];

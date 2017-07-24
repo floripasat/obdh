@@ -1,20 +1,41 @@
 /*
  * msp_internal.c
  *
- *  Created on: 30 de mai de 2016
- *      Author: mario
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-// Interface with internal components of the OBDH SoC
-
-#include <msp_internal.h>
+ /**
+ * \file msp_internal.c
+ *
+ * \brief Interface with internal components of the OBDH SoC
+ *
+ * \author Mario Baldini
+ *
+ */
+#include "msp_internal.h"
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
 uint32_t minutes_counter = 0;
 
 float obdh_temperature_convert(uint16_t temperature_raw){
 	float temperature = (float)(((long)temperature_raw * 2 - CALADC12_15V_30C) * (85 - 30)) /
-            (CALADC12_15V_85C - CALADC12_15V_30C) + 30.0f;
+            (CALADC12_15V_85C - CALADC12_15V_30C) + 30.0f;  /**< based on datasheet */
 	return temperature;
 }
 
@@ -67,10 +88,10 @@ void update_reset_value(void){
     uint32_t previous_value;
     uint32_t new_value;
 
-    previous_value = read_reset_value() & 0xFFFFFF;
-    new_value = ((uint32_t)read_reset_cause())<<24 | ((previous_value + 1) & 0xFFFFFF);
-    flash_erase(RESET_ADDR_FLASH);
-    flash_write_long(new_value, RESET_ADDR_FLASH);
+    previous_value = read_reset_value() & 0xFFFFFF;                                     /**< retrieve the last reset counter value                  */
+    new_value = ((uint32_t)read_reset_cause())<<24 | ((previous_value + 1) & 0xFFFFFF); /**< join reset cause with reset counter value incremented  */
+    flash_erase(RESET_ADDR_FLASH);                                                      /**< erase the memory to be able to write                   */
+    flash_write_long(new_value, RESET_ADDR_FLASH);                                      /**< store reset cause and counter                          */
 }
 
 uint32_t read_time_counter(void) {
@@ -81,7 +102,7 @@ void update_time_counter(void) {
 
     uint32_t addr;
 
-    addr = ++minutes_counter % 32;
+    addr = ++minutes_counter % 32;                                      /**< store as a circular vector */
 
     if (addr == 0) {
         flash_erase(TIME_COUNTER_ADDR_FLASH);
@@ -95,7 +116,7 @@ void restore_time_counter(void) {
     uint32_t zero = 0;
     addr_check = (uint32_t*) (END_TIME_COUNTER_ADDR_FLASH);
 
-    while( *addr_check == 0xFFFFFFFF) {
+    while( *addr_check == 0xFFFFFFFF) {                                 /**< retrieve of the circular vector */
         addr_check--;
         if( addr_check < TIME_COUNTER_ADDR_FLASH) {
             addr_check = &zero;

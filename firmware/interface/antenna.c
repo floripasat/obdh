@@ -1,10 +1,35 @@
 /*
  * antenna.c
  *
- *  Created on: 4 de nov de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
-#include <antenna.h>
+
+ /**
+ * \file antenna.c
+ *
+ * \brief This file deals with the antenna module
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "antenna.h"
 
 void deploy_antenna(void){
     //TODO: include the I2C code to send the deployment command

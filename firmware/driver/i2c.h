@@ -1,3 +1,33 @@
+/*
+ * i2c.h
+ *
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file i2c.h
+ *
+ * \brief This file manage the MSP430's registers of the I2C interfaces
+ *
+ * \author Elder Tramontin
+ *
+ */
 #ifndef I2C_H_
 #define I2C_H_
 
@@ -12,11 +42,12 @@
 #define TRANSMIT_MODE                   UCTR        /**< Tx mode bit set    */
 #define RECEIVE_MODE                    0x00        /**< Tx mode bit clear  */
 
-#define I2C_TIMEOUT                     0xFFFF//10000
-
-#define I2C_SUCESS                      1
+#define I2C_SUCCESS                     1
 #define I2C_FAIL                        0
 
+#define     START_STOP                  (0x0001)    /**< to send/receive data between start and stop signals */
+#define     NO_START                    (0x0002)    /**< to send/receive data and send a stop signal         */
+#define     NO_STOP                     (0x0004)    /**< to send a start signal and send/receive data        */
 
 /**
  * \fn i2c_setup
@@ -101,10 +132,6 @@ uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t by
  * \return sucess or timeout
  */
 uint8_t i2c_receive(uint16_t base_address, uint8_t *rx_data,  uint8_t start_stop_flag);
-
-#define     START_STOP   (0x0001)
-#define     NO_START     (0x0002)
-#define     NO_STOP      (0x0004)
 
 
 #endif /* I2C_H_ */

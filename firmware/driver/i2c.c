@@ -1,9 +1,37 @@
-/*! \file i2c.c
-    \brief This file handles the msp registers of the I2C interfaces
-*/
+/*
+ * i2c.c
+ *
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file i2c.c
+ *
+ * \brief This file manage the MSP430's registers of the I2C interfaces
+ *
+ * \author Elder Tramontin
+ *
+ */
 #include <msp430.h>
 #include "i2c.h"
 
+#define I2C_TIMEOUT                 10000           /**< tries until forsake the current transmission  */
 
 void port_mapping_ucb0(void) {
     // Enable Write-access to modify port mapping registers
@@ -21,16 +49,16 @@ void port_mapping_ucb0(void) {
 
 void i2c_pin_reset(volatile unsigned char* PREN, volatile unsigned char* PDIR, volatile unsigned char* POUT, uint8_t PIN) {
     uint8_t i;
-    BIT_CLEAR(*PREN, PIN);           //disable internal pull-up/down resistor
-    BIT_CLEAR(*POUT, PIN);           //output in low level
-    BIT_SET(*PDIR, PIN);             //set the pin as output pin
+    BIT_CLEAR(*PREN, PIN);           /**< disable internal pull-up/down resistor */
+    BIT_CLEAR(*POUT, PIN);           /**< output in low level */
+    BIT_SET(*PDIR, PIN);             /**< set the pin as output pin */
 
     for(i = 0; i < 20; i++) {
-        BIT_TOGGLE(*PDIR, PIN);          //toggle the pin between input(high->external pull-up) / output(low)
+        BIT_TOGGLE(*PDIR, PIN);      /**< toggle the pin between input(high->external pull-up) / output(low) */
         __no_operation();
     }
 
-    BIT_CLEAR(*PDIR, PIN);           //set the pin as input pin (high impedance, external pull-up)
+    BIT_CLEAR(*PDIR, PIN);           /**< set the pin as input pin (high impedance, external pull-up) */
 }
 
 void i2c_setup(uint8_t interface) {
@@ -83,23 +111,27 @@ uint8_t i2c_send(uint16_t base_address, uint8_t tx_data, uint8_t start_stop_flag
     uint16_t timeout = 0;
 
     if(!(start_stop_flag & NO_START))
-        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT; //começa a transmissao
+        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;         /**< starts the transmission            */
 
-    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
-    HWREG8(base_address + OFS_UCBxTXBUF) = tx_data; //envia o byte atual
-    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT); //wait for finish the transmissions
+    /**< UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register*/
+    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT);
+
+    HWREG8(base_address + OFS_UCBxTXBUF) = tx_data;             /**< send the current byte              */
+
+    /**< wait for finish the transmissions                                                              */
+    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT);
 
 
     if(!(start_stop_flag & NO_STOP)){
-        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
+        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP;         /**< send stop condition                */
         HWREG8(base_address + OFS_UCBxIFG) &= ~(UCTXIFG);
     }
 
     if(timeout < I2C_TIMEOUT) {
-        return I2C_SUCESS;  /**< Sucess */
+        return I2C_SUCCESS;                                     /**< Success                            */
     }
     else {
-        return I2C_FAIL;  /**< Fail / timeout */
+        return I2C_FAIL;                                        /**< Fail/Timeout                     */
     }
 }
 
@@ -107,26 +139,27 @@ uint8_t i2c_send_burst(uint16_t base_address, uint8_t *p_tx_data, uint16_t bytes
     uint16_t timeout = 0;
 
     if(!(start_stop_flag & NO_START))
-        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT; //começa a transmissao
+        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;         /**< starts the transmission            */
 
     while(bytes--)
     {
-        while(!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)  && (timeout++ < I2C_TIMEOUT)); //UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register
-        HWREG8(base_address + OFS_UCBxTXBUF) = *(p_tx_data++); //envia o byte atual e aponta para o proximo byte
+        /**< UCTXIFG is set again as soon as the data is transferred from the buffer into the shift register          */
+        while(!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)  && (timeout++ < I2C_TIMEOUT));
+        HWREG8(base_address + OFS_UCBxTXBUF) = *(p_tx_data++); /**< send the current byte and points to the next one */
     }
-
-    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT); //wait for finish the transmissions
+    /**< wait for finish the transmissions                                                              */
+    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCTXIFG)) && timeout++ < I2C_TIMEOUT);
 
     if(!(start_stop_flag & NO_STOP)){
-        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP; //Send stop condition.
+        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP;         /**< send stop condition                */
         HWREG8(base_address + OFS_UCBxIFG) &= ~(UCTXIFG);
     }
 
     if(timeout < I2C_TIMEOUT) {
-        return I2C_SUCESS;  /**< Sucess */
+        return I2C_SUCCESS;                                     /**< Success */
     }
     else {
-        return I2C_FAIL;  /**< Fail / timeout */
+        return I2C_FAIL;                                        /**< Fail/Timeout */
     }
 }
 
@@ -139,21 +172,22 @@ uint8_t i2c_receive(uint16_t base_address, uint8_t *rx_data, uint8_t start_stop_
 
     if(!(start_stop_flag & NO_START))
     {
-        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;        //send start
-        while((HWREG8(base_address + OFS_UCBxCTL1) & UCTXSTT) && timeout++ < I2C_TIMEOUT);    //wait Slave Address ACK
+        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;         /**< starts the transmission                    */
+        while((HWREG8(base_address + OFS_UCBxCTL1) & UCTXSTT) && timeout++ < I2C_TIMEOUT); /**< wait Slave Address ACK */
     }
 
     if(!(start_stop_flag & NO_STOP))
         HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP;
 
-    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);      //wait to receive data and shift data in buffer
-    *rx_data = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
+    /**< wait to receive data and shift data on buffer                                                          */
+    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);
+    *rx_data = HWREG8(base_address + OFS_UCBxRXBUF);            /**< receive a byte and increment the pointer   */
 
     if(timeout < I2C_TIMEOUT) {
-        return I2C_SUCESS;  /**< Sucess */
+        return I2C_SUCCESS;                                     /**< Success                                    */
     }
     else {
-        return I2C_FAIL;  /**< Fail / timeout */
+        return I2C_FAIL;                                        /**< Fail/Timeout */
     }
 }
 
@@ -162,27 +196,27 @@ uint8_t i2c_receive_burst(uint16_t base_address, uint8_t *p_rx_data, uint16_t by
 
     if(!(start_stop_flag & NO_START))
     {
-        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;        //send start
-        while((HWREG8(base_address + OFS_UCBxCTL1) & UCTXSTT) && timeout++ < I2C_TIMEOUT);    //wait start be sent
+        HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTT;         /**< starts the transmission                    */
+        while((HWREG8(base_address + OFS_UCBxCTL1) & UCTXSTT) && timeout++ < I2C_TIMEOUT);    /**< wait Slave Address ACK */
     }
 
     while(bytes-- > 1) {
-//        timeout = 0;
-        while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);      //wait to receive data and shift data in buffer
-        *(p_rx_data++) = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
-//        HWREG8(baseAddress + OFS_UCBxIFG) &= ~(UCRXIFG);            //UCRXIFG is automatically reset when UCxRXBUF is read.
+        /**< wait to receive data and shift data on buffer                                                      */
+        while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);
+        *(p_rx_data++) = HWREG8(base_address + OFS_UCBxRXBUF);  /**< receive a byte and increment the pointer   */
     }
 
     if(!(start_stop_flag & NO_STOP))
         HWREG8(base_address + OFS_UCBxCTL1) |= UCTXSTP;
 
-    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);      //wait to receive data and shift data in buffer
-    *(p_rx_data++) = HWREG8(base_address + OFS_UCBxRXBUF);       //receive a byte and increment the pointer
+    /**< wait to receive data and shift data on buffer                                                          */
+    while((!(HWREG8(base_address + OFS_UCBxIFG) & UCRXIFG)) && timeout++ < I2C_TIMEOUT);
+    *(p_rx_data++) = HWREG8(base_address + OFS_UCBxRXBUF);      /**< receive a byte and increment the pointer   */
 
     if(timeout < I2C_TIMEOUT) {
-        return I2C_SUCESS;  /**< Sucess */
+        return I2C_SUCCESS;                                     /**< Success                                    */
     }
     else {
-        return I2C_FAIL;  /**< Fail / timeout */
+        return I2C_FAIL;                                        /**< Fail/Timeout                               */
     }
 }

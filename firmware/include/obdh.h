@@ -1,18 +1,43 @@
-/*! \file obdh.h
-    \brief This file gather the main functions of the OBDH.
+/*
+ * obdh.h
+ *
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
-*/
+ /**
+ * \file obdh.h
+ *
+ * \brief Main functions of the OBDH module
+ *
+ * \author Elder Tramontin
+ *
+ */
 
 #ifndef INCLUDE_OBDH_H_
 #define INCLUDE_OBDH_H_
 
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
-#include "queue.h"
-#include "semphr.h"
-#include "../src/task_queues.h"
+#include "../FreeRTOS/include/FreeRTOS.h"
+#include "../FreeRTOS/include/task.h"
+#include "../FreeRTOS/include/timers.h"
+#include "../FreeRTOS/include/queue.h"
+#include "../FreeRTOS/include/semphr.h"
 #include "../hal/obdh_hal.h"
 #include "../driver/clocks.h"
 #include "../driver/adc.h"
@@ -23,6 +48,7 @@
 #include "../driver/wdti.h"
 #include "../interface/antenna.h"
 #include "../interface/wdte.h"
+#include "../src/task_queues.h"
 #include "../src/communications_task.h"
 #include "../src/debug_task.h"
 #include "../src/eps_interface_task.h"
@@ -50,7 +76,12 @@ void create_tasks( void );
  */
 void setup_hardware( void );
 
-
+/**
+ * \fn hibernate
+ *
+ * \brief Put the MCU in a low power state during 45 minutes. Wake-up each seconds and count the elapsed time.
+ * \return None
+ */
 void hibernate(void);
 
 #endif
