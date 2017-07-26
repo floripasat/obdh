@@ -11,6 +11,7 @@ ORDERED_OBJS += \
 "./antenna.obj" \
 "./i2c.obj" \
 "./main.obj" \
+"./temp_data.obj" \
 "../lnk_msp430f5529.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibmath.a \
@@ -154,8 +155,8 @@ antenna_simulation.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "antenna.obj" "i2c.obj" "main.obj" 
-	-$(RM) "antenna.d" "i2c.d" "main.d" 
+	-$(RM) "antenna.obj" "i2c.obj" "main.obj" "temp_data.obj" 
+	-$(RM) "antenna.d" "i2c.d" "main.d" "temp_data.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

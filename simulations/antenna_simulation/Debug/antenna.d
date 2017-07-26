@@ -8,6 +8,8 @@ antenna.obj: /home/andre/ti/ccsv7/ccs_base/msp430/include/in430.h
 antenna.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/intrinsics.h
 antenna.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/intrinsics_legacy_undefs.h
 antenna.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/stdint.h
+antenna.obj: ../misc_def.h
+antenna.obj: ../temp_data.h
 
 ../antenna.c: 
 ../antenna.h: 
@@ -17,3 +19,5 @@ antenna.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/includ
 /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/intrinsics.h: 
 /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/intrinsics_legacy_undefs.h: 
 /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/stdint.h: 
+../misc_def.h: 
+../temp_data.h: 

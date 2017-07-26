@@ -4,13 +4,23 @@
 #include <msp430.h>
 #include <stdint.h>
 #include "antenna.h"
+#include "misc_def.h"
+#include "temp_data.h"
+
+// External variables
+extern uint8_t command[2];
+extern uint8_t state;
+extern uint16_t deploy_timer_1, deploy_timer_2, deploy_timer_3, deploy_timer_4;
+extern uint8_t deploy_counter_1, deploy_counter_2, deploy_counter_3, deploy_counter_4;
+extern uint16_t temperature;
+extern uint16_t *ptr_report_status;
 
 //I2C definitions
 #define I2C_FLAG            UCB0IFG
 #define I2C_START           UCSTTIFG
 #define I2C_STOP            UCSTPIFG
-#define I2C_RX              UCRXIFG
 #define I2C_RX_BUFFER       UCB0RXBUF
+#define I2C_TX_BUFFER       UCB0TXBUF
 #define I2C_CONTROL_0       UCB0CTL0
 #define I2C_CONTROL_1       UCB0CTL1
 #define I2C_SW_RESET        UCSWRST

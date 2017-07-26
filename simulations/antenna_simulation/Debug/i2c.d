@@ -9,6 +9,8 @@ i2c.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/in
 i2c.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/intrinsics_legacy_undefs.h
 i2c.obj: /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/stdint.h
 i2c.obj: ../antenna.h
+i2c.obj: ../misc_def.h
+i2c.obj: ../temp_data.h
 
 ../i2c.c: 
 ../i2c.h: 
@@ -19,3 +21,5 @@ i2c.obj: ../antenna.h
 /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/intrinsics_legacy_undefs.h: 
 /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/include/stdint.h: 
 ../antenna.h: 
+../misc_def.h: 
+../temp_data.h: 
