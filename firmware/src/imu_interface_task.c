@@ -32,9 +32,12 @@
 #include "imu_interface_task.h"
 
 void imu_interface_task( void *pvParameters ) {
-    uint8_t imu_data_temp[20];
+    uint8_t imu_data_temp[14];
+    uint8_t imu_data[24];
     uint8_t module_test;
     uint8_t imu_status;
+    uint8_t turn = 0;
+    uint8_t i;
     TickType_t last_wake_time;
 
 #ifdef _DEBUG
@@ -43,8 +46,8 @@ void imu_interface_task( void *pvParameters ) {
     float temperature;
 #endif
 
-    //Set IMU pins and verify the communication
-    module_test = imu_setup();
+    module_test = imu_setup();      /**< Setup IMU pins and verify the communication */
+
     if (module_test == IMU_NOT_WORKING)
     {
         //TODO:  use another IMU
@@ -68,10 +71,34 @@ void imu_interface_task( void *pvParameters ) {
         gyroscope_absolute_module = sqrtf(gyroscope_z * gyroscope_z + gyroscope_y * gyroscope_y + gyroscope_x * gyroscope_x);
 #endif
 
-        xQueueOverwrite(status_imu_queue, &imu_status);
+        /*
+         * Use 8-bit IMU and save 2 samples/packet (sampling rate = 2Hz)
+         */
+        if(turn == 0) {                                 /**< first sampling     */
+            for(i = 0; i < 6; i++) {
+                imu_data[i] = imu_data_temp[i];         /**< accelerometer data */
+            }
+            for(i = 6; i < 12; i++) {
+                imu_data[i] = imu_data_temp[i+2];       /**< gyroscope data     */
+            }
 
-        if(imu_status == IMU_WORKING) {
-            xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
+            turn = 1;
+        }
+        else {                                          /**< second sampling    */
+            for(i = 0; i < 6; i++) {
+                imu_data[i+12] = imu_data_temp[i];      /**< accelerometer data */
+            }
+            for(i = 6; i < 12; i++) {
+                imu_data[i+12] = imu_data_temp[i+2];    /**< gyroscope data     */
+            }
+
+            xQueueOverwrite(status_imu_queue, &imu_status);
+
+            if(imu_status == IMU_WORKING) {
+                xQueueSendToBack(imu_queue, imu_data, portMAX_DELAY);
+            }
+
+            turn = 0;
         }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);

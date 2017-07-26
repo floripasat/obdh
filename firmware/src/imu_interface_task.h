@@ -42,7 +42,7 @@
 #endif
 
 #define IMU_INTERFACE_TASK_PRIORITY          5          /**< IMU task priority */
-#define IMU_INTERFACE_TASK_PERIOD_MS         1000       /**< IMU task period in miliseconds */
+#define IMU_INTERFACE_TASK_PERIOD_MS         500        /**< IMU task period in miliseconds */
 #define IMU_INTERFACE_TASK_PERIOD_TICKS      ( IMU_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< IMU task period in ticks */
 
 /**

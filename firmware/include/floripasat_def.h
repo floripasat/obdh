@@ -81,7 +81,7 @@ typedef struct {
     uint16_t package_flags;
     //obdh
     uint8_t system_status      [6];
-    uint8_t imu                [14];
+    uint8_t imu                [24];
     uint8_t msp_sensors        [6];
     uint8_t systick            [4];
     uint8_t solar_panels       [12];
