@@ -34,6 +34,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "../include/floripasat_def.h"
+#include "../include/msp_internal.h"
 
 /*
  * PRIORITY =   5
@@ -43,6 +45,9 @@
 #define COMMUNICATIONS_TASK_PRIORITY          5
 #define COMMUNICATIONS_TASK_PERIOD_MS         100
 #define COMMUNICATIONS_TASK_PERIOD_TICKS      ( COMMUNICATIONS_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+
+#define PERIODIC_DOWNLINK_INTERVAL_MS         60000
+#define PERIODIC_DOWNLINK_INTERVAL_TURNS      ( PERIODIC_DOWNLINK_INTERVAL_MS / COMMUNICATIONS_TASK_PERIOD_MS )
 
 /**
  * \var static xTaskHandle xCommunicationsTask

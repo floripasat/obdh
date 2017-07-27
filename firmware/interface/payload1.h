@@ -36,8 +36,9 @@
 #include "../driver/i2c.h"
 
 
-#define PAYLOAD1_COMM_ERROR     0x00    /**< value when communication with payload is in error  */
-#define PAYLOAD1_ALIVE          0x01    /**< value when communication with payload is "alive"   */
+#define PAYLOAD1_COMM_ERROR     0x00    /**< value when communication with payload is in error */
+#define PAYLOAD1_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
+#define PAYLOAD1_POWER_OFF      0x02    /**< value when payload is powered off                 */
 
 #define PAYLOAD1_DATA_LENGTH    100     /**< 100 bytes */
 

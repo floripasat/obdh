@@ -36,7 +36,7 @@ void payload1_setup(void) {
 }
 
 uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes) {
-    uint8_t payload1_status = PAYLOAD1_ALIVE;
+    uint8_t payload1_status = PAYLOAD1_POWER_ON;
 
     i2c_set_slave(PAYLOAD1_BASE_ADDRESS, PAYLOAD1_I2C_SLAVE_ADDRESS);
 
@@ -56,7 +56,7 @@ uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes) {
 }
 
 uint8_t payload1_write(uint8_t* data, uint32_t address, uint8_t bytes) {
-    uint8_t payload1_status = PAYLOAD1_ALIVE;
+    uint8_t payload1_status = PAYLOAD1_POWER_ON;
 
     i2c_set_slave(PAYLOAD1_BASE_ADDRESS, PAYLOAD1_I2C_SLAVE_ADDRESS);
 
