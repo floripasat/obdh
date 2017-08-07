@@ -1,3 +1,10 @@
+/*
+ * i2c.c
+ *
+ *  Created on: 10 de jul de 2017
+ *      Author: André
+ */
+
 #ifndef I2C_H_
 #define I2C_H_
 
@@ -15,7 +22,10 @@ extern uint8_t deploy_counter_1, deploy_counter_2, deploy_counter_3, deploy_coun
 extern uint16_t temperature;
 extern uint16_t *ptr_report_status;
 
-//I2C definitions
+// I2C functions
+void i2c_setup(void);
+
+// I2C definitions
 #define I2C_FLAG            UCB0IFG
 #define I2C_START           UCSTTIFG
 #define I2C_STOP            UCSTPIFG
@@ -41,6 +51,4 @@ extern uint16_t *ptr_report_status;
 #define SCL_SEL     P3SEL
 #define SCL_PIN     BIT1
 
-void i2c_setup(void);
-
-#endif
+#endif /* I2C_H_ */

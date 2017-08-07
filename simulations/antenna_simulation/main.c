@@ -1,5 +1,11 @@
+/*
+ * main.c
+ *
+ *  Created on: 10 de jul de 2017
+ *      Author: André
+ */
+
 #include <msp430.h>
-#include <stdint.h>
 
 #include "i2c.h"
 #include "antenna.h"

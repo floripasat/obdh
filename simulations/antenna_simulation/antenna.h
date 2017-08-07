@@ -1,3 +1,10 @@
+/*
+ * antenna.h
+ *
+ *  Created on: 10 de jul de 2017
+ *      Author: André
+ */
+
 #ifndef ANTENNA_H_
 #define ANTENNA_H_
 
@@ -6,7 +13,7 @@
 #include "misc_def.h"
 #include "temp_data.h"
 
-//States
+// States
 #define STATE_ARM                   1
 #define STATE_DISARM                2
 #define STATE_DEPLOY_1              3
@@ -19,7 +26,7 @@
 #define STATE_DEPLOY_4_OVERRIDE     10
 #define STATE_DEPLOY_SEQ            11
 
-//Commands
+// Commands
 #define RESET                       0xAA
 #define ARM				            0xAD
 #define DISARM			            0xAC
@@ -44,7 +51,7 @@
 #define REPORT_DEPLOY_TIMER_4       0xB7
 #define REPORT_DEPLOY_STATUS        0xC3
 
-//Report status definitions
+// Report status definitions
 #define STATUS_ARMED                   1
 #define STATUS_DISARMED                0
 #define STATUS_NOT_DEPLOYED            1
@@ -58,7 +65,7 @@
 #define STATUS_IGNORING                1
 #define STATUS_NOT_IGNORING            0
 
-//Antenna hardware definitions
+// Antenna hardware definitions
 #define LED_ARM_DIR     P8DIR
 #define LED_ARM_OUT     P8OUT
 #define LED_ARM_PIN     BIT1
@@ -103,7 +110,7 @@
 #define SWITCH_4_OUT    P3OUT
 #define SWITCH_4_PIN    BIT2
 
-//Software Setup
+// Software Abstraction
 #define ARMED               1
 #define DISARMED            0
 
@@ -116,15 +123,15 @@
 
 #define OVERRIDE            1
 
-#define SAFETY_TIME         30000         // In milliseconds
-#define time_limit_milli()  (time_limit_sec * 1000)
-
 #define ANTENNA_1           1
 #define ANTENNA_2           2
 #define ANTENNA_3           3
 #define ANTENNA_4           4
 
-//Commands functionality
+#define SAFETY_TIME             600                     // Safety time in steps of 50 milliseconds.
+#define time_limit_to_milli()   (time_limit_sec * 20)   // Transform the time_limit_sec to the 50 milliseconds 
+														// steps for simulation behavior purposes.
+// Commands functionality
 void ant_setup(void);
 void ant_arm(void);
 void ant_disarm(void);
@@ -132,4 +139,4 @@ uint8_t ant_deploy(uint8_t antenna, uint8_t time_limit_sec, uint16_t time);
 void ant_deploy_sequencial(uint8_t time_limit_sec, uint16_t* time);
 void run(void);
 
-#endif
+#endif /* ANTENNA_H_ */

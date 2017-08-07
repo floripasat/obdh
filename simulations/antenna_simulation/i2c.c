@@ -1,8 +1,15 @@
+/*
+ * i2c.c
+ *
+ *  Created on: 10 de jul de 2017
+ *      Author: André
+ */
+
 #include "i2c.h"
 
-uint8_t response[2];
-uint8_t *ptr_response;
-uint8_t *ptr_command;
+uint8_t response[2];        // The response that will be send when requested from a command.
+uint8_t *ptr_response;      // Pointer for I2C purposes (initializate the response[] in the first position).
+uint8_t *ptr_command;       // Receive the commands by the Rx Buffer of I2C.
 
 void i2c_setup(void) {
 
@@ -24,35 +31,47 @@ void i2c_setup(void) {
     I2C_EN_INTERRUPT |= UCSTPIE | UCSTTIE | UCRXIE | UCTXIE;    // Enable STT, STP, TX & RX interrupt.
     __bis_SR_register(GIE);
 
-    response[0] = 0x0F;                                         //0xFF is the default value.
-    response[1] = 0x0F;
+    response[0] = 0x0F;                                         // 0xFF is the default value.
+    response[1] = 0x0F;                                         // It was choose for debug purposes.
 }
 
 #pragma vector = USCI_B0_VECTOR
-__interrupt void USCI_B0_ISR(void)
-{
-    switch(__even_in_range(UCB0IV,12))
-    {
-    case  0: break;                                 // Vector  0: No interrupts.
-    case  2: break;                                 // Vector  2: ALIFG.
-    case  4: break;                                 // Vector  4: NACKIFG.
+__interrupt void USCI_B0_ISR(void) {
+    switch(__even_in_range(UCB0IV,12)) {
+    case  0: break;                                             // Vector  0: No interrupts.
+    case  2: break;                                             // Vector  2: ALIFG.
+    case  4: break;                                             // Vector  4: NACKIFG.
 
-    case  6:                                        // Vector  6: STTIFG.
-        ptr_response = (uint8_t *)response;
-        ptr_command  = (uint8_t *)command;
+    case  6:                                                    // Vector  6: STTIFG.
+        ptr_response = (uint8_t *)response;                            
+        ptr_command  = (uint8_t *)command;                 
         BIT_CLEAR(I2C_FLAG, I2C_START);
         break;
 
-    case  8:                                        // Vector  8: STPIFG.
+    case  8:                                                    // Vector  8: STPIFG.
         response[0] = 0x0F;
         response[1] = 0x0F;
         BIT_CLEAR(I2C_FLAG, I2C_STOP);
-        break;
 
-    case 10:                                        // Vector 10: RXIFG.
-        *ptr_command++ = I2C_RX_BUFFER;
+        /*
+         * This switch works like a FSM (Finite State Machine), so makes
+         * the transition of states from the received command and
+         * refresh some variables when requested.
+         *  
+         * Commands List:
+         *    RESET                       Reset the microcontroller.
+         *    ARM/DISARM                  Arm and disarm the antennas system.             
+         *    DEPLOY_ANT_X                Active a individual burn-wire system.
+         *    DEPLOY_ANT_X_OVERRIDE       Active a individual burn-wire system with override.
+         *    DEPLOY_SEQUENCIAL           Active the sequencial burn-wire system.
+         *    DEPLOY_CANCEL               Cancel a current deploy.
+         *    MEASURE_TEMPERATURE         Sends the microcontroller temperature.
+         *    REPORT_DEPLOY_COUNTER_X     Sends the amount of times the deployment system was active.   
+         *    REPORT_DEPLOY_TIMER_X       Sends the amount of time the burn-wire was active.
+         *    REPORT_DEPLOY_STATUS        Reports the current antenna status.
+         */
 
-        switch (command[0]) {                          // Make the transition of states from the received command and refresh the response variable when requested.
+        switch (command[0]) {                                   
         case DEPLOY_CANCEL:
             state = STATE_ARM;
             break;
@@ -134,8 +153,8 @@ __interrupt void USCI_B0_ISR(void)
             break;
 
         case MEASURE_TEMPERATURE:
-            response[0] = (temperature && 0x0300) >> 8;
-            response[1] = temperature && 0xFF;
+            response[0] = (temperature & 0x0300) >> 8;
+            response[1] = temperature & 0xFF;
             break;
 
         case REPORT_DEPLOY_COUNTER_1:
@@ -155,37 +174,44 @@ __interrupt void USCI_B0_ISR(void)
             break;
 
         case REPORT_DEPLOY_TIMER_1:
-            response[0] = (deploy_timer_1 && 0xFF00) >> 8;
-            response[1] = (deploy_timer_1 && 0xFF);
+            response[0] = (deploy_timer_1 & 0xFF00) >> 8;
+            response[1] = (deploy_timer_1 & 0xFF);
             break;
 
         case REPORT_DEPLOY_TIMER_2:
-            response[0] = (deploy_timer_2 && 0xFF00) >> 8;
-            response[1] = (deploy_timer_2 && 0xFF);
+            response[0] = (deploy_timer_2 & 0xFF00) >> 8;
+            response[1] = (deploy_timer_2 & 0xFF);
             break;
 
         case REPORT_DEPLOY_TIMER_3:
-            response[0] = (deploy_timer_3 && 0xFF00) >> 8;
-            response[1] = (deploy_timer_3 && 0xFF);
+            response[0] = (deploy_timer_3 & 0xFF00) >> 8;
+            response[1] = (deploy_timer_3 & 0xFF);
             break;
 
         case REPORT_DEPLOY_TIMER_4:
-            response[0] = (deploy_timer_4 && 0xFF00) >> 8;
-            response[1] = (deploy_timer_4 && 0xFF);
+            response[0] = (deploy_timer_4 & 0xFF00) >> 8;
+            response[1] = (deploy_timer_4 & 0xFF);
             break;
 
         case REPORT_DEPLOY_STATUS:
-            response[0] = (*ptr_report_status && 0xFF00) >> 8;
-            response[1] = (*ptr_report_status && 0xFF);
+            response[0] = (*ptr_report_status & 0xFF00) >> 8;
+            response[1] = (*ptr_report_status & 0xFF);
+            break;
 
         default:
             break;
         }
 
-        case 12:                                  	// Vector 12: TXIFG
-            I2C_TX_BUFFER = *ptr_response++;        // Send the response from a command when requested.
-            break;
+        break;
 
-        default: break;
+    case 10:                                    // Vector 10: RXIFG.
+        *ptr_command++ = I2C_RX_BUFFER;         //Receive the commands from master.
+        break;
+
+    case 12:                                  	// Vector 12: TXIFG
+        I2C_TX_BUFFER = *ptr_response++;        // Send the response from a command when requested.
+        break;
+
+    default: break;
     }
 }
