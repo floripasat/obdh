@@ -73,7 +73,7 @@
 
 
 // @ 16Mhz internal ref, 1 cycle ~= 62.5 nS
-// Delays below adjusted empiricaly based on tests/mesurements (to fix internal clock drift)
+// Delays below adjusted empirically based on tests/measurements (to fix internal clock drift)
 #define DELAY_100_uS_IN_CYCLES        1540
 #define DELAY_500_uS_IN_CYCLES        7940
 #define DELAY_1_MS_IN_CYCLES	     15856
@@ -371,7 +371,7 @@
 #define SPI0_MISO_PIN BIT5
 
 #define SPI0_CSn_DIR P2DIR
-#define SPI0_CSn_SEL P2SEL
+#define SPI0_CSn_OUT P2OUT
 #define SPI0_CSn_PIN BIT3
 //! \} End of spi
 
@@ -410,6 +410,7 @@
 
 #define TTC_GPIO2_MAIN_DIR P1DIR
 #define TTC_GPIO2_MAIN_OUT P1OUT
+#define TTC_GPIO2_MAIN_IN  P1IN
 #define TTC_GPIO2_MAIN_PIN BIT3
 
 //TODO: GPIO1 pin should be disconnected in future versions
@@ -422,6 +423,7 @@
 #if HAL_VERSION == HAL_V2_1
 #define TTC_GPIO1_MAIN_DIR P1DIR
 #define TTC_GPIO1_MAIN_OUT P1OUT
+#define TTC_GPIO1_MAIN_IN  P1IN
 #define TTC_GPIO1_MAIN_PIN BIT4
 #endif
 
@@ -429,9 +431,9 @@
 #define TTC_GPIO0_MAIN_OUT P1OUT
 #define TTC_GPIO0_MAIN_PIN BIT5
 
-#define TTC_CTRL_RF_SWT_TX_DIR P1DIR
-#define TTC_CTRL_RF_SWT_TX_OUT P1OUT
-#define TTC_CTRL_RF_SWT_TX_PIN BIT6
+//#define TTC_CTRL_RF_SWT_TX_DIR P1DIR
+//#define TTC_CTRL_RF_SWT_TX_OUT P1OUT
+//#define TTC_CTRL_RF_SWT_TX_PIN BIT6
 
 #define TTC_CTRL_RF_SWT_RX_DIR P1DIR
 #define TTC_CTRL_RF_SWT_RX_OUT P1OUT
@@ -448,9 +450,14 @@
 #define TTC_CLK_OUT         P5OUT
 #define TTC_CLK_PIN         BIT4
 
-#define TTC_MOSI_DIR        P5DIR
-#define TTC_MOSI_OUT        P5OUT
-#define TTC_MOSI_PIN        BIT5
+//these pins are being used to fix a hardware issue
+#define TTC_MOSI_DIR        P1DIR
+#define TTC_MOSI_OUT        P1OUT
+#define TTC_MOSI_PIN        BIT6
+
+//#define TTC_MOSI_DIR        P2DIR
+//#define TTC_MOSI_OUT        P2OUT
+//#define TTC_MOSI_PIN        BIT3
 
 #define TTC_MISO_DIR        P2DIR
 #define TTC_MISO_IN         P2IN

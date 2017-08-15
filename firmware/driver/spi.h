@@ -46,9 +46,9 @@ void spi_setup(uint8_t interface);
  * \brief Send a byte over SPI
  * \param base_address is the MSP registers address of a SPI interface
  * \param data is the byte to be sent
- * \return None
+ * \return the received byte
  */
-void spi_tx(uint16_t base_address, uint8_t data);
+uint8_t spi_tx(uint16_t base_address, uint8_t data);
 
 /**
  * \fn spi_tx_multiple
@@ -68,7 +68,7 @@ void spi_tx_multiple(uint16_t base_address, uint8_t *data,uint8_t data_bytes_len
  * \param base_address is the MSP registers address of a SPI interface
  * \return the received byte
  */
-uint8_t spi_rx(uint16_t base_address);
+#define spi_rx(base_address) spi_tx(base_address, 0xFF);
 
 /**
  * \fn spi_rx

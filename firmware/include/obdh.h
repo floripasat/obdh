@@ -59,6 +59,7 @@
 #include "../src/solar_panels_interface_task.h"
 #include "../src/ttc_interface_task.h"
 #include "../src/wdt_task.h"
+#include "../rf4463/rf4463.h"
 
 /**
  * \fn create_tasks

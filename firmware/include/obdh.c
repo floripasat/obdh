@@ -39,7 +39,7 @@ void create_tasks( void ) {
     internal_sensors_queue  = xQueueCreate( 5, sizeof( satellite_data.msp_sensors ) );
     solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
     transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
-    eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
+    eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) - 2 );            //subtract start byte and crc
     ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
     tx_queue                = xQueueCreate( 1, sizeof( uint8_t ) );
     payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );
@@ -62,7 +62,7 @@ void create_tasks( void ) {
      */
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
     xTaskCreate( store_data_task, "StoreData", 8 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
-    xTaskCreate( communications_task, "Communications", configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
+    xTaskCreate( communications_task, "Communications", 5 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
@@ -70,7 +70,7 @@ void create_tasks( void ) {
     xTaskCreate( ttc_interface_task, "TT&C", configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
 //    xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
 #ifdef _DEBUG
-    xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
+    //xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
 #endif
 }
 
@@ -81,6 +81,8 @@ void gpio_setup() {
 
     BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            /**< disable memory */
     BIT_SET(uSDCard_CE_DIR, uSDCard_CE_PIN);
+
+    rf4463_gpio_init();
 }
 
 void setup_hardware( void ) {

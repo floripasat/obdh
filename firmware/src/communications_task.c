@@ -31,12 +31,26 @@
 
 #include "communications_task.h"
 
+#define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
+#define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
+
 void communications_task( void *pvParameters )
 {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
-    uint16_t current_turn = 0, turns_to_wait;
+    uint16_t current_turn = 600, turns_to_wait;
     uint8_t energy_level;
+    uint8_t radio_status = 0;
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[266];
+    uint16_t ngham_pkt_str_len;
+
+    PA_ENABLE();
+    radio_status = rf4463_init();
+    if(radio_status == 1) {
+        rf4463_enter_standby_mode();
+        ngham_Init();
+    }
 
     while(1) {
 
@@ -61,6 +75,19 @@ void communications_task( void *pvParameters )
 
         if(++current_turn > turns_to_wait) {
             //send_packet(satellite_data);
+            ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 150);
+            ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+            taskENTER_CRITICAL();
+            rf4463_tx_long_packet(ngham_pkt_str+8, ngham_pkt_str_len - 8);
+            taskEXIT_CRITICAL();
+
+            ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data+150, sizeof(data_packet_t)-150);
+            ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+            taskENTER_CRITICAL();
+            rf4463_tx_long_packet(ngham_pkt_str+8, ngham_pkt_str_len - 8);
+            taskEXIT_CRITICAL();
             current_turn = 0;
         }
 
