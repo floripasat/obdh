@@ -1,10 +1,10 @@
 ******************************************************************************
                   MSP430 Linker Unix v16.9.3                   
 ******************************************************************************
->> Linked Mon Aug  7 12:46:34 2017
+>> Linked Wed Aug 16 17:54:13 2017
 
 OUTPUT FILE NAME:   <antenna_simulation.out>
-ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 00004638
+ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 00004400
 
 
 MEMORY CONFIGURATION
@@ -19,8 +19,8 @@ MEMORY CONFIGURATION
   INFOB                 00001900   00000080  00000000  00000080  RWIX
   INFOA                 00001980   00000080  00000000  00000080  RWIX
   USBRAM                00001c00   00000800  00000000  00000800  RWIX
-  RAM                   00002400   00002000  000000c6  00001f3a  RWIX
-  FLASH                 00004400   0000bb80  00000286  0000b8fa  RWIX
+  RAM                   00002400   00002000  000000d2  00001f2e  RWIX
+  FLASH                 00004400   0000bb80  0000004e  0000bb32  RWIX
   INT00                 0000ff80   00000002  00000000  00000002  RWIX
   INT01                 0000ff82   00000002  00000000  00000002  RWIX
   INT02                 0000ff84   00000002  00000000  00000002  RWIX
@@ -85,7 +85,7 @@ MEMORY CONFIGURATION
   INT61                 0000fffa   00000002  00000002  00000000  RWIX
   INT62                 0000fffc   00000002  00000002  00000000  RWIX
   RESET                 0000fffe   00000002  00000002  00000000  RWIX
-  FLASH2                00010000   00014400  00000876  00013b8a  RWIX
+  FLASH2                00010000   00014400  00000c7a  00013786  RWIX
 
 
 SECTION ALLOCATION MAP
@@ -93,44 +93,44 @@ SECTION ALLOCATION MAP
  output                                  attributes/
 section   page    origin      length       input sections
 --------  ----  ----------  ----------   ----------------
-.bss       0    00002400    00000020     UNINITIALIZED
-                  00002400    00000004     (.common:ptr_command)
-                  00002404    00000004     (.common:ptr_report_status)
-                  00002408    00000004     (.common:ptr_response)
-                  0000240c    00000002     (.common:deploy_timer_1)
-                  0000240e    00000002     (.common:deploy_timer_2)
-                  00002410    00000002     (.common:deploy_timer_3)
-                  00002412    00000002     (.common:deploy_timer_4)
-                  00002414    00000002     (.common:report_status)
-                  00002416    00000002     (.common:response)
-                  00002418    00000002     (.common:temperature)
-                  0000241a    00000001     (.common:ant_deploy_run)
-                  0000241b    00000001     (.common:deploy_counter_1)
-                  0000241c    00000001     (.common:deploy_counter_2)
-                  0000241d    00000001     (.common:deploy_counter_3)
-                  0000241e    00000001     (.common:deploy_counter_4)
-                  0000241f    00000001     (.common:deploy_mode)
+.bss       0    00002400    0000002c     UNINITIALIZED
+                  00002400    00000004     (.common:deploy_timer_1)
+                  00002404    00000004     (.common:deploy_timer_2)
+                  00002408    00000004     (.common:deploy_timer_3)
+                  0000240c    00000004     (.common:deploy_timer_4)
+                  00002410    00000004     (.common:ptr_command)
+                  00002414    00000004     (.common:ptr_report_status)
+                  00002418    00000004     (.common:ptr_response)
+                  0000241c    00000004     (.common:time_to_burn)
+                  00002420    00000002     (.common:report_status)
+                  00002422    00000002     (.common:response)
+                  00002424    00000002     (.common:temperature)
+                  00002426    00000001     (.common:ant_deploy_run)
+                  00002427    00000001     (.common:deploy_counter_1)
+                  00002428    00000001     (.common:deploy_counter_2)
+                  00002429    00000001     (.common:deploy_counter_3)
+                  0000242a    00000001     (.common:deploy_counter_4)
+                  0000242b    00000001     (.common:deploy_mode)
 
-.data      0    00002420    00000006     UNINITIALIZED
-                  00002420    00000003     antenna.obj (.data)
-                  00002423    00000001     --HOLE--
-                  00002424    00000002     antenna.obj (.data:command)
+.data      0    0000242c    00000006     UNINITIALIZED
+                  0000242c    00000003     antenna.obj (.data)
+                  0000242f    00000001     --HOLE--
+                  00002430    00000002     antenna.obj (.data:command)
 
 .stack     0    00004360    000000a0     UNINITIALIZED
                   00004360    00000004     rts430x_lc_rd_eabi.lib : boot.obj (.stack)
                   00004364    0000009c     --HOLE--
 
 .text:_isr 
-*          0    00004400    0000025a     
-                  00004400    00000238     i2c.obj (.text:_isr:USCI_B0_ISR)
-                  00004638    0000001a     rts430x_lc_rd_eabi.lib : boot_special.obj (.text:_isr:_c_int00_noargs_noexit)
-                  00004652    00000008                            : isr_trap.obj (.text:_isr:__TI_ISR_TRAP)
+*          0    00004400    00000022     
+                  00004400    0000001a     rts430x_lc_rd_eabi.lib : boot_special.obj (.text:_isr:_c_int00_noargs_noexit)
+                  0000441a    00000008                            : isr_trap.obj (.text:_isr:__TI_ISR_TRAP)
 
-.cinit     0    0000465a    0000002c     
-                  0000465a    0000000c     (__TI_handler_table)
-                  00004666    0000000a     (.cinit..data.load) [load image, compression = lzss]
-                  00004670    00000006     (.cinit..bss.load) [load image, compression = zero_init]
-                  00004676    00000010     (__TI_cinit_table)
+.cinit     0    00004422    0000002c     
+                  00004422    0000000c     (__TI_handler_table)
+                  0000442e    0000000a     (.cinit..data.load) [load image, compression = lzss]
+                  00004438    00000006     (.cinit..bss.load) [load image, compression = zero_init]
+                  0000443e    00000010     (__TI_cinit_table)
 
 .binit     0    00004400    00000000     
 
@@ -186,7 +186,7 @@ ADC12      0    0000ffec    00000002
                   0000ffec    00000002     rts430x_lc_rd_eabi.lib : int54.obj (.int54)
 
 USCI_B0    0    0000ffee    00000002     
-                  0000ffee    00000002     i2c.obj (.int55)
+                  0000ffee    00000002     rts430x_lc_rd_eabi.lib : int55.obj (.int55)
 
 USCI_A0    0    0000fff0    00000002     
                   0000fff0    00000002     rts430x_lc_rd_eabi.lib : int56.obj (.int56)
@@ -214,44 +214,49 @@ SYSNMI     0    0000fffc    00000002
 .reset     0    0000fffe    00000002     
                   0000fffe    00000002     rts430x_lc_rd_eabi.lib : boot.obj (.reset)
 
-.text      0    00010000    00000876     
-                  00010000    00000300     antenna.obj (.text:run)
-                  00010300    000001a2     antenna.obj (.text:ant_deploy_sequencial)
-                  000104a2    000000aa     antenna.obj (.text:ant_deploy)
-                  0001054c    00000086     antenna.obj (.text:ant_setup)
-                  000105d2    00000082     rts430x_lc_rd_eabi.lib : autoinit_wdt.obj (.text:_auto_init_hold_wdt)
-                  00010654    00000078                            : copy_decompress_lzss.obj (.text:decompress:lzss:__TI_decompress_lzss)
-                  000106cc    00000066                            : cpy_tbl.obj (.text:copy_in)
-                  00010732    0000004a     i2c.obj (.text:i2c_setup)
-                  0001077c    0000002a     temp_data.obj (.text:temperature_setup)
-                  000107a6    00000024     rts430x_lc_rd_eabi.lib : copy_zero_init.obj (.text:decompress:ZI:__TI_zero_init)
-                  000107ca    0000001a     antenna.obj (.text:ant_arm)
-                  000107e4    0000001a     antenna.obj (.text:ant_disarm)
-                  000107fe    0000001a     main.obj (.text:main)
-                  00010818    00000018     rts430x_lc_rd_eabi.lib : mult16_f5hw.obj (.text)
-                  00010830    00000014                            : memcpy.obj (.text:memcpy)
-                  00010844    00000014     temp_data.obj (.text:temperature_read)
-                  00010858    00000012     rts430x_lc_rd_eabi.lib : copy_decompress_none.obj (.text:decompress:none:__TI_decompress_none)
-                  0001086a    00000006                            : exit.obj (.text:abort)
-                  00010870    00000004                            : pre_init.obj (.text:_system_pre_init)
-                  00010874    00000002                            : startup.obj (.text:_system_post_cinit)
+.text      0    00010000    00000c7a     
+                  00010000    0000032c     antenna.obj (.text:run)
+                  0001032c    000001f2     antenna.obj (.text:command_read)
+                  0001051e    000001e4     antenna.obj (.text:ant_deploy_sequencial)
+                  00010702    000000d2     antenna.obj (.text:ant_deploy)
+                  000107d4    000000ba     antenna.obj (.text:ant_setup)
+                  0001088e    0000009a     antenna.obj (.text:ISR)
+                  00010928    00000088     antenna.obj (.text:get_report_status)
+                  000109b0    00000082     rts430x_lc_rd_eabi.lib : autoinit_wdt.obj (.text:_auto_init_hold_wdt)
+                  00010a32    00000078                            : copy_decompress_lzss.obj (.text:decompress:lzss:__TI_decompress_lzss)
+                  00010aaa    00000066                            : cpy_tbl.obj (.text:copy_in)
+                  00010b10    0000003e                            : lsr32.obj (.text:l_lsr_const)
+                  00010b4e    00000032     i2c.obj (.text:i2c_setup)
+                  00010b80    0000002a     temp_data.obj (.text:temperature_setup)
+                  00010baa    00000024     rts430x_lc_rd_eabi.lib : copy_zero_init.obj (.text:decompress:ZI:__TI_zero_init)
+                  00010bce    0000001a     antenna.obj (.text:ant_arm)
+                  00010be8    0000001a     antenna.obj (.text:ant_disarm)
+                  00010c02    0000001a     main.obj (.text:main)
+                  00010c1c    00000018     rts430x_lc_rd_eabi.lib : mult16_f5hw.obj (.text)
+                  00010c34    00000014                            : memcpy.obj (.text:memcpy)
+                  00010c48    00000014     temp_data.obj (.text:temperature_read)
+                  00010c5c    00000012     rts430x_lc_rd_eabi.lib : copy_decompress_none.obj (.text:decompress:none:__TI_decompress_none)
+                  00010c6e    00000006                            : exit.obj (.text:abort)
+                  00010c74    00000004                            : pre_init.obj (.text:_system_pre_init)
+                  00010c78    00000002                            : startup.obj (.text:_system_post_cinit)
 
 MODULE SUMMARY
 
        Module                     code   ro data   rw data
        ------                     ----   -------   -------
     ./
-       antenna.obj                1542   0         27     
-       i2c.obj                    642    2         10     
+       antenna.obj                2532   0         49     
        temp_data.obj              62     0         0      
+       i2c.obj                    50     0         0      
        main.obj                   26     0         0      
     +--+--------------------------+------+---------+---------+
-       Total:                     2272   2         37     
+       Total:                     2670   0         49     
                                                           
     /home/andre/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.3.LTS/lib/rts430x_lc_rd_eabi.lib
        autoinit_wdt.obj           130    0         0      
        copy_decompress_lzss.obj   120    0         0      
        cpy_tbl.obj                102    0         0      
+       lsr32.obj                  62     0         0      
        copy_zero_init.obj         36     0         0      
        boot_special.obj           26     0         0      
        mult16_f5hw.obj            24     0         0      
@@ -275,6 +280,7 @@ MODULE SUMMARY
        int52.obj                  0      2         0      
        int53.obj                  0      2         0      
        int54.obj                  0      2         0      
+       int55.obj                  0      2         0      
        int56.obj                  0      2         0      
        int57.obj                  0      2         0      
        int58.obj                  0      2         0      
@@ -284,24 +290,24 @@ MODULE SUMMARY
        int62.obj                  0      2         0      
        startup.obj                2      0         0      
     +--+--------------------------+------+---------+---------+
-       Total:                     496    44        0      
+       Total:                     558    46        0      
                                                           
        Stack:                     0      0         160    
        Linker Generated:          0      44        0      
     +--+--------------------------+------+---------+---------+
-       Grand Total:               2768   90        197    
+       Grand Total:               3228   90        209    
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00004676 records: 2, size/record: 8, table size: 16
-	.data: load addr=00004666, load size=0000000a bytes, run addr=00002420, run size=00000006 bytes, compression=lzss
-	.bss: load addr=00004670, load size=00000006 bytes, run addr=00002400, run size=00000020 bytes, compression=zero_init
+__TI_cinit_table @ 0000443e records: 2, size/record: 8, table size: 16
+	.data: load addr=0000442e, load size=0000000a bytes, run addr=0000242c, run size=00000006 bytes, compression=lzss
+	.bss: load addr=00004438, load size=00000006 bytes, run addr=00002400, run size=0000002c bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 0000465a records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 00004422 records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_zero_init
 	index: 1, handler: __TI_decompress_lzss
 	index: 2, handler: __TI_decompress_none
@@ -393,7 +399,7 @@ address   name
 00000732  ADC12MEM9               
 00000733  ADC12MEM9_H             
 00000732  ADC12MEM9_L             
-0001086a  C$$EXIT                 
+00010c6e  C$$EXIT                 
 000008c0  CBCTL0                  
 000008c1  CBCTL0_H                
 000008c0  CBCTL0_L                
@@ -479,6 +485,7 @@ address   name
 00000146  FCTL4                   
 00000147  FCTL4_H                 
 00000146  FCTL4_L                 
+0001088e  ISR                     
 000004c4  MAC                     
 000004da  MAC32H                  
 000004db  MAC32H_H                
@@ -1057,7 +1064,6 @@ address   name
 00000932  USBVECINT               
 00000933  USBVECINT_H             
 00000932  USBVECINT_L             
-00004400  USCI_B0_ISR             
 0000015c  WDTCTL                  
 0000015d  WDTCTL_H                
 0000015c  WDTCTL_L                
@@ -1065,15 +1071,15 @@ address   name
 000000a0  __STACK_SIZE            
 UNDEFED   __TI_BINIT_Base         
 UNDEFED   __TI_BINIT_Limit        
-00004676  __TI_CINIT_Base         
-00004686  __TI_CINIT_Limit        
-0000465a  __TI_Handler_Table_Base 
-00004666  __TI_Handler_Table_Limit
+0000443e  __TI_CINIT_Base         
+0000444e  __TI_CINIT_Limit        
+00004422  __TI_Handler_Table_Base 
+0000442e  __TI_Handler_Table_Limit
 UNDEFED   __TI_INITARRAY_Base     
 UNDEFED   __TI_INITARRAY_Limit    
-00004652  __TI_ISR_TRAP           
-00010654  __TI_decompress_lzss    
-00010858  __TI_decompress_none    
+0000441a  __TI_ISR_TRAP           
+00010a32  __TI_decompress_lzss    
+00010c5c  __TI_decompress_none    
 0000ffd2  __TI_int41              
 0000ffd4  __TI_int42              
 0000ffd6  __TI_int43              
@@ -1099,47 +1105,65 @@ UNDEFED   __TI_INITARRAY_Limit
 ffffffff  __TI_pprof_out_hndl     
 ffffffff  __TI_prof_data_size     
 ffffffff  __TI_prof_data_start    
-000107a6  __TI_zero_init          
+00010baa  __TI_zero_init          
 ffffffff  __c_args__              
-00010818  __mspabi_mpyi_f5hw      
-000105d2  _auto_init_hold_wdt     
-00004638  _c_int00_noargs_noexit  
+00010c1c  __mspabi_mpyi_f5hw      
+00010b48  __mspabi_srll_1         
+00010b24  __mspabi_srll_10        
+00010b20  __mspabi_srll_11        
+00010b1c  __mspabi_srll_12        
+00010b18  __mspabi_srll_13        
+00010b14  __mspabi_srll_14        
+00010b10  __mspabi_srll_15        
+00010b44  __mspabi_srll_2         
+00010b40  __mspabi_srll_3         
+00010b3c  __mspabi_srll_4         
+00010b38  __mspabi_srll_5         
+00010b34  __mspabi_srll_6         
+00010b30  __mspabi_srll_7         
+00010b2c  __mspabi_srll_8         
+00010b28  __mspabi_srll_9         
+000109b0  _auto_init_hold_wdt     
+00004400  _c_int00_noargs_noexit  
 0000fffe  _reset_vector           
 00004360  _stack                  
-00010874  _system_post_cinit      
-00010870  _system_pre_init        
-0001086a  abort                   
-000107ca  ant_arm                 
-000104a2  ant_deploy              
-0000241a  ant_deploy_run          
-00010300  ant_deploy_sequencial   
-000107e4  ant_disarm              
-0001054c  ant_setup               
-00002424  command                 
-000106cc  copy_in                 
-0000241b  deploy_counter_1        
-0000241c  deploy_counter_2        
-0000241d  deploy_counter_3        
-0000241e  deploy_counter_4        
-0000241f  deploy_mode             
-0000240c  deploy_timer_1          
-0000240e  deploy_timer_2          
-00002410  deploy_timer_3          
-00002412  deploy_timer_4          
-00002420  first_activation        
-00010732  i2c_setup               
-000107fe  main                    
-00010830  memcpy                  
-00002400  ptr_command             
-00002404  ptr_report_status       
-00002408  ptr_response            
-00002414  report_status           
-00002416  response                
+00010c78  _system_post_cinit      
+00010c74  _system_pre_init        
+00010c6e  abort                   
+00010bce  ant_arm                 
+00010702  ant_deploy              
+00002426  ant_deploy_run          
+0001051e  ant_deploy_sequencial   
+00010be8  ant_disarm              
+000107d4  ant_setup               
+00002430  command                 
+0001032c  command_read            
+00010aaa  copy_in                 
+00002427  deploy_counter_1        
+00002428  deploy_counter_2        
+00002429  deploy_counter_3        
+0000242a  deploy_counter_4        
+0000242b  deploy_mode             
+00002400  deploy_timer_1          
+00002404  deploy_timer_2          
+00002408  deploy_timer_3          
+0000240c  deploy_timer_4          
+0000242c  first_activation        
+00010928  get_report_status       
+00010b4e  i2c_setup               
+00010c02  main                    
+00010c34  memcpy                  
+00002410  ptr_command             
+00002414  ptr_report_status       
+00002418  ptr_response            
+00002420  report_status           
+00002422  response                
 00010000  run                     
-00002422  state                   
-00002418  temperature             
-00010844  temperature_read        
-0001077c  temperature_setup       
+0000242e  state                   
+00002424  temperature             
+00010c48  temperature_read        
+00010b80  temperature_setup       
+0000241c  time_to_burn            
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -1895,34 +1919,34 @@ address   name
 000023fd  USBIEPBBAY_7            
 000023fe  USBIEPBCTY_7            
 000023ff  USBIEPSIZXY_7           
-00002400  ptr_command             
-00002404  ptr_report_status       
-00002408  ptr_response            
-0000240c  deploy_timer_1          
-0000240e  deploy_timer_2          
-00002410  deploy_timer_3          
-00002412  deploy_timer_4          
-00002414  report_status           
-00002416  response                
-00002418  temperature             
-0000241a  ant_deploy_run          
-0000241b  deploy_counter_1        
-0000241c  deploy_counter_2        
-0000241d  deploy_counter_3        
-0000241e  deploy_counter_4        
-0000241f  deploy_mode             
-00002420  first_activation        
-00002422  state                   
-00002424  command                 
+00002400  deploy_timer_1          
+00002404  deploy_timer_2          
+00002408  deploy_timer_3          
+0000240c  deploy_timer_4          
+00002410  ptr_command             
+00002414  ptr_report_status       
+00002418  ptr_response            
+0000241c  time_to_burn            
+00002420  report_status           
+00002422  response                
+00002424  temperature             
+00002426  ant_deploy_run          
+00002427  deploy_counter_1        
+00002428  deploy_counter_2        
+00002429  deploy_counter_3        
+0000242a  deploy_counter_4        
+0000242b  deploy_mode             
+0000242c  first_activation        
+0000242e  state                   
+00002430  command                 
 00004360  _stack                  
-00004400  USCI_B0_ISR             
 00004400  __STACK_END             
-00004638  _c_int00_noargs_noexit  
-00004652  __TI_ISR_TRAP           
-0000465a  __TI_Handler_Table_Base 
-00004666  __TI_Handler_Table_Limit
-00004676  __TI_CINIT_Base         
-00004686  __TI_CINIT_Limit        
+00004400  _c_int00_noargs_noexit  
+0000441a  __TI_ISR_TRAP           
+00004422  __TI_Handler_Table_Base 
+0000442e  __TI_Handler_Table_Limit
+0000443e  __TI_CINIT_Base         
+0000444e  __TI_CINIT_Limit        
 0000ffd2  __TI_int41              
 0000ffd4  __TI_int42              
 0000ffd6  __TI_int43              
@@ -1947,26 +1971,44 @@ address   name
 0000fffc  __TI_int62              
 0000fffe  _reset_vector           
 00010000  run                     
-00010300  ant_deploy_sequencial   
-000104a2  ant_deploy              
-0001054c  ant_setup               
-000105d2  _auto_init_hold_wdt     
-00010654  __TI_decompress_lzss    
-000106cc  copy_in                 
-00010732  i2c_setup               
-0001077c  temperature_setup       
-000107a6  __TI_zero_init          
-000107ca  ant_arm                 
-000107e4  ant_disarm              
-000107fe  main                    
-00010818  __mspabi_mpyi_f5hw      
-00010830  memcpy                  
-00010844  temperature_read        
-00010858  __TI_decompress_none    
-0001086a  C$$EXIT                 
-0001086a  abort                   
-00010870  _system_pre_init        
-00010874  _system_post_cinit      
+0001032c  command_read            
+0001051e  ant_deploy_sequencial   
+00010702  ant_deploy              
+000107d4  ant_setup               
+0001088e  ISR                     
+00010928  get_report_status       
+000109b0  _auto_init_hold_wdt     
+00010a32  __TI_decompress_lzss    
+00010aaa  copy_in                 
+00010b10  __mspabi_srll_15        
+00010b14  __mspabi_srll_14        
+00010b18  __mspabi_srll_13        
+00010b1c  __mspabi_srll_12        
+00010b20  __mspabi_srll_11        
+00010b24  __mspabi_srll_10        
+00010b28  __mspabi_srll_9         
+00010b2c  __mspabi_srll_8         
+00010b30  __mspabi_srll_7         
+00010b34  __mspabi_srll_6         
+00010b38  __mspabi_srll_5         
+00010b3c  __mspabi_srll_4         
+00010b40  __mspabi_srll_3         
+00010b44  __mspabi_srll_2         
+00010b48  __mspabi_srll_1         
+00010b4e  i2c_setup               
+00010b80  temperature_setup       
+00010baa  __TI_zero_init          
+00010bce  ant_arm                 
+00010be8  ant_disarm              
+00010c02  main                    
+00010c1c  __mspabi_mpyi_f5hw      
+00010c34  memcpy                  
+00010c48  temperature_read        
+00010c5c  __TI_decompress_none    
+00010c6e  C$$EXIT                 
+00010c6e  abort                   
+00010c74  _system_pre_init        
+00010c78  _system_post_cinit      
 ffffffff  __TI_pprof_out_hndl     
 ffffffff  __TI_prof_data_size     
 ffffffff  __TI_prof_data_start    
@@ -1976,4 +2018,4 @@ UNDEFED   __TI_BINIT_Limit
 UNDEFED   __TI_INITARRAY_Base     
 UNDEFED   __TI_INITARRAY_Limit    
 
-[829 symbols]
+[847 symbols]

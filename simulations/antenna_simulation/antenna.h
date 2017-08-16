@@ -128,15 +128,25 @@
 #define ANTENNA_3           3
 #define ANTENNA_4           4
 
-#define SAFETY_TIME             600                     // Safety time in steps of 50 milliseconds.
-#define time_limit_to_milli()   (time_limit_sec * 20)   // Transform the time_limit_sec to the 50 milliseconds 
-														// steps for simulation behavior purposes.
+// I2C definitions
+#define I2C_FLAG            UCB0IFG
+#define I2C_START_FLAG      UCSTTIFG
+#define I2C_STOP_FLAG       UCSTPIFG
+#define I2C_RX_FLAG         UCRXIFG
+#define I2C_TX_FLAG         UCTXIFG
+#define I2C_RX_BUFFER       UCB0RXBUF
+#define I2C_TX_BUFFER       UCB0TXBUF
+
+#define STEP_IN_1_S         2750
+#define PERIOD              100//1000000 / STEP_IN_1_S
+#define SAFETY_TIME_IN_CYCLES    82500
+
 // Commands functionality
 void ant_setup(void);
 void ant_arm(void);
 void ant_disarm(void);
-uint8_t ant_deploy(uint8_t antenna, uint8_t time_limit_sec, uint16_t time);
-void ant_deploy_sequencial(uint8_t time_limit_sec, uint16_t* time);
+uint8_t ant_deploy(uint8_t antenna, uint32_t time_limit, uint32_t time);
+void ant_deploy_sequencial(uint32_t time_limit, uint32_t* time);
 void run(void);
 
 #endif /* ANTENNA_H_ */
