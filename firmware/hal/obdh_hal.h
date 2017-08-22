@@ -450,14 +450,16 @@
 #define TTC_CLK_OUT         P5OUT
 #define TTC_CLK_PIN         BIT4
 
-//these pins are being used to fix a hardware issue
+//***************************
+// short circuit in this pin:
+//#define TTC_MOSI_DIR        P5DIR
+//#define TTC_MOSI_OUT        P5OUT
+//#define TTC_MOSI_PIN        BIT5
+// using TTC_CTRL_RF_SWT_TX instead:
 #define TTC_MOSI_DIR        P1DIR
 #define TTC_MOSI_OUT        P1OUT
 #define TTC_MOSI_PIN        BIT6
-
-//#define TTC_MOSI_DIR        P2DIR
-//#define TTC_MOSI_OUT        P2OUT
-//#define TTC_MOSI_PIN        BIT3
+//***************************
 
 #define TTC_MISO_DIR        P2DIR
 #define TTC_MISO_IN         P2IN

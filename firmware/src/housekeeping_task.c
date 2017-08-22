@@ -37,7 +37,7 @@ void housekeeping_task( void *pvParameters ) {
     TickType_t last_wake_time;
     uint16_t temperature_raw, voltage_raw, current_raw;
 #ifdef _DEBUG
-    float temperature, voltage, current;
+    volatile float temperature, voltage, current;
 #endif
     uint8_t internal_sensors_data[6];
     uint8_t system_status[6];

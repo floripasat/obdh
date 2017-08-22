@@ -34,23 +34,23 @@
 
 #include "../driver/i2c.h"
 
-#define     ANTENNA_NOT_DEPLOYED    0       /**< Value if antenna is not deployed yet */
-#define     ANTENNA_DEPLOYED        1       /**< Value if antenna is deployed         */
+#define ANTENNAS_NOT_DEPLOYED    0       /**< Value if antennas are not deployed yet */
+#define ANTENNAS_DEPLOYED        1       /**< Value if antennas are deployed         */
 
 
 /**
- * \fn antenna_deployment_routine
+ * \fn antennas_deployment_routine
  *
  * \brief Send commands through I2C to try to deploy antennas
  * \return None
  */
-void antenna_deployment_routine(void);
+void antennas_deployment_routine(void);
 
 /**
  * \fn verify_deployment_status
  *
- * \brief Send a command through I2C to read the deploy switches to know if the antennas were deployed
- * \return None
+ * \brief Read the deploy switches to know if the antennas were deployed
+ * \return the antenna status: 1 = all antennas deployed. 0 = not all antennas deployed
  */
 uint8_t verify_deployment_status(void);
 

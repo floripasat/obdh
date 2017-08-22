@@ -41,9 +41,9 @@ void imu_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
 
 #ifdef _DEBUG
-    float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
-    float gyroscope_x, gyroscope_y, gyroscope_z, gyroscope_absolute_module;
-    float temperature;
+    volatile float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
+    volatile float gyroscope_x, gyroscope_y, gyroscope_z, gyroscope_absolute_module;
+    volatile float temperature;
 #endif
 
     module_test = imu_setup();      /**< Setup IMU pins and verify the communication */
