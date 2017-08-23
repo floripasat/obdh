@@ -107,8 +107,8 @@ void ant_setup(void) {
     deploy_counter_3 = 0;
     deploy_counter_4 = 0;
 
-    response[0] = 0x0F;                                         // 0xFF is the default value.
-    response[1] = 0x0F;                                         // It was choose for debug purposes.
+    response[0] = 0x88;                                         // 0x88 is the default value.
+    response[1] = 0x88;                                         // It was choose for debug purposes.
 }
 
 // Antenna arming process. Refresh the ARM_LED and ensure that the ANTENNA_LEDS are turn off.
@@ -494,10 +494,7 @@ void ISR(void) {
     // RX
     if (I2C_FLAG & I2C_RX_FLAG) {
         *ptr_command++ = I2C_RX_BUFFER;         //Receive the commands from master.
-        if (I2C_FLAG & I2C_RX_FLAG) {
-            *ptr_command++ = I2C_RX_BUFFER;         //Receive the commands from master.
-            time_to_burn = command[1] * STEP_IN_1_S;
-        }
+        time_to_burn = (uint32_t)command[1] * STEP_IN_1_S;
         //command_read();
     }
 
@@ -510,8 +507,8 @@ void ISR(void) {
     // Stop
     if(I2C_FLAG & I2C_STOP_FLAG) {
         BIT_CLEAR(I2C_FLAG, I2C_STOP_FLAG);
-        response[0] = 0x0F;
-        response[1] = 0x0F;
+        response[0] = 0x88;
+        response[1] = 0x88;
 
 
         command_read();

@@ -137,9 +137,9 @@
 #define I2C_RX_BUFFER       UCB0RXBUF
 #define I2C_TX_BUFFER       UCB0TXBUF
 
-#define STEP_IN_1_S         2750
+#define STEP_IN_1_S         3200
 #define PERIOD              100//1000000 / STEP_IN_1_S
-#define SAFETY_TIME_IN_CYCLES    82500
+#define SAFETY_TIME_IN_CYCLES    96000
 
 // Commands functionality
 void ant_setup(void);
