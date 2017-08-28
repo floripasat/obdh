@@ -34,9 +34,9 @@ int main(void) {
 
     setup_hardware();                       /**< setup the watchdog timers, I/O pins, communications and other peripherals */
 
-    if(verify_deployment_status() == ANTENNAS_NOT_DEPLOYED){
+    if(verify_deployment_status() == ANTENNAS_NOT_DEPLOYED){    /**< **** TODO: Verify the byte order in I2C (MSB or LSB first). */
         hibernate();                        /**< sleep for 45 minutes */
-        antennas_deployment_routine();       /**< open the antennas */
+        antennas_deployment_routine();      /**< open the antennas */
     }
 
     create_tasks();

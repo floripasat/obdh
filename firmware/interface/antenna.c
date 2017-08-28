@@ -32,23 +32,23 @@
 #include "antenna.h"
 
 //MSB
-#define ANTENNA_1_STATUS    BIT7
-#define ANTENNA_1_TIMEOUT   BIT6
-#define ANTENNA_1_BURNING   BIT5
+#define ANTENNA_1_STATUS    BITF
+#define ANTENNA_1_TIMEOUT   BITE
+#define ANTENNA_1_BURNING   BITD
 //NULL BIT
-#define ANTENNA_2_STATUS    BIT3
-#define ANTENNA_2_TIMEOUT   BIT2
-#define ANTENNA_2_BURNING   BIT1
-#define IGNORING_SWITCHES   BIT0
+#define ANTENNA_2_STATUS    BITB
+#define ANTENNA_2_TIMEOUT   BITA
+#define ANTENNA_2_BURNING   BIT9
+#define IGNORING_SWITCHES   BIT8
 //LSB
-#define ANTENNA_3_STATUS    BITF
-#define ANTENNA_3_TIMEOUT   BITE
-#define ANTENNA_3_BURNING   BITD
-#define INDEPENDET_BURN     BITC
-#define ANTENNA_4_STATUS    BITB
-#define ANTENNA_4_TIMEOUT   BITA
-#define ANTENNA_4_BURNING   BIT9
-#define ARMED               BIT8
+#define ANTENNA_3_STATUS    BIT7
+#define ANTENNA_3_TIMEOUT   BIT6
+#define ANTENNA_3_BURNING   BIT5
+#define INDEPENDET_BURN     BIT4
+#define ANTENNA_4_STATUS    BIT3
+#define ANTENNA_4_TIMEOUT   BIT2
+#define ANTENNA_4_BURNING   BIT1
+#define ARMED               BIT0
 
 #define ALL_ANTENNA_STATUS  0x8888
 
@@ -207,7 +207,7 @@ uint16_t read_deployment_status(void){
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
     i2c_send(ANTENNA_BASE_ADDRESS, REPORT_DEPLOY_STATUS, START_STOP);
 
-    __delay_cycles(DELAY_100_MS_IN_CYCLES);
+    delay_s(1);
 
     i2c_set_mode(ANTENNA_BASE_ADDRESS, RECEIVE_MODE);
     if( i2c_receive_burst(ANTENNA_BASE_ADDRESS, (uint8_t *) &status, 2, START_STOP) == I2C_FAIL){
@@ -218,80 +218,46 @@ uint16_t read_deployment_status(void){
     return status;
 }
 
-void antennas_deployment_routine(void){
+uint8_t antennas_deployment_routine(void){
 
     uint16_t status;
-    uint8_t burn_time = 5;
-    uint8_t i, j;
+    uint8_t response = ANTENNAS_NOT_DEPLOYED;
+    uint8_t burn_time = 10;
     uint8_t timeout = 0;
 
-    /**< read status */
+    /**< try to arm antenna */
     do {
         arm_antenna();
-        __delay_cycles(DELAY_1_S_IN_CYCLES);
+        delay_s(1);
         status = read_deployment_status();
-    } while(timeout++ < 5 | (VERIFY_STATUS(status, ARMED) == 0) );   //while the deployment system is not ARMED
+    } while(timeout++ < 5 && (VERIFY_STATUS(status, ARMED) == 0) );   /**< while the deployment system is not ARMED */
+
+
+    /**< send a command to do the override deploy */
+    start_independet_deploy(ANTENNA_1, burn_time, 1);   /**< try to override the closed antennas */
+    delay_s(burn_time);
+    start_independet_deploy(ANTENNA_2, burn_time, 1);   /**< try to override the closed antennas */
+    delay_s(burn_time);
+    start_independet_deploy(ANTENNA_3, burn_time, 1);   /**< try to override the closed antennas */
+    delay_s(burn_time);
+    start_independet_deploy(ANTENNA_4, burn_time, 1);   /**< try to override the closed antennas */
+    delay_s(burn_time);
+
 
     /*
-     * try to deploy sequential, 5 seconds of burn
-     * read status, jump if all opened
-     * try to deploy sequential, 10 seconds of burn
-     * read status, jump if all opened
      * try to deploy sequential, 20 seconds of burn
-     * read status, jump if all opened
      */
-    for(i = 0; i < 2; i++)
-    {
-        start_sequential_deploy(burn_time);
-        status = read_deployment_status();
-        for(j = 0; j < burn_time; j++) {
-            __delay_cycles(DELAY_1_S_IN_CYCLES * 4);
-        }
-
-        if( (VERIFY_STATUS(status, ALL_ANTENNA_STATUS) == ALL_DEPLOYED) ) {
-            break;
-        }
-        else{
-            burn_time = burn_time * 2;          /**< 5, 10, 20 */
-        }
-    }
-
-    burn_time = 10;
-
-
-    /**< verify what antennas are not deployed and send a command to do the override deploy */
-    status = read_deployment_status();
-    if( (VERIFY_STATUS(status, ALL_ANTENNA_STATUS) != ALL_DEPLOYED) ) {
-        if( (VERIFY_STATUS(status, ANTENNA_1_STATUS) != ANTENNA_DEPLOYED) ) {
-            start_independet_deploy(ANTENNA_1, burn_time, 1);   /**< try to override the closed antennas */
-        }
-        for(j = 0; j < burn_time; j++) {
-            __delay_cycles(DELAY_1_S_IN_CYCLES);
-        }
-
-        if( (VERIFY_STATUS(status, ANTENNA_2_STATUS) != ANTENNA_DEPLOYED) ) {
-            start_independet_deploy(ANTENNA_2, burn_time, 1);   /**< try to override the closed antennas */
-        }
-        for(j = 0; j < burn_time; j++) {
-            __delay_cycles(DELAY_1_S_IN_CYCLES);
-        }
-
-        if( (VERIFY_STATUS(status, ANTENNA_3_STATUS) != ANTENNA_DEPLOYED) ) {
-            start_independet_deploy(ANTENNA_3, burn_time, 1);   /**< try to override the closed antennas */
-        }
-        for(j = 0; j < burn_time; j++) {
-            __delay_cycles(DELAY_1_S_IN_CYCLES);
-        }
-
-        if( (VERIFY_STATUS(status, ANTENNA_4_STATUS) != ANTENNA_DEPLOYED) ) {
-            start_independet_deploy(ANTENNA_4, burn_time, 1);   /**< try to override the closed antennas */
-        }
-        for(j = 0; j < burn_time; j++) {
-            __delay_cycles(DELAY_1_S_IN_CYCLES);
-        }
+    burn_time = 20;
+    start_sequential_deploy(burn_time);
+    delay_s(burn_time * 4);
+    status = read_deployment_status();          /**< verify what antennas are not deployed */
+    if( (VERIFY_STATUS(status, ALL_ANTENNA_STATUS) == ALL_DEPLOYED) ) {
+        response = ANTENNAS_DEPLOYED;
     }
 
     disarm_antenna();
+
+    return response;
 }
 
 uint8_t verify_deployment_status(void) {
@@ -306,3 +272,14 @@ uint8_t verify_deployment_status(void) {
     return response;
 }
 
+void delay_s(uint16_t seconds) {
+    uint16_t i;
+
+    for(i = 0; i < seconds; i++){
+        wdte_reset_counter();
+        wdti_reset_counter();
+        __delay_cycles(DELAY_1_S_IN_CYCLES);
+        wdte_reset_counter();
+        wdti_reset_counter();
+    }
+}

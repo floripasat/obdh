@@ -42,9 +42,9 @@
  * \fn antennas_deployment_routine
  *
  * \brief Send commands through I2C to try to deploy antennas
- * \return None
+ * \return the antenna status: 1 = all antennas deployed. 0 = not all antennas deployed
  */
-void antennas_deployment_routine(void);
+uint8_t antennas_deployment_routine(void);
 
 /**
  * \fn verify_deployment_status
