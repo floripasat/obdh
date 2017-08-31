@@ -36,6 +36,8 @@
 #include "task.h"
 #include "../include/floripasat_def.h"
 #include "../include/msp_internal.h"
+#include "../util/link.h"
+#include "../interface/ttc.h"
 #include "../rf4463/rf4463.h"
 #include "../libs/ngham/ngham.h"
 

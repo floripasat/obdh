@@ -119,7 +119,7 @@ uint8_t ngham_ActionGetNoiseFloor();
  * 
  * \return None
  */
-void ngham_ActionHandlePacket(uint8_t condition, NGHam_RX_Packet *p, uint8_t *msg, uint8_t *msg_len);
+void ngham_ActionHandlePacket(uint8_t condition, NGHam_RX_Packet *p, uint8_t *msg, uint16_t *msg_len);
 
 /**
  * \fn ngham_ActionReceptionStarted

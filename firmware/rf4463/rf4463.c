@@ -234,9 +234,9 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
     return false;
 }
 
-uint8_t rf4463_rx_packet(uint8_t *rx_buf)
+uint8_t rf4463_rx_packet(uint8_t *rx_buf, uint8_t read_len)
 {
-    uint8_t rx_len = rf4463_read_rx_fifo(rx_buf);   // Read data from the FIFO
+    uint8_t rx_len = rf4463_read_rx_fifo(rx_buf, read_len);   // Read data from the FIFO
     rf4463_fifo_reset();                            // Clear FIFO
     
     return rx_len;
@@ -501,17 +501,16 @@ void rf4463_write_tx_fifo(uint8_t *data, uint8_t len)
     rf4463_set_cmd(RF4463_CMD_TX_FIFO_WRITE, buffer, len);
 }
 
-uint8_t rf4463_read_rx_fifo(uint8_t *data)
+uint8_t rf4463_read_rx_fifo(uint8_t *data, uint8_t read_len)
 {
     if (!rf4463_check_cts())
     {
         return 0;
     }
     
-    uint8_t read_len;
+
     rf4463_slave_enable();
     rf4463_spi_transfer(RF4463_CMD_RX_FIFO_READ);
-    rf4463_spi_read(&read_len, 1);
     rf4463_spi_read(data, read_len);
     rf4463_slave_disable();
     

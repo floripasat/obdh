@@ -223,7 +223,7 @@ void ngham_Encode(NGHam_TX_Packet *p, uint8_t *pkt, uint16_t *pkt_len)
     ngham_ActionSendData(d, d_len, p->priority, pkt, pkt_len);
 }
 
-void ngham_Decode(uint8_t d, uint8_t *msg, uint8_t *msg_len)
+uint8_t ngham_Decode(uint8_t d, uint8_t *msg, uint16_t *msg_len)
 {
     static uint8_t size_nr;
     static uint32_t size_tag;
@@ -289,7 +289,8 @@ void ngham_Decode(uint8_t d, uint8_t *msg, uint8_t *msg_len)
                 decoder_state = NGH_STATE_SIZE_TAG;
 
                 // Run Reed Solomon decoding, calculate packet length
-                errors = decode_rs_char(&rs_cb[size_nr], buf, 0, 0);
+                //errors = decode_rs_char(&rs_cb[size_nr], buf, 0, 0);
+                errors = 0; //TODO: REMOVE THAT IN FUTURE
                 rx_pkt.pl_len = NGH_PL_SIZE[size_nr] - (buf[0] & NGH_PADDING_bm);
 
                 // Check if the packet is decodeable and then if CRC is OK
@@ -302,15 +303,19 @@ void ngham_Decode(uint8_t d, uint8_t *msg, uint8_t *msg_len)
                     rx_pkt.noise = ngham_ActionGetNoiseFloor();
                     rx_pkt.rssi = ngham_ActionGetRSSI();
                     ngham_ActionHandlePacket(PKT_CONDITION_OK, &rx_pkt, msg, msg_len);
+                    return PKT_CONDITION_OK;
                 }
                 // If packet decoding not was successful, count this as an error
                 else
                 {
                     ngham_ActionHandlePacket(PKT_CONDITION_FAIL, NULL, NULL, NULL);
+                    return PKT_CONDITION_FAIL;
                 }
             }
             break;
     }
+
+    return PKT_CONDITION_PREFAIL;
 }
 
 //! \} End of NGHam implementation group

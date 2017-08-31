@@ -81,7 +81,7 @@ void ngham_ActionSendData(uint8_t *d, uint16_t d_len, uint8_t priority, uint8_t 
     }
 }
 
-void ngham_ActionHandlePacket(uint8_t condition, NGHam_RX_Packet *p, uint8_t *msg, uint8_t *msg_len)
+void ngham_ActionHandlePacket(uint8_t condition, NGHam_RX_Packet *p, uint8_t *msg, uint16_t *msg_len)
 {
     uint8_t i = 0;
     switch (condition)

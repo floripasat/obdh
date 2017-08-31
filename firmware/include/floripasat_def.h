@@ -77,6 +77,8 @@ typedef struct {
     uint8_t reserved[12];
 } telecommand_t;
 
+#define PACKET_LENGTH   58  /**< according NGHAM packet sizes */
+
 typedef struct {
     uint16_t package_flags;
     //obdh
