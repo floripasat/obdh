@@ -68,7 +68,7 @@ void spi_tx_multiple(uint16_t base_address, uint8_t *data,uint8_t data_bytes_len
  * \param base_address is the MSP registers address of a SPI interface
  * \return the received byte
  */
-#define spi_rx(base_address) spi_tx(base_address, 0xFF);
+#define spi_rx(base_address) spi_tx(base_address, 0xFF)
 
 /**
  * \fn spi_rx

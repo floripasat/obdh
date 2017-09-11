@@ -41,7 +41,6 @@ void solar_panels_interface_task( void *pvParameters ) {
         xSemaphoreGive( spi1_semaphore );
     }
     while(1) {
-
         if (xSemaphoreTake( spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME ) == pdPASS) {
             solar_panel_temperature_x = solar_panel_read_temperature(SOLAR_PANEL_X);
             solar_panel_temperature_y = solar_panel_read_temperature(SOLAR_PANEL_Y);

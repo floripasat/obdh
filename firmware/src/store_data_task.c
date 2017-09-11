@@ -54,14 +54,24 @@ void store_data_task( void *pvParameters ) {
 
     while(1) {
         mem1_status = 0;
-        card_size = mmcReadCardSize();
-        if(card_size >= 128000000) { //test if memory size is greater than 128MB
-            mem1_status = 1;
+        if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            card_size = mmcReadCardSize();
+            if(card_size >= 128000000) { //test if memory size is greater than 128MB
+                mem1_status = 1;
+            }
+            xSemaphoreGive(spi1_semaphore);
         }
+
+
+
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
         new_packet = read_and_pack_data();
-        store_data_on_flash(&new_packet);
+
+        if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            store_data_on_flash(&new_packet);
+            xSemaphoreGive(spi1_semaphore);
+        }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, STORE_DATA_TASK_PERIOD_TICKS );
     }

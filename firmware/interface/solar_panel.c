@@ -45,8 +45,6 @@ void solar_panel_setup(void) {
     solar_panel_read_temperature(0);
     solar_panel_read_temperature(1);
     solar_panel_read_temperature(2);
-
-
 }
 
 int16_t solar_panel_read_temperature(uint8_t panel_selection) {
@@ -69,13 +67,11 @@ int16_t solar_panel_read_temperature(uint8_t panel_selection) {
             break;
     }
 
-
-    temperature_raw = spi_rx(SOLAR_PANEL_BASE_ADDRESS);
-    temperature_raw = temperature_raw << 8;
+    temperature_raw = spi_rx(SOLAR_PANEL_BASE_ADDRESS) << 8;
 
     temperature_raw |= spi_rx(SOLAR_PANEL_BASE_ADDRESS);
 
-    temperature_raw = (temperature_raw & 0xFFFF)>> 5;
+    temperature_raw = (temperature_raw & 0xFFFF) / 32;
 
     switch(panel_selection){
         case SOLAR_PANEL_X:
