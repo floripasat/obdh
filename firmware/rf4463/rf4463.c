@@ -96,7 +96,7 @@ void rf4463_gpio_init()
     rf4463_shutdown();
 }
 
-static void rf4463_reg_config()
+void rf4463_reg_config()
 {
     // Set RF parameter like frequency, data rate, etc.
     rf4463_set_config(RF4463_CONFIGURATION_DATA, sizeof(RF4463_CONFIGURATION_DATA));

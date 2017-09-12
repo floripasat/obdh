@@ -55,10 +55,10 @@
 #define BANK2_ADDR      0x048000
 #define BANK3_ADDR      0x068000
 //128 B info segments
-#define SEGA_ADDR       0x001800
-#define SEGB_ADDR       0x001880
-#define SEGC_ADDR       0x001900
-#define SEGD_ADDR       0x001980
+#define SEGD_ADDR       0x001800
+#define SEGC_ADDR       0x001880
+#define SEGB_ADDR       0x001900
+#define SEGA_ADDR       0x001980
 //512 B bootstrap segments
 #define BSL0_ADDR       0x001600
 #define BSL1_ADDR       0x001400

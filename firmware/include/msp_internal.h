@@ -37,11 +37,12 @@
 #include "../driver/flash.h"
 #include "floripasat_def.h"
 
-#define RESET_ADDR_FLASH                    (uint32_t *) SEGA_ADDR                      /**< flash memory address to store the resets counter               */
-#define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGB_ADDR                      /**< first flash memory address to store the time counter           */
-#define END_TIME_COUNTER_ADDR_FLASH         (uint32_t *)(SEGC_ADDR-4)                   /**< last flash memory address to store the time counter            */
-#define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGC_ADDR                      /**< flash memory address to store the current satellite state      */
+#define RESET_ADDR_FLASH                    (uint32_t *) SEGD_ADDR                      /**< flash memory address to store the resets counter               */
+#define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGC_ADDR                      /**< first flash memory address to store the time counter           */
+#define END_TIME_COUNTER_ADDR_FLASH         (uint32_t *)(SEGB_ADDR-4)                   /**< last flash memory address to store the time counter            */
+#define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGB_ADDR                      /**< flash memory address to store the current satellite state      */
 #define TIME_STATE_CHANGED_ADDR_FLASH       (uint32_t *)(CURRENT_STATE_ADDR_FLASH+4)    /**< flash memory address to store the time since last state change */
+#define ANTENNA_STATUS_ADDR_FLASH           (uint8_t *) (SEGA_ADDR)                     /**< flash memory address to store the antennas deployment state    */
 
 /**< Current sensing circuit definitions */
 #if HAL_VERSION == HAL_V2_0

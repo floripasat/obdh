@@ -435,9 +435,9 @@
 //#define TTC_CTRL_RF_SWT_TX_OUT P1OUT
 //#define TTC_CTRL_RF_SWT_TX_PIN BIT6
 
-#define TTC_CTRL_RF_SWT_RX_DIR P1DIR
-#define TTC_CTRL_RF_SWT_RX_OUT P1OUT
-#define TTC_CTRL_RF_SWT_RX_PIN BIT7
+//#define TTC_CTRL_RF_SWT_RX_DIR P1DIR
+//#define TTC_CTRL_RF_SWT_RX_OUT P1OUT
+//#define TTC_CTRL_RF_SWT_RX_PIN BIT7
 //! \} End of radio
 
 /**
@@ -450,16 +450,9 @@
 #define TTC_CLK_OUT         P5OUT
 #define TTC_CLK_PIN         BIT4
 
-//***************************
-// short circuit in this pin:
-//#define TTC_MOSI_DIR        P5DIR
-//#define TTC_MOSI_OUT        P5OUT
-//#define TTC_MOSI_PIN        BIT5
-// using TTC_CTRL_RF_SWT_TX instead:
-#define TTC_MOSI_DIR        P1DIR
-#define TTC_MOSI_OUT        P1OUT
-#define TTC_MOSI_PIN        BIT6
-//***************************
+#define TTC_MOSI_DIR        P5DIR
+#define TTC_MOSI_OUT        P5OUT
+#define TTC_MOSI_PIN        BIT5
 
 #define TTC_MISO_DIR        P2DIR
 #define TTC_MISO_IN         P2IN
