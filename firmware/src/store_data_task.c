@@ -1,11 +1,35 @@
 /*
  * store_data_task.c
  *
- *  Created on: 19 de out de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-#include <store_data_task.h>
+ /**
+ * \file store_data_task.c
+ *
+ * \brief Task that deals with the non-volatile memory module
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "store_data_task.h"
 
 volatile uint32_t last_read_pointer, last_write_pointer;
 volatile uint32_t card_size;
@@ -30,14 +54,24 @@ void store_data_task( void *pvParameters ) {
 
     while(1) {
         mem1_status = 0;
-        card_size = mmcReadCardSize();
-        if(card_size >= 128000000) { //test if memory size is greater than 128MB
-            mem1_status = 1;
+        if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            card_size = mmcReadCardSize();
+            if(card_size >= 128000000) { //test if memory size is greater than 128MB
+                mem1_status = 1;
+            }
+            xSemaphoreGive(spi1_semaphore);
         }
+
+
+
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
         new_packet = read_and_pack_data();
-        store_data_on_flash(&new_packet);
+
+        if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            store_data_on_flash(&new_packet);
+            xSemaphoreGive(spi1_semaphore);
+        }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, STORE_DATA_TASK_PERIOD_TICKS );
     }
@@ -94,6 +128,8 @@ data_packet_t read_and_pack_data( void ) {
     if(xQueueReceive(payload2_queue, (void *) packet.payload2, PAYLOAD2_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= PAYLOAD2_FLAG;
     }
+
+    satellite_data = packet;
 
     return packet;
 }

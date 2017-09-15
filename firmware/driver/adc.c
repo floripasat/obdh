@@ -1,42 +1,70 @@
-#include <driver/adc.h>
+/*
+ * adc.c
+ *
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file adc.c
+ *
+ * \brief Functions of MSP430's ADC12 peripheral
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "adc.h"
 
 void adc_setup(void) {
     //  Internal temperature reading setup
     REFCTL0 &= ~REFMSTR;                      // Reset REFMSTR to hand over control to
                                             // ADC12_A ref control registers
-    ADC12CTL0 = ADC12MSC | ADC12SHT0_15 | ADC12REFON | ADC12ON;
+    ADC12CTL0 = ADC12MSC | ADC12SHT0_15 | ADC12REFON | ADC12ON; /**< Vref+ = 3.0V, Vref- = 0V   */
 
-    ADC12CTL1 = ADC12SHP | ADC12CONSEQ_1;                     // enable sample timer
+    ADC12CTL1 = ADC12SHP | ADC12CONSEQ_1;                       /**< enable sample timer        */
 
     #if HAL_VERSION == HAL_V2_0
-//    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;
     BIT_SET(ADC_SEL, (X_SUNSEN_ADC_PIN | Y_SUNSEN_ADC_PIN | Z_SUNSEN_ADC_PIN
                       | OBDH_CURRENT_ADC_PIN | ADC_Vref_TEMP_PIN | VCC_3V3_PIN));
 
-    ADC12MCTL0 = ADC12SREF_2 | ADC12INCH_0;                 // Vr+=Veref+ (3V) and Vr-=AVss
-    ADC12MCTL1 = ADC12SREF_2 | ADC12INCH_1;
-    ADC12MCTL2 = ADC12SREF_2 | ADC12INCH_2;
-    ADC12MCTL3 = ADC12SREF_2 | ADC12INCH_3;
-    ADC12MCTL4 = ADC12SREF_2 | ADC12INCH_4;
-    ADC12MCTL5 = ADC12SREF_2 | ADC12INCH_5;
-    ADC12MCTL6 = ADC12EOS | ADC12SREF_2 | ADC12INCH_10;     // Temp sensor
+    ADC12MCTL0 = ADC12SREF_2 | ADC12INCH_0;                 /**< Sun sensor -X      */
+    ADC12MCTL1 = ADC12SREF_2 | ADC12INCH_1;                 /**< Sun sensor -Y      */
+    ADC12MCTL2 = ADC12SREF_2 | ADC12INCH_2;                 /**< Sun sensor -Z      */
+    ADC12MCTL3 = ADC12SREF_2 | ADC12INCH_3;                 /**< OBDH current-sense */
+    ADC12MCTL4 = ADC12SREF_2 | ADC12INCH_4;                 /**< Vref temp. sensor  */
+    ADC12MCTL5 = ADC12SREF_2 | ADC12INCH_5;                 /**< OBDH Voltage-sense */
+    ADC12MCTL6 = ADC12EOS | ADC12SREF_2 | ADC12INCH_10;     /**< Temperature sensor */
     #endif
 
     #if HAL_VERSION == HAL_V2_1
-//    P6SEL |= BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5;
     BIT_SET(ADC_SEL, (X_SUNSEN_ADC_PIN | Y_SUNSEN_ADC_PIN | Z_SUNSEN_ADC_PIN
                       | OBDH_CURRENT_ADC_PIN | VCC_3V3_PIN));
 
-    ADC12MCTL0 = ADC12SREF_2 | ADC12INCH_0;                 // Vr+=Veref+ (3V) and Vr-=AVss
-    ADC12MCTL1 = ADC12SREF_2 | ADC12INCH_1;
-    ADC12MCTL2 = ADC12SREF_2 | ADC12INCH_2;
-    ADC12MCTL3 = ADC12SREF_2 | ADC12INCH_3;
-    ADC12MCTL4 = ADC12SREF_2 | ADC12INCH_4;
-    ADC12MCTL5 = ADC12EOS | ADC12SREF_2 | ADC12INCH_10;     // Temp sensor
+    ADC12MCTL0 = ADC12SREF_2 | ADC12INCH_0;                 /**< Sun sensor -X      */
+    ADC12MCTL1 = ADC12SREF_2 | ADC12INCH_1;                 /**< Sun sensor -Y      */
+    ADC12MCTL2 = ADC12SREF_2 | ADC12INCH_2;                 /**< Sun sensor -Z      */
+    ADC12MCTL3 = ADC12SREF_2 | ADC12INCH_3;                 /**< OBDH current-sense */
+    ADC12MCTL4 = ADC12SREF_2 | ADC12INCH_4;                 /**< OBDH Voltage-sense */
+    ADC12MCTL5 = ADC12EOS | ADC12SREF_2 | ADC12INCH_10;     /**< Temperature sensor */
     #endif
 
-    __delay_cycles(2000);   // Allow ~100us (at default UCS settings)
-                                            // for REF to settle
+    __delay_cycles(2000);       /**< Allow ~100us (at default UCS settings) for REF to settle */
     ADC12CTL0 |= ADC12ENC;
 }
 

@@ -1,23 +1,51 @@
 /*
- * solar_panels_interface_task.c
+ * solar_panel_interface_task.c
  *
- *  Created on: 04 de nov de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-#include <solar_panels_interface_task.h>
+ /**
+ * \file solar_panel_interface_task.c
+ *
+ * \brief Task that deals with the solar panels modules
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "solar_panels_interface_task.h"
 
 void solar_panels_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
-    uint16_t usCount;
+    int16_t solar_panel_temperature_x, solar_panel_temperature_y, solar_panel_temperature_z;
 
-    while(1)
-    {
-        //TODO: TASK ROUTINE
-        for(usCount = 0; usCount < 10000; usCount++)
-        {
-
+    if (xSemaphoreTake( spi1_semaphore, portMAX_DELAY ) == pdPASS) {
+        solar_panel_setup();
+        xSemaphoreGive( spi1_semaphore );
+    }
+    while(1) {
+        if (xSemaphoreTake( spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME ) == pdPASS) {
+            solar_panel_temperature_x = solar_panel_read_temperature(SOLAR_PANEL_X);
+            solar_panel_temperature_y = solar_panel_read_temperature(SOLAR_PANEL_Y);
+            solar_panel_temperature_z = solar_panel_read_temperature(SOLAR_PANEL_Z);
+            xSemaphoreGive( spi1_semaphore );
         }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, SOLAR_PANELS_INTERFACE_TASK_PERIOD_TICKS );

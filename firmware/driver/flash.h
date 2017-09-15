@@ -1,8 +1,32 @@
 /*
  * flash.h
  *
- *  Created on: 16 de mai de 2016
- *      Author: mfrata
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file flash.h
+ *
+ * \brief Functions to use the MSP430's flash memory
+ *
+ * \author Matheus Frata
+ *
  */
 
 #include <msp430.h>
@@ -31,10 +55,10 @@
 #define BANK2_ADDR      0x048000
 #define BANK3_ADDR      0x068000
 //128 B info segments
-#define SEGA_ADDR       0x001800
-#define SEGB_ADDR       0x001880
-#define SEGC_ADDR       0x001900
-#define SEGD_ADDR       0x001980
+#define SEGD_ADDR       0x001800
+#define SEGC_ADDR       0x001880
+#define SEGB_ADDR       0x001900
+#define SEGA_ADDR       0x001980
 //512 B bootstrap segments
 #define BSL0_ADDR       0x001600
 #define BSL1_ADDR       0x001400

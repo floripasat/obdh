@@ -1,14 +1,38 @@
 /*
  * floripasat_def.h
  *
- *  Created on: 8 de set de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file floripasat_def.h
+ *
+ * \brief Project definitions, structures and macros
+ *
+ * \author Elder Tramontin
+ *
  */
 
 #ifndef FLORIPASATDEF_H_
 #define FLORIPASATDEF_H_
 
-#include "stdint.h"
+#include <stdint.h>
 
 #define has_flag(x,y)   (x & y)
 
@@ -53,11 +77,13 @@ typedef struct {
     uint8_t reserved[12];
 } telecommand_t;
 
+#define PACKET_LENGTH   58  /**< according NGHAM packet sizes */
+
 typedef struct {
     uint16_t package_flags;
     //obdh
     uint8_t system_status      [6];
-    uint8_t imu                [14];
+    uint8_t imu                [24];
     uint8_t msp_sensors        [6];
     uint8_t systick            [4];
     uint8_t solar_panels       [12];
@@ -76,14 +102,14 @@ typedef struct {
 typedef struct {
     uint8_t batteries[12];          /**< bat_1_voltage[2], bat_2_voltage[2], bat_1_temp[3], bat_2_temp[3], bat_charge[2] */
     uint8_t solar_panels[18];       /**< sp_1_volt[2], sp_2_volt[2], sp_3_volt[2], sp_1_cur[2], sp_2_cur[2], sp_3_cur[2], sp_4_cur[2], sp_5_cur[2], sp_6_cur[2] */
+    uint8_t satellite_status[2];    /**< energy_mode,  */
     uint8_t imu[12];                /**< accel_0_x[1], accel_0_y[1], accel_0_z[1], gyr_0_x[1], gyr_0_y[1], gyr_0_z[1], accel_1_x[1], accel_1_y[1], accel_1_z[1], gyr_1_x[1], gyr_1_y[1], gyr_1_z[1] */
     uint8_t system_time[4];         /**< time, in minutes, since deploy */
-    uint8_t satellite_status[2];    /**< energy_mode,  */
-    uint8_t reset_counter[3];       /**< increment each time a reset happens */
+    uint8_t reset_counter[2];       /**< increment each time a reset happens */
 } beacon_packet_t;
 
 typedef struct {
-    uint8_t start_of_byte;          /**< 0x7E */
+    uint8_t start_of_frame;          /**< 0x7E */
     beacon_packet_t data;           /**< valid data */
     uint8_t crc_result;             /**< 8-bit crc value of the data */
 } ttc_packet_t;
@@ -132,6 +158,16 @@ typedef struct {
 
 
 /**
+ * \defgroup communications
+ * \brief some team definition of values used in the communications
+ * \{
+ */
+#define CRC_SEED        0x03                    /**< The initial value of the crc operation */
+#define CRC_POLYNOMIAL  0b10010010              /**< The CRC polynomial: x^7 + x^4 + x^1 */
+#define START_OF_FRAME  0x7E                    /**< Initial byte of some communications: '{' */
+//! \} End of communications
+
+/**
  * \defgroup packet_origin
  * \brief used to refers to a position in the memory where are packet to read
  * \{
@@ -148,17 +184,16 @@ typedef struct {
 #define SD      0x05
 
 
-#define _DEBUG_AS_LINK 1
+#define _DEBUG_AS_LINK  1               /**< to simulate the radio link through UART */
 
 
-
-#define BOOTING_MSG  "FSAT booting...\n Firmware v 0.1 - 15/03/2017\n\n"
+#define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"
 #define CLOCK_FAIL_MSG  " *CLOCKS SETUP FAIL* \n\n"
-#define UART_INFO_MSG  " UART:\n  Baudrate = 9600\n  Data bits = 8\n  Parity = None\n  Stop bits = 1\n\n"
-#define I2C_INFO_MSG " I2C:\n  Freq =~ 100kHz\n\n"
-#define SPI_INF_MSG  " SPI:\n  Freq =~ ---Hz\n\n"
-#define ADC_INFO_MSG  " ADC:\n  Vref+ = 3.0V\n  Vref- = GND\n\n"
+#define UART_INFO_MSG   " UART:\n  Baudrate = 9600\n  Data bits = 8\n  Parity = None\n  Stop bits = 1\n\n"
+#define I2C_INFO_MSG    " I2C:\n  Freq =~ 100kHz\n\n"
+#define SPI_INF_MSG     " SPI:\n  Freq =~ 8MHz\n\n"
+#define ADC_INFO_MSG    " ADC:\n  Vref+ = 3.0V\n  Vref- = GND\n\n"
 
 volatile data_packet_t satellite_data;
 

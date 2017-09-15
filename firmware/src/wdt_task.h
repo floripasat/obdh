@@ -1,8 +1,32 @@
 /*
  * wdt_task.h
  *
- *  Created on: 18 de out de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \file wdt_task.h
+ *
+ * \brief Task that deal with the watchdog timers
+ *
+ * \author Elder Tramontin
+ *
  */
 
 #ifndef SRC_WDT_TASK_H_
@@ -16,7 +40,7 @@
 
 
 #define WDT_TASK_PRIORITY          5        /**< Watchdog timer task priority */
-#define WDT_TASK_PERIOD_MS         500      /**< Watchdog timer task period in miliseconds */
+#define WDT_TASK_PERIOD_MS         500      /**< Watchdog timer task period in milliseconds */
 #define WDT_TASK_PERIOD_TICKS      ( WDT_TASK_PERIOD_MS / portTICK_PERIOD_MS ) /**< Watchdog timer task period in ticks */
 
 /**

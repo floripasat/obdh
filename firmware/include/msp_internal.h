@@ -1,12 +1,33 @@
 /*
  * msp_internal.h
  *
- *  Created on: 30 de mai de 2016
- *      Author: mario
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-// Interface with internal components of the OBDH SoC
-
+ /**
+ * \file msp_internal.h
+ *
+ * \brief Interface with internal components of the OBDH SoC
+ *
+ * \author Mario Baldini
+ *
+ */
 
 #ifndef INCLUDE_MSP_INTERNAL_H_
 #define INCLUDE_MSP_INTERNAL_H_
@@ -16,26 +37,27 @@
 #include "../driver/flash.h"
 #include "floripasat_def.h"
 
-#define RESET_ADDR_FLASH                    (uint32_t *) SEGA_ADDR
-#define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGB_ADDR
-#define END_TIME_COUNTER_ADDR_FLASH         (uint32_t *)(SEGC_ADDR-4)
-#define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGC_ADDR
-#define TIME_STATE_CHANGED_ADDR_FLASH       (uint32_t *)(CURRENT_STATE_ADDR_FLASH+4)
+#define RESET_ADDR_FLASH                    (uint32_t *) SEGD_ADDR                      /**< flash memory address to store the resets counter               */
+#define TIME_COUNTER_ADDR_FLASH             (uint32_t *) SEGC_ADDR                      /**< first flash memory address to store the time counter           */
+#define END_TIME_COUNTER_ADDR_FLASH         (uint32_t *)(SEGB_ADDR-4)                   /**< last flash memory address to store the time counter            */
+#define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGB_ADDR                      /**< flash memory address to store the current satellite state      */
+#define TIME_STATE_CHANGED_ADDR_FLASH       (uint32_t *)(CURRENT_STATE_ADDR_FLASH+4)    /**< flash memory address to store the time since last state change */
+#define ANTENNA_STATUS_ADDR_FLASH           (uint8_t *) (SEGA_ADDR)                     /**< flash memory address to store the antennas deployment state    */
 
-//Current sensing circuit definitions
+/**< Current sensing circuit definitions */
 #if HAL_VERSION == HAL_V2_0
-#define RSENSE_VALUE 47000.0 //ohms
-#define CURRENT_GAIN 0.005 // A/V
-#define RL_VALUE 0.05 // A/V
+#define RL_VALUE        47000.0    /**< RL resistor value, in ohms      */
+#define CURRENT_GAIN    0.005      /**< current gain of max9934, in A/V */
+#define RSENSE_VALUE    0.05       /**< Rsense resistor value, in ohms  */
 #endif
 
 #if HAL_VERSION == HAL_V2_1
-#define RSENSE_VALUE 20000.0 //ohms
-#define CURRENT_GAIN 0.025 // A/V
-#define RL_VALUE 0.05 // A/V
+#define RL_VALUE        20000.0    /**< RL resistor value, in ohms      */
+#define CURRENT_GAIN    0.025      /**< current gain of max9934, in A/V */
+#define RSENSE_VALUE    0.05       /**< Rsense resistor value, in ohms  */
 #endif
 
-//Voltage sensing circuit definitions
+/**< Voltage sensing circuit definitions */
 #if HAL_VERSION == HAL_V2_0
 #define VOLTAGE_DIVISOR 1.0
 #endif

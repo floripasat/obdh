@@ -1,60 +1,144 @@
 /*
  * ttc.c
  *
- *  Created on: 09 de fev de 2017
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-#include <ttc.h>
+ /**
+ * \file ttc.c
+ *
+ * \brief Interface to deals with TT&C module
+ *
+ * \author Elder Tramontin
+ *
+ */
 
-void ttc_setup(void) {
+#include "ttc.h"
 
+#define TIME_TO_PROCESS_CMD     1600        /**< 100 microseconds */
+
+beacon_packet_t ttc_copy_data(void){
+    beacon_packet_t beacon_packet;
+
+    /**< V_batteries */
+    beacon_packet.batteries[0]  = satellite_data.battery_monitor[4];
+    beacon_packet.batteries[1]  = satellite_data.battery_monitor[5];
+    beacon_packet.batteries[2]  = satellite_data.battery_monitor[6];
+    beacon_packet.batteries[3]  = satellite_data.battery_monitor[7];
+
+    /**< T_Batteries */
+    beacon_packet.batteries[4] = satellite_data.ads1248[3];
+    beacon_packet.batteries[5] = satellite_data.ads1248[4];
+    beacon_packet.batteries[6] = satellite_data.ads1248[5];
+    beacon_packet.batteries[7] = satellite_data.ads1248[6];
+    beacon_packet.batteries[8] = satellite_data.ads1248[7];
+    beacon_packet.batteries[9] = satellite_data.ads1248[8];
+
+    /**< Q_Batteries */
+    beacon_packet.batteries[10] = satellite_data.battery_monitor[10];
+    beacon_packet.batteries[11] = satellite_data.battery_monitor[11];
+
+    /**< I_SolarPanels */
+    beacon_packet.solar_panels[0]  = satellite_data.adc_solar_panels[0];
+    beacon_packet.solar_panels[1]  = satellite_data.adc_solar_panels[1];
+    beacon_packet.solar_panels[2]  = satellite_data.adc_solar_panels[2];
+    beacon_packet.solar_panels[3]  = satellite_data.adc_solar_panels[3];
+    beacon_packet.solar_panels[4]  = satellite_data.adc_solar_panels[4];
+    beacon_packet.solar_panels[5]  = satellite_data.adc_solar_panels[5];
+    beacon_packet.solar_panels[6]  = satellite_data.adc_solar_panels[6];
+    beacon_packet.solar_panels[7]  = satellite_data.adc_solar_panels[7];
+    beacon_packet.solar_panels[8]  = satellite_data.adc_solar_panels[8];
+    beacon_packet.solar_panels[9]  = satellite_data.adc_solar_panels[9];
+    beacon_packet.solar_panels[10] = satellite_data.adc_solar_panels[10];
+    beacon_packet.solar_panels[11] = satellite_data.adc_solar_panels[11];
+
+    /**< V_SolarPanels */
+    beacon_packet.solar_panels[12] = satellite_data.adc_solar_panels[12];
+    beacon_packet.solar_panels[13] = satellite_data.adc_solar_panels[13];
+    beacon_packet.solar_panels[14] = satellite_data.adc_solar_panels[14];
+    beacon_packet.solar_panels[15] = satellite_data.adc_solar_panels[15];
+    beacon_packet.solar_panels[16] = satellite_data.adc_solar_panels[16];
+    beacon_packet.solar_panels[17] = satellite_data.adc_solar_panels[17];
+
+
+
+    /**< IMU */
+    beacon_packet.imu[0] = satellite_data.imu[0];
+    beacon_packet.imu[1] = satellite_data.imu[1];
+    beacon_packet.imu[2] = satellite_data.imu[2];
+    beacon_packet.imu[3] = satellite_data.imu[3];
+    beacon_packet.imu[4] = satellite_data.imu[4];
+    beacon_packet.imu[5] = satellite_data.imu[5];
+    beacon_packet.imu[6] = satellite_data.imu[6];
+    beacon_packet.imu[7] = satellite_data.imu[7];
+    beacon_packet.imu[8] = satellite_data.imu[8];
+    beacon_packet.imu[9] = satellite_data.imu[9];
+    beacon_packet.imu[10] = satellite_data.imu[10];
+    beacon_packet.imu[11] = satellite_data.imu[11];
+
+    /**< System time */
+    beacon_packet.system_time[0] = satellite_data.systick[0];
+    beacon_packet.system_time[1] = satellite_data.systick[1];
+    beacon_packet.system_time[2] = satellite_data.systick[2];
+    beacon_packet.system_time[3] = satellite_data.systick[3];
+
+    /**< FSat status */
+    beacon_packet.satellite_status[0] = satellite_data.task_scheduler[0];
+    beacon_packet.satellite_status[1] = satellite_data.system_status[5];
+
+
+    /**< Reset counter */
+    beacon_packet.reset_counter[0] = satellite_data.system_status[1];
+    beacon_packet.reset_counter[1] = satellite_data.system_status[2];
+
+    return beacon_packet;
 }
 
-uint8_t ttc_is_beacon_on(void) {
-    uint8_t beacon_status = TTC_TX_NOT_BUSY;
-
-    //read tx_busy pin
-    if(BIT_READ(TTC_TX_BUSY_IN, TTC_TX_BUSY_PIN) != 0) {
-        beacon_status = TTC_TX_BUSY;
-    }
-
-    return beacon_status;
-}
-
-void ttc_prepare_to_tx(void) {
-    BIT_SET(TTC_TX_REQUEST_OUT, TTC_TX_REQUEST_PIN);    //set tx_request
-    BIT_CLEAR(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);      //assure to do not send ttc a shutdown command
-
-    BIT_SET(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //set interrupt pin
-
-    __delay_cycles(16000); //1ms
-
-    BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //clear interrupt pin
-}
-
-void ttc_free_to_send_beacon(void) {
-    BIT_CLEAR(TTC_TX_REQUEST_OUT, TTC_TX_REQUEST_PIN);    //set tx_request
-    BIT_CLEAR(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);      //assure to do not send ttc a shutdown command
-
-    BIT_SET(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //set interrupt pin
-
-    __delay_cycles(16000); //1ms
-
-    BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //clear interrupt pin
+void ttc_send_data(ttc_packet_t* ttc_packet) {
+    sspi_tx(TTC_CMD_DATA_TRANSFER);             /**< send the data transfer command                     */
+    sspi_tx_multiple((uint8_t*) ttc_packet,
+                     sizeof(ttc_packet_t));     /**< send the data                  */
 }
 
 
-void ttc_shutdown(void) {
+uint8_t ttc_send_mutex_request(void) {
+    uint8_t response;
 
-    BIT_SET(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);    //set shutdown pin
+    sspi_tx(TTC_CMD_TX_MUTEX_REQUEST);          /**< send the mutex request command                     */
+    __delay_cycles(TIME_TO_PROCESS_CMD);        /**< wait 100us until TT&C process the received data    */
+    response = sspi_rx();                       /**< receive the response                               */
 
-    BIT_SET(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //set interrupt pin
+    return response;
 }
 
-void ttc_return_from_shutdown(void) {
+void ttc_tx_mutex_release(void) {
+    sspi_tx(TTC_CMD_TX_MUTEX_RELEASE);          /**< send the mutex release command                     */
+}
 
-    BIT_CLEAR(TTC_SHUTDOWN_OUT, TTC_SHUTDOWN_PIN);    //clear shutdown pin
 
-    BIT_CLEAR(TTC_INTERRUPT_OUT, TTC_INTERRUPT_PIN);  //clear interrupt pin
+void ttc_send_shutdown(void) {
+    uint8_t response;
+
+    do {
+        sspi_tx(TTC_CMD_SHUTDOWN);              /**< send the shutdown command                          */
+        __delay_cycles(TIME_TO_PROCESS_CMD);    /**< wait 100us until TT&C process the received data    */
+        response = sspi_rx();                   /**< receive the ACK/NACK                               */
+
+    } while(response != TTC_SHUTDOWN_ACK);      /**< repeat until receive ACK                           */
 }

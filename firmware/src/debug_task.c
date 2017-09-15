@@ -1,11 +1,35 @@
 /*
  * debug_task.c
  *
- *  Created on: 18 de out de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-#include <debug_task.h>
+/**
+ * \file debug_task.c
+ *
+ * \brief Task that deals with the debug interface
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "debug_task.h"
 
 void debug_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -30,7 +54,7 @@ void debug_task( void *pvParameters ) {
 
         if(telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
             rqt_packet = decode_request_data_telecommand(telecommand.arguments);
-            ttc_command = TTC_CMD_REQUEST_TX;
+            ttc_command = TTC_CMD_TX_MUTEX_REQUEST;
             xQueueOverwrite(ttc_queue, &ttc_command);                        //request to beacon a tx permission
             xQueueReceive(tx_queue, &ttc_response, 3000 / portTICK_RATE_MS); //wait 3 seconds or until be answered
 
@@ -46,7 +70,7 @@ void debug_task( void *pvParameters ) {
             	    }
             	}
             }
-            ttc_command = TTC_CMD_FREE_TX;
+            ttc_command = TTC_CMD_TX_MUTEX_RELEASE;
             xQueueOverwrite(ttc_queue, &ttc_command);
         }
 

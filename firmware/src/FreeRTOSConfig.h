@@ -115,7 +115,7 @@
 
 
 #ifdef __LARGE_DATA_MODEL__
-	#define configMINIMAL_STACK_SIZE		( ( unsigned short ) 300 )
+	#define configMINIMAL_STACK_SIZE		( ( unsigned short ) 200 )
 #else
 	#define configMINIMAL_STACK_SIZE		( ( unsigned short ) 120 )
 #endif

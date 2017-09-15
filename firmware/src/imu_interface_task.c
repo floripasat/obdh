@@ -1,26 +1,53 @@
 /*
  * imu_interface_task.c
  *
- *  Created on: 18 de out de 2016
- *      Author: elder
+ * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ *
+ * This file is part of FloripaSat-OBDH.
+ *
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-#include <imu_interface_task.h>
+ /**
+ * \file imu_interface_task.c
+ *
+ * \brief Task that deals with the IMUs
+ *
+ * \author Elder Tramontin
+ *
+ */
+
+#include "imu_interface_task.h"
 
 void imu_interface_task( void *pvParameters ) {
-    uint8_t imu_data_temp[20];
+    uint8_t imu_data_temp[14];
+    uint8_t imu_data[24];
     uint8_t module_test;
     uint8_t imu_status;
+    uint8_t turn = 0;
+    uint8_t i;
     TickType_t last_wake_time;
 
 #ifdef _DEBUG
-    float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
-    float gyroscope_x, gyroscope_y, gyroscope_z, gyroscope_absolute_module;
-    float temperature;
+    volatile float accelerometer_x, accelerometer_y, accelerometer_z, accelerometer_absolute;
+    volatile float gyroscope_x, gyroscope_y, gyroscope_z, gyroscope_absolute_module;
+    volatile float temperature;
 #endif
 
-    //Set IMU pins and verify the communication
-    module_test = imu_setup();
+    module_test = imu_setup();      /**< Setup IMU pins and verify the communication */
+
     if (module_test == IMU_NOT_WORKING)
     {
         //TODO:  use another IMU
@@ -44,10 +71,34 @@ void imu_interface_task( void *pvParameters ) {
         gyroscope_absolute_module = sqrtf(gyroscope_z * gyroscope_z + gyroscope_y * gyroscope_y + gyroscope_x * gyroscope_x);
 #endif
 
-        xQueueOverwrite(status_imu_queue, &imu_status);
+        /*
+         * Use 8-bit IMU and save 2 samples/packet (sampling rate = 2Hz)
+         */
+        if(turn == 0) {                                 /**< first sampling     */
+            for(i = 0; i < 6; i++) {
+                imu_data[i] = imu_data_temp[i];         /**< accelerometer data */
+            }
+            for(i = 6; i < 12; i++) {
+                imu_data[i] = imu_data_temp[i+2];       /**< gyroscope data     */
+            }
 
-        if(imu_status == IMU_WORKING) {
-            xQueueSendToBack(imu_queue, imu_data_temp, portMAX_DELAY);
+            turn = 1;
+        }
+        else {                                          /**< second sampling    */
+            for(i = 0; i < 6; i++) {
+                imu_data[i+12] = imu_data_temp[i];      /**< accelerometer data */
+            }
+            for(i = 6; i < 12; i++) {
+                imu_data[i+12] = imu_data_temp[i+2];    /**< gyroscope data     */
+            }
+
+            xQueueOverwrite(status_imu_queue, &imu_status);
+
+            if(imu_status == IMU_WORKING) {
+                xQueueSendToBack(imu_queue, imu_data, portMAX_DELAY);
+            }
+
+            turn = 0;
         }
 
         vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
