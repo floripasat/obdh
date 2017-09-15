@@ -37,6 +37,7 @@ void create_tasks( void ) {
     system_status_queue     = xQueueCreate( 5, sizeof( satellite_data.system_status ) );
     imu_queue               = xQueueCreate( 5, sizeof( satellite_data.imu ) );
     internal_sensors_queue  = xQueueCreate( 5, sizeof( satellite_data.msp_sensors ) );
+    system_time_queue       = xQueueCreate( 5, sizeof( satellite_data.systick ) );
     solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
     transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) - 2 );            //subtract start byte and crc

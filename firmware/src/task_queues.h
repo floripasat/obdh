@@ -41,6 +41,7 @@
 #define     SYSTEM_STATUS_QUEUE_WAIT_TIME           (100 / portTICK_PERIOD_MS)
 #define     IMU_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
 #define     INTERNAL_SENSORS_QUEUE_WAIT_TIME        (100 / portTICK_PERIOD_MS)
+#define     SYSTEM_TIME_QUEUE_WAIT_TIME             (100 / portTICK_PERIOD_MS)
 #define     SOLAR_PANELS_QUEUE_WAIT_TIME            (100 / portTICK_PERIOD_MS)
 #define     TRANSCEIVER_QUEUE_WAIT_TIME             (100 / portTICK_PERIOD_MS)
 #define     EPS_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
@@ -54,6 +55,7 @@
 volatile xQueueHandle system_status_queue;
 volatile xQueueHandle imu_queue;
 volatile xQueueHandle internal_sensors_queue;
+volatile xQueueHandle system_time_queue;
 volatile xQueueHandle solar_panels_queue;
 volatile xQueueHandle transceiver_queue;
 volatile xQueueHandle eps_queue;

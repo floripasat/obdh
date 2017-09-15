@@ -213,6 +213,7 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
 
                     __delay_cycles(DELAY_100_uS_IN_CYCLES);
                 }
+                break;
             }
             else
             {

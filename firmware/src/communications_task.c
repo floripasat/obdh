@@ -42,16 +42,12 @@ void send_periodic_data(void) {
     ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 150);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
-    taskENTER_CRITICAL();
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    taskEXIT_CRITICAL();
 
     ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data+150, sizeof(data_packet_t)-150);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
-    taskENTER_CRITICAL();
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    taskEXIT_CRITICAL();
 }
 
 void send_data(uint8_t *data, int16_t data_len) {
@@ -63,9 +59,7 @@ void send_data(uint8_t *data, int16_t data_len) {
         ngham_TxPktGen(&ngham_packet, data, data_len);
         ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
-        taskENTER_CRITICAL();
         rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-        taskEXIT_CRITICAL();
 
 //        data_len -= 220;
 //    }

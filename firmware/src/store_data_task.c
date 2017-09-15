@@ -98,12 +98,9 @@ data_packet_t read_and_pack_data( void ) {
         packet.package_flags |= MSP_SENSORS_FLAG;
     }
 
-    uint32_t systick = xTaskGetTickCount();
-    packet.systick[0] = systick & 0xFF;
-    packet.systick[1] = systick>>8 & 0xFF;
-    packet.systick[2] = systick>>16 & 0xFF;
-    packet.systick[3] = systick>>24 & 0xFF;
-    packet.package_flags |= SYSTICK_FLAG;
+    if(xQueueReceive(system_time_queue, (void *) packet.systick, SYSTEM_TIME_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= SYSTICK_FLAG;
+    }
 
     if(xQueueReceive(solar_panels_queue, (void *) packet.solar_panels, SOLAR_PANELS_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= SOLAR_PANELS_FLAG;
