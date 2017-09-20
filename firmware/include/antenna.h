@@ -23,16 +23,16 @@
  /**
  * \file antenna.h
  *
- * \brief This file deals with the antenna module
+ * \brief This file verify the antennas' deployment status and do the antennas' deployment sequence
  *
  * \author Elder Tramontin
  *
  */
 
-#ifndef INTERFACE_ANTENNA_H_
-#define INTERFACE_ANTENNA_H_
+#ifndef INCLUDE_ANTENNA_H_
+#define INCLUDE_ANTENNA_H_
 
-#include "../driver/i2c.h"
+#include <stdint.h>
 
 #define ANTENNAS_NOT_DEPLOYED    0       /**< Value if antennas are not deployed yet */
 #define ANTENNAS_DEPLOYED        1       /**< Value if antennas are deployed         */
@@ -54,4 +54,4 @@ uint8_t antennas_deployment_routine(void);
  */
 uint8_t verify_deployment_status(void);
 
-#endif /* INTERFACE_ANTENNA_H_ */
+#endif /* INCLUDE_ANTENNA_H_ */
