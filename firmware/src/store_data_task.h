@@ -46,7 +46,13 @@
 #define STORE_DATA_TASK_PERIOD_MS         1000          /**< Store data task period in miliseconds */
 #define STORE_DATA_TASK_PERIOD_TICKS      ( STORE_DATA_TASK_PERIOD_MS / portTICK_PERIOD_MS )    /**< Store data task period in ticks */
 
-#define FIRST_DATA_SECTOR   512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
+#define SECTOR_SIZE                     512
+#define STORE_LAST_WRITE_SECTOR         2
+#define END_STORE_LAST_WRITE_SECTOR     (STORE_LAST_WRITE_SECTOR + 1)
+#define STORE_LAST_READ_SECTOR          (STORE_LAST_WRITE_SECTOR + 1)
+#define END_STORE_LAST_READ_SECTOR      (STORE_LAST_READ_SECTOR + 1)
+#define FIRST_DATA_SECTOR               512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
+
 
 /**
  * \var static xTaskHandle store_data_task_handle

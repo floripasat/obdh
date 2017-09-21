@@ -48,8 +48,8 @@ void store_data_task( void *pvParameters ) {
 
     }
     else {
-        last_read_pointer = FIRST_DATA_SECTOR;
-        last_write_pointer = FIRST_DATA_SECTOR;
+        last_read_pointer = get_last_read_pointer();
+        last_write_pointer = get_last_write_pointer();
     }
 
     while(1) {
@@ -61,8 +61,6 @@ void store_data_task( void *pvParameters ) {
             }
             xSemaphoreGive(spi1_semaphore);
         }
-
-
 
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
@@ -131,6 +129,40 @@ data_packet_t read_and_pack_data( void ) {
     return packet;
 }
 
+/**
+ * \fn update_last_read_position
+ * Update the last_read_pointer to a new value. Used after a successfully read operation
+ * \param new_position is the next position for read
+ * \return none
+ */
+void update_last_read_position(uint32_t new_position) {
+
+    uint32_t last_read_sector_number;
+
+    if(new_position > last_read_pointer) {
+        last_read_pointer = new_position;
+
+        last_read_sector_number = ++last_read_pointer % 128;                                      /**< store as a circular vector */
+
+        mmcWriteBlock((STORE_LAST_READ_SECTOR * SECTOR_SIZE) + last_read_sector_number * 4, 4, (unsigned char *)&last_read_pointer);
+    }
+}
+
+/**
+ * \fn update_last_write_position
+ * Update the last_write_pointer to a new value. Used after a write operation
+ * \param none
+ * \return none
+ */
+void update_last_write_position() {
+
+    uint32_t last_write_sector_number;
+
+    last_write_sector_number = ++last_write_pointer % 128;                                      /**< store as a circular vector */
+
+    mmcWriteBlock((END_STORE_LAST_READ_SECTOR * SECTOR_SIZE) + last_write_sector_number * 4, 4, (unsigned char *)&last_write_pointer);
+}
+
 void store_data_on_flash( data_packet_t *packet ) {
     //write new packet
     unsigned char data[512];
@@ -140,21 +172,10 @@ void store_data_on_flash( data_packet_t *packet ) {
         data[i] = ((uint8_t *)packet)[i];
     }
 
-    mmcWriteSector(++last_write_pointer, data);
+    mmcWriteSector(last_write_pointer, data);
+    update_last_write_position();
     //write new status
 //    mmcWriteSector(0, (unsigned char *) status_packet);
-}
-
-/**
- * \fn update_last_read_position
- * Update the last_read_pointer to a new value. Used after a read operation
- * \param to_send_packet is a pointer to the memory position where the requested data will be write
- * \param rqst_data_packet is a pointer to the request
- * \return length, in bytes, of the requested submodules data
- */
-void update_last_read_position(uint32_t new_position) {
-    if(new_position > last_read_pointer)
-        last_read_pointer = new_position;
 }
 
 uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read_sector) {
@@ -188,12 +209,71 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     return package_size;
 }
 
-
+/**
+ * \fn get_last_read_pointer
+ * Get the last read pointer after a MCU reset.
+ * \param none
+ * \return last_read_pointer is the last sector of successfully data read
+ */
 uint32_t get_last_read_pointer() {
+
+    uint32_t sector_pointer_value[2];
+    uint32_t sector_pointer_position;
+    uint8_t counter = 1;
+
+    sector_pointer_position = END_STORE_LAST_READ_SECTOR * SECTOR_SIZE - 8;
+    mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
+    last_read_pointer = sector_pointer_value[1];
+
+    while(sector_pointer_value[0] <= sector_pointer_value[1]) {                 /**< compare previous and posterior position of the sector */
+        if(sector_pointer_position == STORE_LAST_READ_SECTOR) {
+            if(sector_pointer_value[0] == 0xFFFFFFFF) {
+                sector_pointer_value[0] = 0;
+                break;
+            }
+            else {
+                mmcReadBlock(END_STORE_LAST_READ_SECTOR * SECTOR_SIZE - 4, 4, (unsigned char *)sector_pointer_value[0]);
+                break;
+            }
+        }
+
+        mmcReadBlock(sector_pointer_position - 8 * counter++, 8, (unsigned char *)sector_pointer_value);
+        last_read_pointer = sector_pointer_value[0];
+    }
     return last_read_pointer;
 }
 
+/**
+ * \fn get_last_read_pointer
+ * Get the last write pointer after a MCU reset.
+ * \param none
+ * \return last_read_pointer is the last written sector
+ */
 uint32_t get_last_write_pointer() {
+
+    uint32_t sector_pointer_value[2];
+    uint32_t sector_pointer_position;
+    uint8_t counter = 1;
+
+    sector_pointer_position = END_STORE_LAST_WRITE_SECTOR * SECTOR_SIZE - 8;
+    mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
+    last_write_pointer = sector_pointer_value[1];
+
+    while(sector_pointer_value[0] <= sector_pointer_value[1]) {
+        if(sector_pointer_position == STORE_LAST_WRITE_SECTOR) {
+            if(sector_pointer_value[0] == 0xFFFFFFFF) {
+                sector_pointer_value[0] = 0;
+                break;
+            }
+            else {
+                mmcReadBlock(END_STORE_LAST_WRITE_SECTOR * SECTOR_SIZE - 4, 4, (unsigned char *)sector_pointer_value[0]);
+                break;
+            }
+        }
+
+        mmcReadBlock(sector_pointer_position - 8 * counter++, 8, (unsigned char *)sector_pointer_value);
+        last_write_pointer = sector_pointer_value[0];
+    }
     return last_write_pointer;
 }
 
