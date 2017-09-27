@@ -40,23 +40,27 @@ void store_data_task( void *pvParameters ) {
     uint8_t mem1_status;
     last_wake_time = xTaskGetTickCount();
 
+    if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
 
-    card_size = mmc_setup();
+        card_size = mmc_setup();
 
-    if(card_size < 128000000) { //test if memory card is working
-        //TODO: use another memory
+        if(card_size < MEMORY_CHECK_OPERATION_SIZE) { //test if memory card is working
+            //TODO: use another memory
 
-    }
-    else {
-        last_read_pointer = get_last_read_pointer();
-        last_write_pointer = get_last_write_pointer();
+        }
+        else {
+           last_read_pointer = get_last_read_pointer();
+           last_write_pointer = get_last_write_pointer();
+        }
+
+        xSemaphoreGive(spi1_semaphore);
     }
 
     while(1) {
         mem1_status = 0;
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
             card_size = mmcReadCardSize();
-            if(card_size >= 128000000) { //test if memory size is greater than 128MB
+            if(card_size >= MEMORY_CHECK_OPERATION_SIZE) { //test if memory size is greater than 128MB
                 mem1_status = 1;
             }
             xSemaphoreGive(spi1_semaphore);
@@ -131,10 +135,37 @@ data_packet_t read_and_pack_data( void ) {
 
 /**
  * \fn update_last_read_position
- * Update the last_read_pointer to a new value. Used after a successfully read operation
+ * Update the last_read_pointer to a new value. Used after a successfully read operation.
  * \param new_position is the next position for read
  * \return none
  */
+void update_last_read_position(uint32_t new_position) {
+
+    uint32_t last_read_array[128];
+
+    if(new_position > last_read_pointer) {
+        last_read_array[0] = new_position;
+        mmcWriteSector(STORE_LAST_READ_SECTOR, (unsigned char *)last_read_array);
+    }
+}
+
+/**
+ * \fn update_last_write_position
+ * Update the last_write_pointer to the next position.
+ * \param none
+ * \return none
+ */
+void update_last_write_position(void) {
+
+    uint32_t last_write_array[128];
+
+    last_write_array[0] = ++last_write_pointer;
+    mmcWriteSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)last_write_array);
+}
+
+/*
+ * For future releases that consider more problematic situations.
+ *
 void update_last_read_position(uint32_t new_position) {
 
     uint32_t last_read_sector_number;
@@ -142,26 +173,13 @@ void update_last_read_position(uint32_t new_position) {
     if(new_position > last_read_pointer) {
         last_read_pointer = new_position;
 
-        last_read_sector_number = ++last_read_pointer % 128;                                      /**< store as a circular vector */
+        last_read_pointer = last_read_pointer % MEMORY_USABLE_SIZE;
+        last_read_sector_number = ++last_read_pointer % 128;
 
-        mmcWriteBlock((STORE_LAST_READ_SECTOR * SECTOR_SIZE) + last_read_sector_number * 4, 4, (unsigned char *)&last_read_pointer);
+        mmcWriteBlock(STORE_LAST_READ_BYTE + last_read_sector_number * 4, 4, (unsigned char *)last_read_pointer);
     }
 }
-
-/**
- * \fn update_last_write_position
- * Update the last_write_pointer to a new value. Used after a write operation
- * \param none
- * \return none
- */
-void update_last_write_position() {
-
-    uint32_t last_write_sector_number;
-
-    last_write_sector_number = ++last_write_pointer % 128;                                      /**< store as a circular vector */
-
-    mmcWriteBlock((END_STORE_LAST_READ_SECTOR * SECTOR_SIZE) + last_write_sector_number * 4, 4, (unsigned char *)&last_write_pointer);
-}
+*/
 
 void store_data_on_flash( data_packet_t *packet ) {
     //write new packet
@@ -184,8 +202,12 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     data_packet_t *p_data_packet;
     uint16_t flags = 0x00;
 
-    mmcReadSector(read_sector, (unsigned char *) flash_package);
-    update_last_read_position(read_sector);
+    if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+        mmcReadSector(read_sector, (unsigned char *) flash_package);
+        update_last_read_position(read_sector);
+
+        xSemaphoreGive(spi1_semaphore);
+    }
 
     p_data_packet = (data_packet_t*)flash_package;
 
@@ -215,67 +237,60 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
  * \param none
  * \return last_read_pointer is the last sector of successfully data read
  */
-uint32_t get_last_read_pointer() {
+uint32_t get_last_read_pointer(void) {
 
-    uint32_t sector_pointer_value[2];
-    uint32_t sector_pointer_position;
-    uint8_t counter = 1;
+    uint32_t read_pointer_value;
 
-    sector_pointer_position = END_STORE_LAST_READ_SECTOR * SECTOR_SIZE - 8;
-    mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
-    last_read_pointer = sector_pointer_value[1];
-
-    while(sector_pointer_value[0] <= sector_pointer_value[1]) {                 /**< compare previous and posterior position of the sector */
-        if(sector_pointer_position == STORE_LAST_READ_SECTOR) {
-            if(sector_pointer_value[0] == 0xFFFFFFFF) {
-                sector_pointer_value[0] = 0;
-                break;
-            }
-            else {
-                mmcReadBlock(END_STORE_LAST_READ_SECTOR * SECTOR_SIZE - 4, 4, (unsigned char *)sector_pointer_value[0]);
-                break;
-            }
-        }
-
-        mmcReadBlock(sector_pointer_position - 8 * counter++, 8, (unsigned char *)sector_pointer_value);
-        last_read_pointer = sector_pointer_value[0];
-    }
-    return last_read_pointer;
+    mmcReadBlock(STORE_LAST_READ_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&read_pointer_value);
+    return read_pointer_value;
 }
 
 /**
- * \fn get_last_read_pointer
+ * \fn get_last_write_pointer
  * Get the last write pointer after a MCU reset.
  * \param none
- * \return last_read_pointer is the last written sector
+ * \return last_write_pointer is the last sector of write data
  */
-uint32_t get_last_write_pointer() {
+uint32_t get_last_write_pointer(void) {
+    uint32_t write_pointer_value;
+
+    mmcReadBlock(STORE_LAST_WRITE_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&write_pointer_value);
+    return write_pointer_value;
+}
+
+/*
+ * For future releases that consider more problematic situations.
+ *
+uint32_t get_last_read_pointer(void) {
 
     uint32_t sector_pointer_value[2];
     uint32_t sector_pointer_position;
-    uint8_t counter = 1;
 
-    sector_pointer_position = END_STORE_LAST_WRITE_SECTOR * SECTOR_SIZE - 8;
+    sector_pointer_position = END_STORE_LAST_READ_BYTE - 4;
     mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
-    last_write_pointer = sector_pointer_value[1];
 
     while(sector_pointer_value[0] <= sector_pointer_value[1]) {
-        if(sector_pointer_position == STORE_LAST_WRITE_SECTOR) {
-            if(sector_pointer_value[0] == 0xFFFFFFFF) {
+        if(sector_pointer_position == STORE_LAST_READ_BYTE) {
+            if(sector_pointer_value[0] == DEFAULT_DATA_AFTER_RESET) {
                 sector_pointer_value[0] = 0;
                 break;
             }
             else {
-                mmcReadBlock(END_STORE_LAST_WRITE_SECTOR * SECTOR_SIZE - 4, 4, (unsigned char *)sector_pointer_value[0]);
+                mmcReadBlock(END_STORE_LAST_READ_BYTE, 4, (unsigned char *)sector_pointer_value[0]);
+                if (sector_pointer_value[0] > MEMORY_USABLE_SIZE) {
+                    sector_pointer_value[0] = 0;
+                }
                 break;
             }
         }
-
-        mmcReadBlock(sector_pointer_position - 8 * counter++, 8, (unsigned char *)sector_pointer_value);
-        last_write_pointer = sector_pointer_value[0];
+        sector_pointer_position = sector_pointer_position - 4;
+        mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
     }
-    return last_write_pointer;
+
+    last_read_pointer = sector_pointer_value[0];
+    return last_read_pointer;
 }
+*/
 
 void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size) {
     uint16_t i;
