@@ -104,8 +104,8 @@ beacon_packet_t ttc_copy_data(void){
 
 
     /**< Reset counter */
-    beacon_packet.reset_counter[0] = satellite_data.system_status[1];
-    beacon_packet.reset_counter[1] = satellite_data.system_status[2];
+    beacon_packet.reset_counter[0] = satellite_data.system_status[0];
+    beacon_packet.reset_counter[1] = satellite_data.system_status[1];
 
     return beacon_packet;
 }

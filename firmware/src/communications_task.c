@@ -143,7 +143,7 @@ void communications_task( void *pvParameters )
     while(1) {
 
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) == PACKET_LENGTH) {
+        if(try_to_receive(data) == sizeof(telecommand_t)) {
             received_telecommand = decode_telecommand(data);
 
             if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
