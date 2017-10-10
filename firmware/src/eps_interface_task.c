@@ -46,6 +46,9 @@ void eps_interface_task( void *pvParameters ) {
 
             xSemaphoreGive( i2c0_semaphore );                                       /**< release the mutex        */
 
+            if(eps_status != EPS_OK) {
+                eps_status = 0;
+            }
             xQueueOverwrite(status_eps_queue, &eps_status);                         /**< send status (OK or NOK)  */
 
             if(eps_status == EPS_OK) {

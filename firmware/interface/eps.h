@@ -39,8 +39,8 @@
 #define EPS_REQUEST_DATA_CMD    0x0F      //an arbitrary value was choosen
 
 #define EPS_TIMEOUT_ERROR       0x00
-#define EPS_CRC_ERROR           0x01
-#define EPS_OK                  0x02
+#define EPS_OK                  0x01
+#define EPS_CRC_ERROR           0x02
 
 /*
  *  EPS FRAME
