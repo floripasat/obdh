@@ -35,7 +35,12 @@
 void flash_write(uint8_t* data, uint16_t bytes){
     uint16_t i;
 
-    FCTL3 = FWKEY | LOCKA;                    // Clear Lock bit
+    if(FCTL3 & LOCKA) {
+        FCTL3 = FWKEY | LOCKA;                        // Clear Lock bit and LockA
+    }
+    else {
+        FCTL3 = FWKEY;                                // Clear Lock bit
+    }
     FCTL1 = FWKEY | WRT;                      // Set WRT bit for write operation
     for (i = 0; i < bytes; i++){
         *flash_ptr++ = data[i];               // Write value to flash
@@ -46,7 +51,12 @@ void flash_write(uint8_t* data, uint16_t bytes){
 }
 
 void flash_write_single(uint8_t data, uint8_t *addr){
-    FCTL3 = FWKEY | LOCKA;                    // Clear Lock bit
+    if(FCTL3 & LOCKA) {
+        FCTL3 = FWKEY | LOCKA;                        // Clear Lock bit and LockA
+    }
+    else {
+        FCTL3 = FWKEY;                                // Clear Lock bit
+    }
     FCTL1 = FWKEY | WRT;                      // Set WRT bit for write operation
     *addr = data;                             // Write value to flash
     while((FCTL3 & BUSY) == TRUE);            // Check if Flash being used
@@ -56,7 +66,12 @@ void flash_write_single(uint8_t data, uint8_t *addr){
 
 void flash_write_long(uint32_t data, uint32_t *addr){
 
-    FCTL3 = FWKEY | LOCKA;                    // Clear Lock bit
+    if(FCTL3 & LOCKA) {
+        FCTL3 = FWKEY | LOCKA;                        // Clear Lock bit and LockA
+    }
+    else {
+        FCTL3 = FWKEY;                                // Clear Lock bit
+    }
     FCTL1 = FWKEY | BLKWRT;                   // Set WRT bit for write operation
     *addr = data;                             // Write value to flash
     while((FCTL3 & BUSY) == TRUE);            // Check if Flash being used
@@ -67,8 +82,12 @@ void flash_write_long(uint32_t data, uint32_t *addr){
 
 void flash_erase(uint32_t* region){
     uint32_t *erase_ptr = region;
-
-    FCTL3 = FWKEY | LOCKA;                        // Clear Lock bit
+    if(FCTL3 & LOCKA) {
+        FCTL3 = FWKEY | LOCKA;                        // Clear Lock bit and LockA
+    }
+    else {
+        FCTL3 = FWKEY;                                // Clear Lock bit
+    }
     switch ((uint32_t)region){
     case BANK0_ADDR: FCTL1 = FWKEY | MERAS; break;
     case BANK1_ADDR: FCTL1 = FWKEY | MERAS; break;

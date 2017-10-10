@@ -43,7 +43,6 @@ void housekeeping_task( void *pvParameters ) {
     uint8_t system_status[6];
     uint32_t reset_value;
     uint8_t temp_status_flags, status_flags;
-    uint8_t seconds_counter = 0;
     uint8_t current_mode;
     uint32_t system_time, time_state_last_change;
 
@@ -112,13 +111,13 @@ void housekeeping_task( void *pvParameters ) {
         system_status[4] = read_fault_flags();
         system_status[5] = status_flags;
 
-        if( ++seconds_counter >= (60000 / HOUSEKEEPING_TASK_PERIOD_MS) ) {    /**< if 1 minute has passed     */
-            update_time_counter();                                            /**< update the minutes counter */
-            seconds_counter = 0;
-        }
-
         current_mode = read_current_operation_mode();
-        system_time = read_time_counter();
+        system_time =  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
+
+        if( system_time == 0) {    /**< if 1 minute has passed     */
+            update_time_counter();                                            /**< update the minutes counter */
+        }
+        system_time |= read_time_counter()<<8;               /**< shift minutes to the 24 most significant bits */
 
         if(current_mode  == SHUTDOWN_MODE) {
             time_state_last_change = read_time_state_changed();
@@ -126,8 +125,6 @@ void housekeeping_task( void *pvParameters ) {
                 update_operation_mode(NORMAL_OPERATION_MODE);
             }
         }
-        system_time = system_time<<8;               /**< shift minutes to the 24 most significant bits */
-        system_time |=  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
 
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
 
