@@ -30,10 +30,19 @@
  */
 
 #include "communications_task.h"
+#if _DEBUG_AS_LINK == 1
+#include "../driver/uart.h"
+#endif
+
 
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 #define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 
+#if _DEBUG_AS_LINK == 1
+void send_periodic_data(void) {
+    uart_tx_bytes((char *)&satellite_data, sizeof(data_packet_t));  //send data via uart, for debug purpouse
+}
+#else
 void send_periodic_data(void) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
@@ -49,6 +58,9 @@ void send_periodic_data(void) {
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
 }
+#endif
+
+
 
 void send_data(uint8_t *data, int16_t data_len) {
     NGHam_TX_Packet ngham_packet;

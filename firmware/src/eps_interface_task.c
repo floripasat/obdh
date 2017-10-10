@@ -49,7 +49,7 @@ void eps_interface_task( void *pvParameters ) {
             xQueueOverwrite(status_eps_queue, &eps_status);                         /**< send status (OK or NOK)  */
 
             if(eps_status == EPS_OK) {
-                xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);           /**< send data through queue  */
+                xQueueSendToBack(eps_queue, &(eps_package.msp430), portMAX_DELAY);           /**< send data through queue  */
             }
         }
 
