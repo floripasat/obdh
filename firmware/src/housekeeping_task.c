@@ -52,10 +52,9 @@ void housekeeping_task( void *pvParameters ) {
     while(1)
     {
         /* Periodic reset */
-        current_time = xTaskGetTickCount() / ((uint32_t) configTICK_RATE_HZ * 60); /**< Time in minutes */
+        current_time = xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ;
         if (current_time >= PERIODIC_RESET_TIME) {
-            wdti_reset_counter();                       /**< Reset internal watchdog timer */
-            wdte_reset_counter();                       /**< Reset external watchdog timer */
+            system_reboot();
         }
 
         /* read internal temperature */
