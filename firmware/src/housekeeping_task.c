@@ -45,11 +45,19 @@ void housekeeping_task( void *pvParameters ) {
     uint8_t temp_status_flags, status_flags;
     uint8_t current_mode;
     uint32_t system_time, time_state_last_change;
+    uint32_t current_time;
 
     last_wake_time = xTaskGetTickCount();
 
     while(1)
     {
+        /* Periodic reset */
+        current_time = xTaskGetTickCount() / ((uint32_t) configTICK_RATE_HZ * 60); /**< Time in minutes */
+        if (current_time >= PERIODIC_RESET_TIME) {
+            wdti_reset_counter();                       /**< Reset internal watchdog timer */
+            wdte_reset_counter();                       /**< Reset external watchdog timer */
+        }
+
         /* read internal temperature */
         temperature_raw = obdh_temperature_read();
 
