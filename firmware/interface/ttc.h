@@ -35,6 +35,7 @@
 #include "../driver/i2c.h"
 #include "../include/floripasat_def.h"
 #include "../util/sspi.h"
+#include "../util/fsp/fsp.h"
 
 /*
  * Commands
@@ -52,6 +53,10 @@
 #define TTC_TX_FREE                 0x10        /**< The beacon is not being sent                   */
 #define TTC_TX_BUSY                 0x11        /**< The beacon is being sent                       */
 
+
+void fsp_obdh_ttc_packet(uint8_t * ttc_pkt);
+
+
 /**
  * \fn ttc_copy_data
  * \brief Store the data to be sent through beacon in a packet
@@ -65,7 +70,7 @@ beacon_packet_t ttc_copy_data(void);
  * \param ttc_packet is the address of the packet to be sent to TT&C
  * \return None
  */
-void ttc_send_data(ttc_packet_t* ttc_packet);
+void ttc_send_data(uint8_t* ttc_packet);
 
 /**
  * \fn ttc_send_mutex_request

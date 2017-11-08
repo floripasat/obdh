@@ -33,6 +33,26 @@
 
 #define TIME_TO_PROCESS_CMD     1600        /**< 100 microseconds */
 
+
+/* FloripaSat communication protocol */
+
+void fsp_obdh_ttc_packet(uint8_t * ttc_pkt) {
+
+    fsp_init(FSP_ADR_OBDH);
+
+    FSPPacket fsp_obdh_ttc;
+
+    beacon_packet_t ttc_packet;
+    ttc_packet = ttc_copy_data();
+    uint8_t ttc_packet_len = sizeof(ttc_packet);
+
+    fsp_gen_data_pkt((uint8_t *)&ttc_packet , ttc_packet_len, FSP_ADR_TTC, FSP_PKT_WITHOUT_ACK, &fsp_obdh_ttc);
+
+    uint8_t ttc_pkt_len;
+
+    fsp_encode(&fsp_obdh_ttc, ttc_pkt, &ttc_pkt_len);
+}
+
 beacon_packet_t ttc_copy_data(void){
     beacon_packet_t beacon_packet;
 
@@ -110,12 +130,11 @@ beacon_packet_t ttc_copy_data(void){
     return beacon_packet;
 }
 
-void ttc_send_data(ttc_packet_t* ttc_packet) {
+void ttc_send_data(uint8_t *ttc_packet) {
     sspi_tx(TTC_CMD_DATA_TRANSFER);             /**< send the data transfer command                     */
     sspi_tx_multiple((uint8_t*) ttc_packet,
-                     sizeof(ttc_packet_t));     /**< send the data                  */
+                     sizeof(FSPPacket));        /**< send the data                  */
 }
-
 
 uint8_t ttc_send_mutex_request(void) {
     uint8_t response;

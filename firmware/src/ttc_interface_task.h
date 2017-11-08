@@ -37,7 +37,7 @@
 #include "task.h"
 #include "task_queues.h"
 #include "../interface/ttc.h"
-#include "../util/crc.h"
+
 /*
  * PRIORITY =   5
  * FREQUENCY =  0.2Hz

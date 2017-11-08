@@ -38,22 +38,25 @@ void ttc_interface_task( void *pvParameters ) {
     last_wake_time = xTaskGetTickCount();
     uint8_t ttc_cmd_to_send = 0;
     uint8_t tx_allow = 1;
-    ttc_packet_t ttc_data_packet;
+    //ttc_packet_t ttc_data_packet;
     TaskHandle_t store_task_handle;
 
+    /* FloripaSat communication protocol */
+    uint8_t ttc_pkt[FSP_PKT_MAX_LENGTH];
 
     /**< get the handle of store_data_task, to stop the sampling, when in shutdown mode */
     store_task_handle = xTaskGetHandle("StoreData");
 
     while(1) {
-        ttc_data_packet.data = ttc_copy_data();
+        //ttc_data_packet.data = ttc_copy_data();
 
-        ttc_data_packet.start_of_frame  = START_OF_FRAME;                   /**< initial byte of the frame: '{' */
-        ttc_data_packet.crc_result      = crc8(CRC_SEED,
-                                               CRC_POLYNOMIAL,
-                                               (uint8_t*) &(ttc_data_packet.data),
-                                               sizeof(beacon_packet_t) );   /**< calculate the 8-bits CRC value of beacon data */
-        ttc_send_data(&ttc_data_packet);
+        //ttc_data_packet.start_of_frame  = START_OF_FRAME;                   /**< initial byte of the frame: '{' */
+        //ttc_data_packet.crc_result      = crc8(CRC_SEED,
+        //                                       CRC_POLYNOMIAL,
+        //                                       (uint8_t*) &(ttc_data_packet.data),
+        //                                       sizeof(beacon_packet_t) );   /**< calculate the 8-bits CRC value of beacon data */
+        fsp_obdh_ttc_packet(&ttc_pkt);
+        ttc_send_data(&ttc_pkt);
 
         if(xQueueReceive(ttc_queue, (void *) &ttc_cmd_to_send, TTC_QUEUE_WAIT_TIME) == pdPASS) {
 
