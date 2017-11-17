@@ -41,13 +41,6 @@ void ttc_interface_task( void *pvParameters ) {
     //ttc_packet_t ttc_data_packet;
     TaskHandle_t store_task_handle;
 
-    /* FloripaSat communication protocol */
-    uint8_t ttc_pkt_data[FSP_PKT_MAX_LENGTH];
-    uint8_t ttc_pkt_cmd_data[16];
-    uint8_t ttc_pkt_shutdown[16];
-    uint8_t ttc_pkt_mutex_request[16];
-    uint8_t ttc_pkt_mutex_release[16];
-
     /**< get the handle of store_data_task, to stop the sampling, when in shutdown mode */
     store_task_handle = xTaskGetHandle("StoreData");
 
@@ -60,12 +53,12 @@ void ttc_interface_task( void *pvParameters ) {
         //                                       (uint8_t*) &(ttc_data_packet.data),
         //                                       sizeof(beacon_packet_t) );   /**< calculate the 8-bits CRC value of beacon data */
 
-        ttc_send_data(ttc_pkt_cmd_data, ttc_pkt_data);
+        ttc_send_data();
 
         if(xQueueReceive(ttc_queue, (void *) &ttc_cmd_to_send, TTC_QUEUE_WAIT_TIME) == pdPASS) {
 
             if(ttc_cmd_to_send == TTC_CMD_SHUTDOWN) {           /**< if it is a shutdown cmd */
-                ttc_send_shutdown(ttc_pkt_shutdown);
+                ttc_send_shutdown();
 
                 vTaskSuspend(store_task_handle);                /**< stop the store task and, by consequence, the tasks that do readings */
 #ifdef _DEBUG
@@ -78,7 +71,7 @@ void ttc_interface_task( void *pvParameters ) {
             }
 
             if(ttc_cmd_to_send == TTC_CMD_TX_MUTEX_REQUEST) {   /**< if it is a mutex request cmd */
-                while(ttc_send_mutex_request(ttc_pkt_mutex_request) == TTC_TX_BUSY) {
+                while(ttc_send_mutex_request() == TTC_TX_BUSY) {
                     vTaskDelayMs(200); /**< wait until TT&C release the mutex */
                 }
 
@@ -87,7 +80,7 @@ void ttc_interface_task( void *pvParameters ) {
             }
 
             if(ttc_cmd_to_send == TTC_CMD_TX_MUTEX_RELEASE) {   /**< if it is a mutex release cmd */
-                ttc_tx_mutex_release(ttc_pkt_mutex_release);
+                ttc_tx_mutex_release();
             }
         }
 

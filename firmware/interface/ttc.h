@@ -55,20 +55,19 @@
 
 
 /**
- * \fn fsp_command_packet
- * \brief Get and encode the command packet with the fsp
- * \param the command and command packet to be encoded
+ * \fn send_data_packet
+ * \brief Encode and send the data packet with the fsp
  * \return None
  */
-void fsp_command_packet(uint8_t command, uint8_t *ttc_pkt_command);
+void send_data_packet();
 
 /**
- * \fn fsp_data_packet
- * \brief Get and encode the packet with the fsp
- * \param data packet to be encoded
+ * \fn send_data_packet
+ * \brief Encode and send the command packet with the fsp
+ * \param command
  * \return None
  */
-void fsp_data_packet(uint8_t * ttc_pkt);
+void send_command_packet(uint8_t command);
 
 /**
  * \fn ttc_copy_data
@@ -80,33 +79,29 @@ beacon_packet_t ttc_copy_data(void);
 /**
  * \fn ttc_send_data
  * \brief Send the data transfer command and the data
- * \param the command packet and data packet
  * \return None
  */
-void ttc_send_data(uint8_t *ttc_pkt_command, uint8_t *ttc_pkt_data);
+void ttc_send_data();
 
 /**
  * \fn ttc_send_mutex_request
  * \brief send a request to use the downlink
- * \param the command packet
  * \return the TT&C response: the link can be free or busy
  */
-uint8_t ttc_send_mutex_request(uint8_t *ttc_pkt_command);
+uint8_t ttc_send_mutex_request();
 
 /**
  * \fn ttc_tx_mutex_release
  * \brief send a command to signal the release of the downlink
- * \param the command packet
  * \return None
  */
-void ttc_tx_mutex_release(uint8_t *ttc_pkt_command);
+void ttc_tx_mutex_release();
 
 /**
  * \fn ttc_send_shutdown
  * \brief send a command to warn the TT&C about a shutdown request
- * \param the command packet
  * \return None
  */
-void ttc_send_shutdown(uint8_t *ttc_pkt_command);
+void ttc_send_shutdown();
 
 #endif /* INTERFACE_TTC_H_ */
