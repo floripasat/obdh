@@ -87,7 +87,7 @@ typedef struct {
     uint8_t msp_sensors        [6];
     uint8_t systick            [4];
     uint8_t solar_panels       [12];
-    uint8_t transceiver        [90];
+    uint8_t transceiver        [85];
     //eps
     uint8_t adc_solar_panels   [18];
     uint8_t msp430_adc         [8];

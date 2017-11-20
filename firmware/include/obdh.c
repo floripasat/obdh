@@ -40,7 +40,7 @@ void create_tasks( void ) {
     system_time_queue       = xQueueCreate( 5, sizeof( satellite_data.systick ) );
     solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
     transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
-    eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) - 2 );            //subtract start byte and crc
+    eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
     ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
     tx_queue                = xQueueCreate( 1, sizeof( uint8_t ) );
     payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );

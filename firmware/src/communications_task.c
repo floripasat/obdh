@@ -136,6 +136,7 @@ void communications_task( void *pvParameters )
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t ttc_command;
+    uint8_t ttc_response;
     uint8_t energy_level;
     uint8_t radio_status = 0;
 
@@ -182,7 +183,15 @@ void communications_task( void *pvParameters )
         }
 
         if(++current_turn > turns_to_wait) {
+            ttc_command = TTC_CMD_TX_MUTEX_REQUEST;
+            xQueueOverwrite(ttc_queue, &ttc_command);
+            xQueueReceive(tx_queue, &ttc_response, 2000 / portTICK_RATE_MS); //wait 2 seconds or until be answered
+
             send_periodic_data();               /**< send the last readings of each data of the packet */
+
+            ttc_command = TTC_CMD_TX_MUTEX_RELEASE;
+            xQueueOverwrite(ttc_queue, &ttc_command);
+
             current_turn = 0;
         }
 
