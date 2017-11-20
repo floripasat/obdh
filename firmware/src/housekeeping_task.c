@@ -46,6 +46,8 @@ void housekeeping_task( void *pvParameters ) {
     uint8_t current_mode;
     uint32_t system_time, time_state_last_change;
     uint32_t current_time;
+    uint8_t current_seconds;
+    uint8_t flag_updated_time = 0;
 
     last_wake_time = xTaskGetTickCount();
 
@@ -111,20 +113,25 @@ void housekeeping_task( void *pvParameters ) {
         }
 
         reset_value = read_reset_value();
-        system_status[0] = reset_value      & 0xFF;
+        system_status[0] = reset_value>>16  & 0xFF;
         system_status[1] = reset_value>>8   & 0xFF;
-        system_status[2] = reset_value>>16  & 0xFF;
-        system_status[3] = reset_value>>24  & 0xFF;
-        system_status[4] = read_fault_flags();
+        system_status[2] = reset_value      & 0xFF;
+        system_status[3] = reset_value>>24  & 0xFF;     /**< reset cause        */
+        system_status[4] = read_fault_flags();          /**< clock fault flags  */
         system_status[5] = status_flags;
 
         current_mode = read_current_operation_mode();
-        system_time =  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
+        current_seconds =  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
 
-        if( system_time == 0) {    /**< if 1 minute has passed     */
-            update_time_counter();                                            /**< update the minutes counter */
+        if( current_seconds == 0 && flag_updated_time == 0) {/**< if 1 minute has passed     */
+            update_time_counter();                           /**< update the minutes counter */
+            flag_updated_time = 1;
         }
-        system_time |= read_time_counter()<<8;               /**< shift minutes to the 24 most significant bits */
+        else {                                               /**< to prevent counting twice the same minute (if the task period was less than 1s */
+            flag_updated_time = 0;
+        }
+
+        system_time = read_time_counter();
 
         if(current_mode  == SHUTDOWN_MODE) {
             time_state_last_change = read_time_state_changed();
@@ -132,6 +139,12 @@ void housekeeping_task( void *pvParameters ) {
                 update_operation_mode(NORMAL_OPERATION_MODE);
             }
         }
+
+                                                          /**< shift minutes to the 24 most significant bits */
+        system_time = (system_time<<24 & 0xFF000000) |    /**< to agree with the big-endian format           */
+                      (system_time<<8  & 0x00FF0000) |
+                      (system_time>>8  & 0x0000FF00) |
+                      current_seconds;                    /**< seconds stored in the LSB                     */
 
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
 
