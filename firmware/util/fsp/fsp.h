@@ -75,8 +75,8 @@
 
 // Max. lengths
 #define FSP_PKT_MAX_LENGTH              256
+#define FSP_PAYLOAD_MAX_LENGTH          248
 #define FSP_PKT_MIN_LENGTH              8
-#define FSP_PAYLOAD_MAX_LENGTH          252
 
 // CRC16 initial value (or seed byte)
 #define FSP_CRC16_INITIAL_VALUE         0

@@ -30,6 +30,7 @@
  */
 
 #include "eps.h"
+#include "../util/fsp/fsp.h"
 
 void eps_setup(void) {
 
@@ -37,18 +38,26 @@ void eps_setup(void) {
 
 
 uint8_t eps_read(eps_package_t *package) {
-    uint8_t *data = (uint8_t *)package;         /**< copy the address and work as a byte vector */
+    uint8_t data[FSP_PKT_MAX_LENGTH];
+    uint8_t cmd[10];
+    uint8_t pkt_len;
+    uint8_t *received_data = (uint8_t *)package;         /**< copy the address and work as a byte vector */
     uint8_t eps_status = EPS_OK;
+    FSPPacket fsp_packet;
+    uint8_t fsp_status = 0;
+    uint8_t i = 0;
 
     i2c_set_slave(EPS_BASE_ADDRESS, EPS_I2C_SLAVE_ADRESS);  /**< set the slave address to be the EPS address */
 
     i2c_set_mode(EPS_BASE_ADDRESS, TRANSMIT_MODE);          /**< set to transmit */
 
-
     /*
      *  Send the request data command
      */
-    if(i2c_send(EPS_BASE_ADDRESS, EPS_REQUEST_DATA_CMD, NO_STOP) == I2C_FAIL) {
+    fsp_init(FSP_ADR_OBDH);
+    fsp_gen_cmd_pkt(FSP_CMD_SEND_DATA, FSP_ADR_EPS, FSP_PKT_WITHOUT_ACK, &fsp_packet);
+    fsp_encode(&fsp_packet, cmd, &pkt_len);
+    if(i2c_send_burst(EPS_BASE_ADDRESS, cmd, pkt_len, NO_STOP) == I2C_FAIL) {
         eps_status = EPS_TIMEOUT_ERROR;
     }
 
@@ -57,18 +66,22 @@ uint8_t eps_read(eps_package_t *package) {
     /*
      * Receive the packet
      */
+    fsp_reset();
     if(i2c_receive_burst(EPS_BASE_ADDRESS, data, EPS_PACKAGE_LENGTH, START_STOP) == I2C_FAIL) {
         eps_status = EPS_TIMEOUT_ERROR;
     }
 
-    if(eps_status == EPS_OK) {
-        /*
-         *  Evaluate the CRC8 and compare with the received value
-         */
-        if( crc8(CRC_SEED, CRC_POLYNOMIAL, package->msp430, EPS_PACKAGE_LENGTH-2) != package->crc_value){
-            eps_status = EPS_CRC_ERROR;
+    do {
+        fsp_status = fsp_decode(data[i++], &fsp_packet);
+    } while(fsp_status == FSP_PKT_NOT_READY);
+
+    if(fsp_status == FSP_PKT_READY) {
+        for(i=0; i<fsp_packet.length; i++) {
+            received_data[i] = fsp_packet.payload[i];
         }
     }
+
+    eps_status = fsp_status;
 
     return eps_status;
 }

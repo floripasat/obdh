@@ -184,7 +184,7 @@ typedef struct {
 #define SD      0x05
 
 
-#define _DEBUG_AS_LINK  1               /**< to simulate the radio link through UART */
+#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"

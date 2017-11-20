@@ -38,5 +38,7 @@ encoding//Debug/subdir_rules.mk=UTF-8
 encoding//Debug/subdir_vars.mk=UTF-8
 encoding//Debug/util/MMC_lib/subdir_rules.mk=UTF-8
 encoding//Debug/util/MMC_lib/subdir_vars.mk=UTF-8
+encoding//Debug/util/fsp/subdir_rules.mk=UTF-8
+encoding//Debug/util/fsp/subdir_vars.mk=UTF-8
 encoding//Debug/util/subdir_rules.mk=UTF-8
 encoding//Debug/util/subdir_vars.mk=UTF-8

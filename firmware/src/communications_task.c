@@ -48,12 +48,7 @@ void send_periodic_data(void) {
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 150);
-    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
-
-    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data+150, sizeof(data_packet_t)-150);
+    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 220);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
