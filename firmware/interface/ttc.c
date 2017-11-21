@@ -31,8 +31,6 @@
 
 #include "ttc.h"
 
-#define TIME_TO_PROCESS_CMD     1600        /**< 100 microseconds */
-
 beacon_packet_t ttc_copy_data(void){
     beacon_packet_t beacon_packet;
 
@@ -110,7 +108,39 @@ beacon_packet_t ttc_copy_data(void){
     return beacon_packet;
 }
 
-void send_data_packet() {
+void send_command_packet(uint8_t command) {
+    FSPPacket fsp_command;
+    uint8_t ttc_pkt_len;
+    uint8_t ttc_pkt_cmd[FSP_PKT_MIN_LENGTH];
+
+    fsp_init(FSP_ADR_OBDH);
+    fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
+    fsp_encode(&fsp_command, ttc_pkt_cmd, &ttc_pkt_len);
+
+    sspi_tx_multiple((uint8_t*) ttc_pkt_cmd, ttc_pkt_len);       /**< send the bytes */
+}
+
+uint8_t receive_packet(void) {
+    uint8_t response[FSP_PKT_MIN_LENGTH], i, fsp_status;
+    FSPPacket fsp_packet;
+    uint8_t received_packet = FSP_PKT_WITHOUT_ACK;
+
+    sspi_rx_multiple(response, sizeof(response));
+
+    do {
+        fsp_status = fsp_decode(response[i++], &fsp_packet);
+    } while(fsp_status == FSP_PKT_NOT_READY);
+
+    if(fsp_status == FSP_PKT_READY) {
+        if(fsp_packet.type == FSP_PKT_TYPE_ACK) {
+            received_packet = FSP_PKT_WITH_ACK;
+        }
+    }
+
+    return received_packet;
+}
+
+void send_data_packet(void) {
     FSPPacket fsp_data;
     beacon_packet_t ttc_packet;
     uint8_t ttc_pkt_data_len;
@@ -123,66 +153,6 @@ void send_data_packet() {
     fsp_gen_data_pkt((uint8_t *)&ttc_packet , ttc_packet_len, FSP_ADR_TTC, FSP_PKT_WITHOUT_ACK, &fsp_data);
     fsp_encode(&fsp_data, ttc_pkt_data, &ttc_pkt_data_len);
 
-    sspi_tx_multiple((uint8_t*) ttc_pkt_data,
-                     sizeof(ttc_pkt_data_len));       /**< send the data                                      */
+    sspi_tx_multiple((uint8_t*) ttc_pkt_data, ttc_pkt_data_len);       /**< send the data via SPI */
 }
 
-void send_command_packet(uint8_t command) {
-    FSPPacket fsp_command;
-    uint8_t ttc_pkt_len, ttc_pkt_cmd_len;
-    uint8_t ttc_pkt_cmd[FSP_PKT_MIN_LENGTH];
-
-    fsp_init(FSP_ADR_OBDH);
-    fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITHOUT_ACK, &fsp_command);
-    fsp_encode(&fsp_command, ttc_pkt_cmd, &ttc_pkt_len);
-
-    sspi_tx_multiple((uint8_t*) ttc_pkt_cmd,
-                     sizeof(ttc_pkt_cmd_len));       /**< send the data                                      */
-}
-
-void receive_packet(uint8_t* received_packet) {
-    uint8_t response[FSP_PKT_MIN_LENGTH], i, fsp_status;
-    FSPPacket fsp_packet;
-
-    sspi_rx_multiple(response, sizeof(response));
-
-    do {
-        fsp_status = fsp_decode(response[i++], &fsp_packet);
-    } while(fsp_status == FSP_PKT_NOT_READY);
-
-    if(fsp_status == FSP_PKT_READY) {
-        for(i=0; i<fsp_packet.length; i++) {
-            received_packet[i] = fsp_packet.payload[i];
-        }
-    }
-}
-
-void ttc_send_data() {
-    send_command_packet(TTC_CMD_DATA_TRANSFER);     /**< send the data transfer command */
-    send_data_packet();                             /**< send the data packet           */
-}
-
-uint8_t ttc_send_mutex_request() {
-    uint8_t received_data;
-
-    send_command_packet(TTC_CMD_TX_MUTEX_REQUEST);  /**< send the mutex request command */
-    __delay_cycles(TIME_TO_PROCESS_CMD);            /**< wait 100us until TT&C process the received data    */
-    receive_packet(&received_data);                  /**< receive the response                               */
-
-    return received_data;
-}
-
-void ttc_tx_mutex_release() {
-    send_command_packet(TTC_CMD_TX_MUTEX_RELEASE);  /**< send the mutex release command */
-}
-
-void ttc_send_shutdown() {
-    uint8_t received_data;
-
-    do {
-        send_command_packet(TTC_CMD_SHUTDOWN);      /**< send the shutdown command      */
-        __delay_cycles(TIME_TO_PROCESS_CMD);        /**< wait 100us until TT&C process the received data    */
-        receive_packet(&received_data);              /**< receive the ACK/NACK                               */
-
-    } while(received_data != TTC_SHUTDOWN_ACK);          /**< repeat until receive ACK                           */
-}

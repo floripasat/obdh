@@ -40,26 +40,17 @@
 /*
  * Commands
  */
-#define TTC_CMD_DATA_TRANSFER       0x80        /**< Warn the TT&C to receive a incoming data       */
-#define TTC_CMD_SHUTDOWN            0x40        /**< Warn the TT&C to enter in shutdown mode        */
-#define TTC_CMD_TX_MUTEX_REQUEST    0x20        /**< Request the use of downlink                    */
-#define TTC_CMD_TX_MUTEX_RELEASE    0x10        /**< Release the use of downlink                    */
+#define TTC_CMD_SHUTDOWN            0x11        /**< Warn the TT&C to enter in shutdown mode        */
+#define TTC_CMD_TX_MUTEX_REQUEST    0x22        /**< Request the use of downlink                    */
 
-#define TTC_SHUTDOWN_ACK            0x01        /**< Expected response after a shutdown command     */
-
-/*
- * TX mutex responses
- */
-#define TTC_TX_FREE                 0x10        /**< The beacon is not being sent                   */
-#define TTC_TX_BUSY                 0x11        /**< The beacon is being sent                       */
-
-
+#define TTC_ACK                     FSP_PKT_WITH_ACK
+#define TTC_NACK                    FSP_PKT_WITHOUT_ACK
 /**
  * \fn send_data_packet
  * \brief Encode and send the data packet with the fsp
  * \return None
  */
-void send_data_packet();
+void send_data_packet(void);
 
 /**
  * \fn send_data_packet
@@ -76,32 +67,9 @@ void send_command_packet(uint8_t command);
  */
 beacon_packet_t ttc_copy_data(void);
 
-/**
- * \fn ttc_send_data
- * \brief Send the data transfer command and the data
- * \return None
- */
-void ttc_send_data();
 
-/**
- * \fn ttc_send_mutex_request
- * \brief send a request to use the downlink
- * \return the TT&C response: the link can be free or busy
- */
-uint8_t ttc_send_mutex_request();
+uint8_t receive_packet(void);
 
-/**
- * \fn ttc_tx_mutex_release
- * \brief send a command to signal the release of the downlink
- * \return None
- */
-void ttc_tx_mutex_release();
 
-/**
- * \fn ttc_send_shutdown
- * \brief send a command to warn the TT&C about a shutdown request
- * \return None
- */
-void ttc_send_shutdown();
 
 #endif /* INTERFACE_TTC_H_ */

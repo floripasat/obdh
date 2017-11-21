@@ -32,11 +32,15 @@
 #include "ttc_interface_task.h"
 
 #define MILISECONDS_IN_A_DAY    86400000      //1000ms * 60s * 60min * 24hr
+#define TIME_TO_PROCESS_CMD     2000          /**< 2 seconds */
+
+uint8_t send_mutex_request();
+void send_shutdown();
 
 void ttc_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
-    uint8_t ttc_cmd_to_send = 0;
+    uint8_t cmd_to_send = 0;
     uint8_t tx_allow = 1;
     //ttc_packet_t ttc_data_packet;
     TaskHandle_t store_task_handle;
@@ -45,21 +49,13 @@ void ttc_interface_task( void *pvParameters ) {
     store_task_handle = xTaskGetHandle("StoreData");
 
     while(1) {
-        //ttc_data_packet.data = ttc_copy_data();
 
-        //ttc_data_packet.start_of_frame  = START_OF_FRAME;                   /**< initial byte of the frame: '{' */
-        //ttc_data_packet.crc_result      = crc8(CRC_SEED,
-        //                                       CRC_POLYNOMIAL,
-        //                                       (uint8_t*) &(ttc_data_packet.data),
-        //                                       sizeof(beacon_packet_t) );   /**< calculate the 8-bits CRC value of beacon data */
+        send_data_packet();
 
-        ttc_send_data();
+        if(xQueueReceive(ttc_queue, (void *) &cmd_to_send, TTC_INTERFACE_TASK_PERIOD_TICKS) == pdPASS) {
 
-        if(xQueueReceive(ttc_queue, (void *) &ttc_cmd_to_send, TTC_QUEUE_WAIT_TIME) == pdPASS) {
-
-            if(ttc_cmd_to_send == TTC_CMD_SHUTDOWN) {           /**< if it is a shutdown cmd */
-                ttc_send_shutdown();
-
+            if(cmd_to_send == TTC_CMD_SHUTDOWN) {           /**< if it is a shutdown cmd */
+                send_shutdown();
                 vTaskSuspend(store_task_handle);                /**< stop the store task and, by consequence, the tasks that do readings */
 #ifdef _DEBUG
                 vTaskDelayMs(20000);                            /**< this delay is a shutdown simulation */
@@ -70,22 +66,42 @@ void ttc_interface_task( void *pvParameters ) {
 
             }
 
-            if(ttc_cmd_to_send == TTC_CMD_TX_MUTEX_REQUEST) {   /**< if it is a mutex request cmd */
-                while(ttc_send_mutex_request() == TTC_TX_BUSY) {
-                    vTaskDelayMs(200); /**< wait until TT&C release the mutex */
+            if(cmd_to_send == TTC_CMD_TX_MUTEX_REQUEST) {   /**< if it is a mutex request cmd */
+                if(send_mutex_request() == TTC_NACK) {
+                    xQueueOverwrite(tx_queue, &tx_allow);
                 }
-
-                xQueueOverwrite(tx_queue, &tx_allow);
-                //TODO: transmit_routine
-            }
-
-            if(ttc_cmd_to_send == TTC_CMD_TX_MUTEX_RELEASE) {   /**< if it is a mutex release cmd */
-                ttc_tx_mutex_release();
+                else
+                {
+                    vTaskDelayMs(2000);                         /**< wait until TT&C release the antenna and send */
+                    xQueueOverwrite(tx_queue, &tx_allow);
+                }
             }
         }
 
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, TTC_INTERFACE_TASK_PERIOD_TICKS );
+        /**< this task will be an aperiodic with 10s of max period */
+        //vTaskDelayUntil( (TickType_t *) &last_wake_time,  );
     }
 
     vTaskDelete( NULL );
+}
+
+void send_shutdown() {
+    uint8_t received_data;
+
+    do {
+        send_command_packet(FSP_CMD_SHUTDOWN);      /**< send the shutdown command                           */
+        vTaskDelayMs(TIME_TO_PROCESS_CMD);          /**< wait 2 seconds until TT&C process the received data */
+        received_data = receive_packet();           /**< receive the ACK/NACK                                */
+
+    } while(received_data != TTC_ACK);              /**< repeat until receive ACK                            */
+}
+
+uint8_t send_mutex_request() {
+    uint8_t received_data;
+
+    send_command_packet(FSP_CMD_REQUEST_RF_MUTEX);   /**< send the mutex request command */
+    vTaskDelayMs(TIME_TO_PROCESS_CMD);               /**< wait 2 seconds until TT&C process the received data */
+    received_data = receive_packet();                /**< receive the ACK/NACK                                */
+
+    return received_data;
 }

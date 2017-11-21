@@ -124,8 +124,6 @@ void send_requested_data(uint8_t *raw_package) {
             }
         }
     }
-    ttc_command = TTC_CMD_TX_MUTEX_RELEASE;
-    xQueueOverwrite(ttc_queue, &ttc_command);
 }
 
 void communications_task( void *pvParameters )
@@ -189,8 +187,6 @@ void communications_task( void *pvParameters )
 
             send_periodic_data();               /**< send the last readings of each data of the packet */
 
-            ttc_command = TTC_CMD_TX_MUTEX_RELEASE;
-            xQueueOverwrite(ttc_queue, &ttc_command);
 
             current_turn = 0;
         }
