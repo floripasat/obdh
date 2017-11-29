@@ -42,7 +42,6 @@ void ttc_interface_task( void *pvParameters ) {
     last_wake_time = xTaskGetTickCount();
     uint8_t cmd_to_send = 0;
     uint8_t tx_allow = 1;
-    //ttc_packet_t ttc_data_packet;
     TaskHandle_t store_task_handle;
 
     /**< get the handle of store_data_task, to stop the sampling, when in shutdown mode */
@@ -50,12 +49,15 @@ void ttc_interface_task( void *pvParameters ) {
 
     while(1) {
 
+        xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME);
         send_data_packet();
+        xSemaphoreGive(fsp_semaphore);
 
-        if(xQueueReceive(ttc_queue, (void *) &cmd_to_send, TTC_INTERFACE_TASK_PERIOD_TICKS) == pdPASS) {
+        if(xQueueReceive(ttc_queue, (void *) &cmd_to_send, 100) == pdPASS) {
 
-            if(cmd_to_send == TTC_CMD_SHUTDOWN) {           /**< if it is a shutdown cmd */
+            if(cmd_to_send == TTC_CMD_SHUTDOWN) {               /**< if it is a shutdown cmd */
                 send_shutdown();
+
                 vTaskSuspend(store_task_handle);                /**< stop the store task and, by consequence, the tasks that do readings */
 #ifdef _DEBUG
                 vTaskDelayMs(20000);                            /**< this delay is a shutdown simulation */
@@ -63,45 +65,52 @@ void ttc_interface_task( void *pvParameters ) {
                 vTaskDelayMs(MILISECONDS_IN_A_DAY);             /**< wait 24 hours */
 #endif
                 vTaskResume(store_task_handle);
-
             }
 
-            if(cmd_to_send == TTC_CMD_TX_MUTEX_REQUEST) {   /**< if it is a mutex request cmd */
-                if(send_mutex_request() == TTC_NACK) {
+            if(cmd_to_send == TTC_CMD_TX_MUTEX_REQUEST) {       /**< if it is a mutex request cmd */
+                if(send_mutex_request() == TTC_ACK) {
                     xQueueOverwrite(tx_queue, &tx_allow);
                 }
-                else
-                {
-                    vTaskDelayMs(2000);                         /**< wait until TT&C release the antenna and send */
+                else {
+                    vTaskDelayMs(2000);                         /**< wait until beacon release the antenna and send */
                     xQueueOverwrite(tx_queue, &tx_allow);
                 }
             }
         }
-
         /**< this task will be an aperiodic with 10s of max period */
-        //vTaskDelayUntil( (TickType_t *) &last_wake_time,  );
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, TTC_INTERFACE_TASK_PERIOD_TICKS );
     }
 
     vTaskDelete( NULL );
 }
 
 void send_shutdown() {
-    uint8_t received_data;
+    uint8_t ack;
+    uint8_t received_data; //not used here
+
+    xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME);
 
     do {
-        send_command_packet(FSP_CMD_SHUTDOWN);      /**< send the shutdown command                           */
-        vTaskDelayMs(TIME_TO_PROCESS_CMD);          /**< wait 2 seconds until TT&C process the received data */
-        received_data = receive_packet();           /**< receive the ACK/NACK                                */
+        send_command_packet(FSP_CMD_SHUTDOWN);      /**< send the shutdown command                              */
+        vTaskDelayMs(TIME_TO_PROCESS_CMD);          /**< wait 2 seconds until beacon process the received data  */
+        ack = receive_packet(&received_data , 0);   /**< receive the ACK/NACK                                   */
+    } while(ack != TTC_ACK);                        /**< repeat until receive ACK                               */
 
-    } while(received_data != TTC_ACK);              /**< repeat until receive ACK                            */
+    xSemaphoreGive(fsp_semaphore);
 }
 
 uint8_t send_mutex_request() {
     uint8_t received_data;
+    uint8_t ack;
 
-    send_command_packet(FSP_CMD_REQUEST_RF_MUTEX);   /**< send the mutex request command */
-    vTaskDelayMs(TIME_TO_PROCESS_CMD);               /**< wait 2 seconds until TT&C process the received data */
-    received_data = receive_packet();                /**< receive the ACK/NACK                                */
+    if(xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME) == pdPASS) {
+
+//        send_command_packet(FSP_CMD_REQUEST_RF_MUTEX);  /**< send the mutex request command                         */
+//        vTaskDelayMs(TIME_TO_PROCESS_CMD);              /**< wait 2 seconds until beacon process the received data  */
+//        ack = receive_packet(&received_data, 1);        /**< receive the ACK/NACK                                   */
+
+        xSemaphoreGive(fsp_semaphore);
+    }
 
     return received_data;
 }

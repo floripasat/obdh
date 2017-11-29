@@ -40,7 +40,7 @@
 #include "task.h"
 #include "../driver/wdti.h"
 
-#define HOUSEKEEPING_TASK_PRIORITY          5          /**< Housekeeping task priority */
+#define HOUSEKEEPING_TASK_PRIORITY          7          /**< Housekeeping task priority */
 #define HOUSEKEEPING_TASK_PERIOD_MS         1000       /**< Housekeeping task period in miliseconds */
 #define HOUSEKEEPING_TASK_PERIOD_TICKS      ( HOUSEKEEPING_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< Housekeeping task period in ticks*/
 

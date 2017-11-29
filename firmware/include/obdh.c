@@ -54,8 +54,10 @@ void create_tasks( void ) {
     /**
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
      */
-    spi1_semaphore = xSemaphoreCreateMutex();
-    i2c0_semaphore = xSemaphoreCreateMutex();
+    spi1_semaphore   = xSemaphoreCreateMutex();
+    i2c0_semaphore   = xSemaphoreCreateMutex();
+    fsp_semaphore    = xSemaphoreCreateMutex();
+    flash_semaphore  = xSemaphoreCreateMutex();
 
     /**
      * Create each task: links with a routine, allocates the requested task
@@ -63,11 +65,11 @@ void create_tasks( void ) {
      */
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
     xTaskCreate( store_data_task, "StoreData", 8 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
-    xTaskCreate( communications_task, "Communications", 5 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
+//    xTaskCreate( communications_task, "Communications", 5 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
     xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
-    xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
+//    xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
     xTaskCreate( ttc_interface_task, "TT&C", 4 * configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
 //    xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
 #ifdef _DEBUG
@@ -91,7 +93,7 @@ void setup_hardware( void ) {
 
     taskDISABLE_INTERRUPTS();
 
-    gpio_init();
+    gpio_reset();
 
     /**
      *  Configure and reset the watchdog timers

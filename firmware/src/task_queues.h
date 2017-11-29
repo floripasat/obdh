@@ -50,7 +50,8 @@
 
 #define     I2C_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
 #define     SPI_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
-
+#define     FSP_SEMAPHORE_WAIT_TIME                 (200 / portTICK_PERIOD_MS)
+#define     FLASH_SEMAPHORE_WAIT_TIME               (portMAX_DELAY)
 
 volatile xQueueHandle system_status_queue;
 volatile xQueueHandle imu_queue;
@@ -70,5 +71,7 @@ volatile xQueueHandle status_eps_queue, status_payload1_queue, status_payload2_q
 
 volatile xSemaphoreHandle i2c0_semaphore;
 volatile xSemaphoreHandle spi1_semaphore;
+volatile xSemaphoreHandle fsp_semaphore;
+volatile xSemaphoreHandle flash_semaphore;
 
 #endif /* SRC_TASK_QUEUES_H_ */

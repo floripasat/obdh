@@ -102,8 +102,8 @@ beacon_packet_t ttc_copy_data(void){
 
 
     /**< Reset counter */
-    beacon_packet.reset_counter[0] = satellite_data.system_status[0];
-    beacon_packet.reset_counter[1] = satellite_data.system_status[1];
+    beacon_packet.reset_counter[0] = satellite_data.system_status[1];
+    beacon_packet.reset_counter[1] = satellite_data.system_status[2];
 
     return beacon_packet;
 }
@@ -120,24 +120,35 @@ void send_command_packet(uint8_t command) {
     sspi_tx_multiple((uint8_t*) ttc_pkt_cmd, ttc_pkt_len);       /**< send the bytes */
 }
 
-uint8_t receive_packet(void) {
-    uint8_t response[FSP_PKT_MIN_LENGTH], i, fsp_status;
+uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
+    uint8_t response[FSP_PKT_MIN_LENGTH+1];
+    uint8_t fsp_status = 0;
+    uint8_t ack_received = TTC_NACK;
+    uint8_t i = 0;
     FSPPacket fsp_packet;
-    uint8_t received_packet = FSP_PKT_WITHOUT_ACK;
 
-    sspi_rx_multiple(response, sizeof(response));
+    sspi_rx_multiple(response, FSP_PKT_MIN_LENGTH + payload_len);
 
+    fsp_reset();
     do {
         fsp_status = fsp_decode(response[i++], &fsp_packet);
     } while(fsp_status == FSP_PKT_NOT_READY);
 
     if(fsp_status == FSP_PKT_READY) {
         if(fsp_packet.type == FSP_PKT_TYPE_ACK) {
-            received_packet = FSP_PKT_WITH_ACK;
+            ack_received = TTC_ACK;
+
+            for(i = 0; i < fsp_packet.length; i++) {
+                received_packet[i] = fsp_packet.payload[i];
+            }
+        }
+        if(fsp_packet.type == FSP_PKT_TYPE_NACK) {
+            ack_received = TTC_NACK;
         }
     }
 
-    return received_packet;
+    return ack_received;
+
 }
 
 void send_data_packet(void) {

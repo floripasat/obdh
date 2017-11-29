@@ -41,7 +41,7 @@
     #include "math.h"
 #endif
 
-#define IMU_INTERFACE_TASK_PRIORITY          5          /**< IMU task priority */
+#define IMU_INTERFACE_TASK_PRIORITY          4          /**< IMU task priority */
 #define IMU_INTERFACE_TASK_PERIOD_MS         500        /**< IMU task period in miliseconds */
 #define IMU_INTERFACE_TASK_PERIOD_TICKS      ( IMU_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< IMU task period in ticks */
 

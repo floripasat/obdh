@@ -51,8 +51,7 @@ void housekeeping_task( void *pvParameters ) {
 
     last_wake_time = xTaskGetTickCount();
 
-    while(1)
-    {
+    while(1) {
         /* Periodic reset */
         current_time = xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ;
         if (current_time >= PERIODIC_RESET_TIME) {
@@ -124,10 +123,13 @@ void housekeeping_task( void *pvParameters ) {
         current_seconds =  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
 
         if( current_seconds == 0 && flag_updated_time == 0) {/**< if 1 minute has passed     */
+            xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME); /**< protect the flash from mutual access */
             update_time_counter();                           /**< update the minutes counter */
+            xSemaphoreGive(flash_semaphore);
             flag_updated_time = 1;
         }
-        else {                                               /**< to prevent counting twice the same minute (if the task period was less than 1s */
+        /**< to prevent counting twice the same minute (if the task period was less than 1s */
+        else {
             flag_updated_time = 0;
         }
 
@@ -136,7 +138,9 @@ void housekeeping_task( void *pvParameters ) {
         if(current_mode  == SHUTDOWN_MODE) {
             time_state_last_change = read_time_state_changed();
             if( system_time - time_state_last_change >= (MINUTES_IN_A_DAY)  ) {
+                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);/**< protect the flash from mutual access */
                 update_operation_mode(NORMAL_OPERATION_MODE);
+                xSemaphoreGive(flash_semaphore);
             }
         }
 

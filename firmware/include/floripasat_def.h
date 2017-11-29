@@ -183,9 +183,7 @@ typedef struct {
 #define TTC     0x04
 #define SD      0x05
 
-
-#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
-
+//#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"

@@ -53,12 +53,6 @@ telecommand_t decode_telecommand(uint8_t *raw_package);
 request_data_packet_t  decode_request_data_telecommand(uint8_t *raw_package);
 
 /**
- * \fn shutdown
- * \brief This function may shutdown all the transmissions for 24 hours.
- */
-void shutdown();
-
-/**
  * \fn calculate_read_position
  * \brief This function reads the non-volatile memory pointers and, according the request packet calculates the read position
  * \param rqst_data_packet is the packet with the information about what are the requested packets

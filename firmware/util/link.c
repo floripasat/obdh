@@ -93,8 +93,3 @@ uint32_t calculate_read_position(request_data_packet_t rqst_data_packet) {
     return read_position;
 }
 
-
-void shutdown() {
-//TODO: shutdown all the transmissions (Tx).
-
-}

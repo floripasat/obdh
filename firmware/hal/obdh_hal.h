@@ -116,7 +116,7 @@
 /**
  * Initializes all pins as inputs
  */
-#define gpio_init() {               \
+#define gpio_reset() {               \
                         P1DIR = 0;  \
                         P2DIR = 0;  \
                         P3DIR = 0;  \

@@ -68,7 +68,7 @@ void send_command_packet(uint8_t command);
 beacon_packet_t ttc_copy_data(void);
 
 
-uint8_t receive_packet(void);
+uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len);
 
 
 

@@ -73,10 +73,11 @@
 #define FSP_ACK_RF_MUTEX_FREE           1
 #define FSP_ACK_RF_MUTEX_BUSY           2
 
-// Max. lengths
-#define FSP_PKT_MAX_LENGTH              256
+// Min. and Max. lengths
+#define FSP_PKT_MIN_LENGTH              7
+#define FSP_PKT_MAX_LENGTH              255
 #define FSP_PAYLOAD_MAX_LENGTH          248
-#define FSP_PKT_MIN_LENGTH              8
+
 
 // CRC16 initial value (or seed byte)
 #define FSP_CRC16_INITIAL_VALUE         0
