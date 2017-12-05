@@ -69,14 +69,14 @@ void i2c_setup(uint8_t interface) {
         i2c_set_clock(USCI_B0_BASE);
         i2c_set_slave(USCI_B0_BASE, EPS_I2C_SLAVE_ADRESS);
         port_mapping_ucb0();
-        i2c_set_mode(USCI_B2_BASE, TRANSMIT_MODE);
+        i2c_set_mode(USCI_B0_BASE, TRANSMIT_MODE);
         break;
     case 1:
         i2c_pin_reset(&I2C1_REN, &I2C1_DIR, &I2C1_OUT, I2C1_SCL);
         BIT_SET(I2C1_SEL, I2C1_SDA | I2C1_SCL);
         i2c_set_clock(USCI_B1_BASE);
         i2c_set_slave(USCI_B1_BASE, IMU0_I2C_SLAVE_ADRESS);
-        i2c_set_mode(USCI_B2_BASE, TRANSMIT_MODE);
+        i2c_set_mode(USCI_B1_BASE, TRANSMIT_MODE);
         break;
     case 2:
         i2c_pin_reset(&I2C2_REN, &I2C2_DIR, &I2C2_OUT, I2C2_SCL);
