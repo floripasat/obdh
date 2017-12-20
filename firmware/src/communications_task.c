@@ -45,6 +45,7 @@ uint16_t try_to_receive(uint8_t *data);
 void send_requested_data(uint8_t *raw_package);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
+void answer_ping(telecommand_t telecommand);
 
 
 void communications_task( void *pvParameters ) {
@@ -53,6 +54,7 @@ void communications_task( void *pvParameters ) {
     uint16_t current_turn = 0, turns_to_wait;
     uint8_t data[128];
     telecommand_t received_telecommand;
+    uint8_t operation_mode;
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
@@ -68,7 +70,7 @@ void communications_task( void *pvParameters ) {
     while(1) {
 
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) == sizeof(telecommand_t)) {
+        if(try_to_receive(data) > 7) {
             received_telecommand = decode_telecommand(data);
 
             if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
@@ -78,32 +80,40 @@ void communications_task( void *pvParameters ) {
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
                 enter_in_shutdown();
             }
+
+            if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
+//                request_antenna_mutex();
+                answer_ping(received_telecommand);
+            }
         }
 
-        energy_level = read_current_energy_level();
+        operation_mode = read_current_operation_mode();
+        if(operation_mode == NORMAL_OPERATION_MODE){
 
-        switch (energy_level) {
-        case ENERGY_L1_MODE:
-        case ENERGY_L2_MODE:
-            turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
-            break;
+            energy_level = read_current_energy_level();
 
-        case ENERGY_L3_MODE:
-            turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
-            break;
+            switch (energy_level) {
+            case ENERGY_L1_MODE:
+            case ENERGY_L2_MODE:
+                turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+                break;
 
-        case ENERGY_L4_MODE:
-        default:
-            turns_to_wait = 0xFFFF;
+            case ENERGY_L3_MODE:
+                turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+                break;
+
+            case ENERGY_L4_MODE:
+            default:
+                turns_to_wait = 0xFFFF;
+            }
+
+            if(++current_turn > turns_to_wait) {
+                request_antenna_mutex();
+                send_periodic_data();               /**< send the last readings of each data of the packet */
+
+                current_turn = 0;
+            }
         }
-
-        if(++current_turn > turns_to_wait) {
-            request_antenna_mutex();
-            send_periodic_data();               /**< send the last readings of each data of the packet */
-
-            current_turn = 0;
-        }
-
         vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
     }
 
@@ -124,6 +134,7 @@ void send_periodic_data(void) {
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
 }
 #endif
 
@@ -149,8 +160,9 @@ uint16_t try_to_receive(uint8_t *data) {
     uint8_t ngham_status = 0;
 
     if(rf4463_wait_nIRQ()) {            // verify if PACKET_RX interrupt was happened
-        rf4463_clear_interrupts();
+//        rf4463_clear_interrupts();
         rx_len = rf4463_rx_packet(rx_buf, PACKET_LENGTH);  // read rx data
+        rf4463_clear_interrupts();
 
         i = 0;
         do{
@@ -188,6 +200,24 @@ void send_requested_data(uint8_t *raw_package) {
             }
         }
     }
+}
+
+void answer_ping(telecommand_t telecommand) {
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t answer_msg[58] = PING_MSG;
+    uint8_t i;
+
+    for(i = 0; i < 6; i++) {
+        answer_msg[sizeof(PING_MSG)-1 + i] = telecommand.ID[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
 }
 
 void enter_in_shutdown(void) {

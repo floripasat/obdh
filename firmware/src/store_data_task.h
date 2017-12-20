@@ -42,7 +42,7 @@
 #include "../include/floripasat_def.h"
 
 
-#define STORE_DATA_TASK_PRIORITY          8             /**< Store data task priority */
+#define STORE_DATA_TASK_PRIORITY          5             /**< Store data task priority */
 #define STORE_DATA_TASK_PERIOD_MS         1000          /**< Store data task period in miliseconds */
 #define STORE_DATA_TASK_PERIOD_TICKS      ( STORE_DATA_TASK_PERIOD_MS / portTICK_PERIOD_MS )    /**< Store data task period in ticks */
 

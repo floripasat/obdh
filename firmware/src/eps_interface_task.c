@@ -49,9 +49,11 @@ void eps_interface_task( void *pvParameters ) {
 
             xSemaphoreGive( i2c0_semaphore );                                       /**< release the i2c mutex    */
 
-            xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);    /**< protect the flash from mutual access */
-            update_energy_level(eps_package.task_scheduler[0]);
-            xSemaphoreGive(flash_semaphore);
+            if(eps_package.task_scheduler[0] != read_current_energy_level()) {
+                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);    /**< protect the flash from mutual access */
+                update_energy_level(eps_package.task_scheduler[0]);
+                xSemaphoreGive(flash_semaphore);
+            }
 
             if(eps_status != EPS_OK) {
                 eps_status = 0;

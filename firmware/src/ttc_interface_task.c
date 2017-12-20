@@ -60,7 +60,7 @@ void ttc_interface_task( void *pvParameters ) {
 
                 vTaskSuspend(store_task_handle);                /**< stop the store task and, by consequence, the tasks that do readings */
 #ifdef _DEBUG
-                vTaskDelayMs(20000);                            /**< this delay is a shutdown simulation */
+                vTaskDelayMs(200000);                            /**< this delay is a shutdown simulation */
 #else
                 vTaskDelayMs(MILISECONDS_IN_A_DAY);             /**< wait 24 hours */
 #endif

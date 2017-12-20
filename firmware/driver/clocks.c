@@ -175,7 +175,7 @@ uint16_t set_v_core (uint8_t level)
 uint8_t clocks_setup(void){
     uint8_t test_flag;
     //TODO: Verify if it's necessary to set the Vcore
-//    set_v_core(OBDH_V_CORE);
+    set_v_core(OBDH_V_CORE);
     setup_dco();
     setup_xt1_xt2();
     setup_clk_sources();

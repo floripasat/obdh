@@ -185,6 +185,11 @@ typedef struct {
 
 //#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
+
+
+#define PING_MSG "Hello from FloripaSat, telecommand received from "
+
+
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"
 #define CLOCK_FAIL_MSG  " *CLOCKS SETUP FAIL* \n\n"

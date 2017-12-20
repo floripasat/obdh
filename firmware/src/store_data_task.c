@@ -31,6 +31,8 @@
 
 #include "store_data_task.h"
 
+#define     DATA_QUEUE_WAIT_TIME    ( 100 / portTICK_PERIOD_MS ) //100ms of wait time
+
 volatile uint32_t last_read_pointer, last_write_pointer;
 volatile uint32_t card_size;
 
@@ -88,31 +90,31 @@ data_packet_t read_and_pack_data( void ) {
     packet.package_flags = 0;
 
 
-    if(xQueueReceive(system_status_queue, (void *) packet.system_status, 0) == pdPASS) {
+    if(xQueueReceive(system_status_queue, (void *) packet.system_status, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= SYSTEM_STATUS_FLAG;
     }
 
-    if(xQueueReceive(imu_queue, (void *) packet.imu, 0) == pdPASS) {
+    if(xQueueReceive(imu_queue, (void *) packet.imu, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= IMU_FLAG;
     }
 
-    if(xQueueReceive(internal_sensors_queue, (void *) packet.msp_sensors, 0) == pdPASS) {
+    if(xQueueReceive(internal_sensors_queue, (void *) packet.msp_sensors, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= MSP_SENSORS_FLAG;
     }
 
-    if(xQueueReceive(system_time_queue, (void *) packet.systick, 0) == pdPASS) {
+    if(xQueueReceive(system_time_queue, (void *) packet.systick, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= SYSTICK_FLAG;
     }
 
-    if(xQueueReceive(solar_panels_queue, (void *) packet.solar_panels, 0) == pdPASS) {
+    if(xQueueReceive(solar_panels_queue, (void *) packet.solar_panels, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= SOLAR_PANELS_FLAG;
     }
 
-    if(xQueueReceive(transceiver_queue, (void *) packet.transceiver, 0) == pdPASS) {
+    if(xQueueReceive(transceiver_queue, (void *) packet.transceiver, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= TRANSCEIVER_FLAG;
     }
 
-    if(xQueueReceive(eps_queue, (void *) packet.adc_solar_panels, 0) == pdPASS) {
+    if(xQueueReceive(eps_queue, (void *) packet.adc_solar_panels, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= ADC_SOLAR_PANELS_FLAG;
         packet.package_flags |= MSP430_ADC_FLAG;
         packet.package_flags |= BATTERY_MONITOR_FLAG;
@@ -120,11 +122,11 @@ data_packet_t read_and_pack_data( void ) {
         packet.package_flags |= TASK_SCHEDULER_FLAG;
     }
 
-    if(xQueueReceive(payload1_queue, (void *) packet.payload1, 0) == pdPASS) {
+    if(xQueueReceive(payload1_queue, (void *) packet.payload1, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= PAYLOAD1_FLAG;
     }
 
-    if(xQueueReceive(payload2_queue, (void *) packet.payload2, 0) == pdPASS) {
+    if(xQueueReceive(payload2_queue, (void *) packet.payload2, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= PAYLOAD2_FLAG;
     }
 
