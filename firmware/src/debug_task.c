@@ -47,7 +47,7 @@ void debug_task( void *pvParameters ) {
 
     while(1) {
 
-#if _DEBUG_AS_LINK == 1
+#ifdef _DEBUG_AS_LINK
         uart_rx(cmd, sizeof(telecommand_t));
 
         telecommand = decode_telecommand((uint8_t*)cmd);

@@ -132,15 +132,20 @@ uint8_t read_current_state(void) {
 
 void update_energy_level(uint8_t new_energy_level) {
     uint8_t operation_mode;
+    uint8_t time_state_changed;
     uint8_t new_state;
 
     operation_mode = read_current_operation_mode();
     new_state = operation_mode | (new_energy_level & ENERGY_LEVEL_MASK);
+
+    time_state_changed = read_time_state_changed();
     flash_erase((uint32_t *)CURRENT_STATE_ADDR_FLASH);
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
+
+    flash_write_long(time_state_changed, TIME_STATE_CHANGED_ADDR_FLASH);
 }
 
-uint8_t read_time_state_changed(void) {
+uint32_t read_time_state_changed(void) {
     return flash_read_long(TIME_STATE_CHANGED_ADDR_FLASH);
 }
 

@@ -39,7 +39,7 @@
 #include "../interface/wdte.h"
 
 
-#define WDT_TASK_PRIORITY          5        /**< Watchdog timer task priority */
+#define WDT_TASK_PRIORITY          10        /**< Watchdog timer task priority */
 #define WDT_TASK_PERIOD_MS         500      /**< Watchdog timer task period in milliseconds */
 #define WDT_TASK_PERIOD_TICKS      ( WDT_TASK_PERIOD_MS / portTICK_PERIOD_MS ) /**< Watchdog timer task period in ticks */
 

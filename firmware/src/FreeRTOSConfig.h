@@ -97,7 +97,7 @@
 #define configCPU_CLOCK_HZ				( 16000000UL )
 #define configLFXT_CLOCK_HZ       		( 32768L )
 #define configTICK_RATE_HZ				( ( TickType_t ) 100 ) //the bigger, more overload
-#define configMAX_PRIORITIES			( 5 )
+#define configMAX_PRIORITIES			( 15 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 30 * 1024 ) )
 #define configMAX_TASK_NAME_LEN			( 20 )
 #define configUSE_TRACE_FACILITY		0

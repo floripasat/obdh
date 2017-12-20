@@ -37,6 +37,7 @@
 #include "task.h"
 #include "task_queues.h"
 #include "../interface/eps.h"
+#include "../include/msp_internal.h"
 
 /*
  * PRIORITY =   5

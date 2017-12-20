@@ -42,14 +42,26 @@ void eps_interface_task( void *pvParameters ) {
     while(1) {
         if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {  /**< try to get the mutex     */
 
-            eps_status = eps_read(&eps_package);
+            if(xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME) == pdPASS) {
+                eps_status = eps_read(&eps_package);
+                xSemaphoreGive(fsp_semaphore);
+            }
 
-            xSemaphoreGive( i2c0_semaphore );                                       /**< release the mutex        */
+            xSemaphoreGive( i2c0_semaphore );                                       /**< release the i2c mutex    */
 
+            if(eps_package.task_scheduler[0] != read_current_energy_level()) {
+                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);    /**< protect the flash from mutual access */
+                update_energy_level(eps_package.task_scheduler[0]);
+                xSemaphoreGive(flash_semaphore);
+            }
+
+            if(eps_status != EPS_OK) {
+                eps_status = 0;
+            }
             xQueueOverwrite(status_eps_queue, &eps_status);                         /**< send status (OK or NOK)  */
 
             if(eps_status == EPS_OK) {
-                xQueueSendToBack(eps_queue, &eps_package, portMAX_DELAY);           /**< send data through queue  */
+                xQueueSendToBack(eps_queue, &(eps_package.msp430), portMAX_DELAY);  /**< send data through queue  */
             }
         }
 

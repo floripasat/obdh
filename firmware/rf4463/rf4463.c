@@ -154,7 +154,7 @@ bool rf4463_tx_packet(uint8_t *data, uint8_t len)
     }
     
     // If the packet transmission takes longer than expected, resets the radio.
-    rf4463_init();
+//    rf4463_init();
     
     return false;
 }
@@ -213,6 +213,7 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
 
                     __delay_cycles(DELAY_100_uS_IN_CYCLES);
                 }
+                break;
             }
             else
             {
@@ -229,7 +230,7 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
     }
     
     // If the packet transmission takes longer than expected, resets the radio.
-    rf4463_init();
+//    rf4463_init();
     
     return false;
 }

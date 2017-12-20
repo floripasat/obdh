@@ -30,29 +30,113 @@
  */
 
 #include "communications_task.h"
+#ifdef _DEBUG_AS_LINK
+#include "../driver/uart.h"
+#endif
+
+#define ANTENNA_MUTEX_WAIT_TIME     (2000 / portTICK_RATE_MS)
 
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 #define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 
+void send_periodic_data(void);
+void send_data(uint8_t *data, int16_t data_len);
+uint16_t try_to_receive(uint8_t *data);
+void send_requested_data(uint8_t *raw_package);
+void enter_in_shutdown(void);
+void request_antenna_mutex(void);
+void answer_ping(telecommand_t telecommand);
+
+
+void communications_task( void *pvParameters ) {
+    TickType_t last_wake_time;
+    last_wake_time = xTaskGetTickCount();
+    uint16_t current_turn = 0, turns_to_wait;
+    uint8_t data[128];
+    telecommand_t received_telecommand;
+    uint8_t operation_mode;
+
+    uint8_t energy_level;
+    uint8_t radio_status = 0;
+
+    PA_ENABLE();
+    radio_status = rf4463_init();
+    if(radio_status == 1) {
+        rf4463_enter_standby_mode();
+        ngham_Init();
+        rf4463_rx_init();                   /**< start in receive mode */
+    }
+
+    while(1) {
+
+        /**< verify if some telecommand was received on radio */
+        if(try_to_receive(data) > 7) {
+            received_telecommand = decode_telecommand(data);
+
+            if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
+                send_requested_data(received_telecommand.arguments);
+            }
+
+            if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
+                enter_in_shutdown();
+            }
+
+            if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
+//                request_antenna_mutex();
+                answer_ping(received_telecommand);
+            }
+        }
+
+        operation_mode = read_current_operation_mode();
+        if(operation_mode == NORMAL_OPERATION_MODE){
+
+            energy_level = read_current_energy_level();
+
+            switch (energy_level) {
+            case ENERGY_L1_MODE:
+            case ENERGY_L2_MODE:
+                turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+                break;
+
+            case ENERGY_L3_MODE:
+                turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+                break;
+
+            case ENERGY_L4_MODE:
+            default:
+                turns_to_wait = 0xFFFF;
+            }
+
+            if(++current_turn > turns_to_wait) {
+                request_antenna_mutex();
+                send_periodic_data();               /**< send the last readings of each data of the packet */
+
+                current_turn = 0;
+            }
+        }
+        vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
+    }
+
+    vTaskDelete( NULL );
+}
+
+#ifdef _DEBUG_AS_LINK
+void send_periodic_data(void) {
+    uart_tx_bytes((char *)&satellite_data, sizeof(data_packet_t));  //send data via uart, for debug purpouse
+}
+#else
 void send_periodic_data(void) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 150);
+    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 220);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
-    taskENTER_CRITICAL();
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    taskEXIT_CRITICAL();
-
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data+150, sizeof(data_packet_t)-150);
-    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
-
-    taskENTER_CRITICAL();
-    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    taskEXIT_CRITICAL();
+    rf4463_rx_init();
 }
+#endif
 
 void send_data(uint8_t *data, int16_t data_len) {
     NGHam_TX_Packet ngham_packet;
@@ -63,9 +147,7 @@ void send_data(uint8_t *data, int16_t data_len) {
         ngham_TxPktGen(&ngham_packet, data, data_len);
         ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
-        taskENTER_CRITICAL();
         rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-        taskEXIT_CRITICAL();
 
 //        data_len -= 220;
 //    }
@@ -78,8 +160,9 @@ uint16_t try_to_receive(uint8_t *data) {
     uint8_t ngham_status = 0;
 
     if(rf4463_wait_nIRQ()) {            // verify if PACKET_RX interrupt was happened
-        rf4463_clear_interrupts();
+//        rf4463_clear_interrupts();
         rx_len = rf4463_rx_packet(rx_buf, PACKET_LENGTH);  // read rx data
+        rf4463_clear_interrupts();
 
         i = 0;
         do{
@@ -97,8 +180,6 @@ uint16_t try_to_receive(uint8_t *data) {
 
 void send_requested_data(uint8_t *raw_package) {
     request_data_packet_t rqt_packet;
-    uint8_t ttc_command  = 0;
-    uint8_t ttc_response = 0;
     uint32_t read_position;
     uint16_t package_size = 0;
     uint8_t to_send_package[266];
@@ -107,9 +188,6 @@ void send_requested_data(uint8_t *raw_package) {
     operation_mode = read_current_operation_mode();
     if(operation_mode == NORMAL_OPERATION_MODE){
         rqt_packet = decode_request_data_telecommand(raw_package);
-        ttc_command = TTC_CMD_TX_MUTEX_REQUEST;
-        xQueueOverwrite(ttc_queue, &ttc_command);                        /**< request to beacon a tx permission */
-        xQueueReceive(tx_queue, &ttc_response, 3000 / portTICK_RATE_MS); /**< wait until be answered with 3 seconds of timeout */
 
         read_position = calculate_read_position(rqt_packet);
 
@@ -117,76 +195,48 @@ void send_requested_data(uint8_t *raw_package) {
             package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
             if(package_size > 0) {
 
-                /**<TODO: request to beacon a tx permission */
-
+                request_antenna_mutex();
                 send_data(to_send_package, package_size);
             }
         }
     }
-    ttc_command = TTC_CMD_TX_MUTEX_RELEASE;
-    xQueueOverwrite(ttc_queue, &ttc_command);
 }
 
-void communications_task( void *pvParameters )
-{
-    TickType_t last_wake_time;
-    last_wake_time = xTaskGetTickCount();
-    uint16_t current_turn = 0, turns_to_wait;
-    uint8_t data[128];
-    telecommand_t received_telecommand;
+void answer_ping(telecommand_t telecommand) {
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t answer_msg[58] = PING_MSG;
+    uint8_t i;
+
+    for(i = 0; i < 6; i++) {
+        answer_msg[sizeof(PING_MSG)-1 + i] = telecommand.ID[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+}
+
+void enter_in_shutdown(void) {
     uint8_t ttc_command;
-    uint8_t energy_level;
-    uint8_t radio_status = 0;
 
-    PA_ENABLE();
-    radio_status = rf4463_init();
-    if(radio_status == 1) {
-        rf4463_enter_standby_mode();
-        ngham_Init();
-        rf4463_rx_init();                   /**< start in receive mode */
-    }
+    ttc_command = TTC_CMD_SHUTDOWN;
+    xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task      */
+    xSemaphoreTake(flash_semaphore,
+                   FLASH_SEMAPHORE_WAIT_TIME);  /**< protect the flash from mutual access               */
+    update_operation_mode(SHUTDOWN_MODE);       /**< update the current operation mode in the flash mem */
+    xSemaphoreGive(flash_semaphore);
+}
 
-    while(1) {
+void request_antenna_mutex(void) {
+    uint8_t ttc_command;
+    uint8_t ttc_response;
 
-        /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) == PACKET_LENGTH) {
-            received_telecommand = decode_telecommand(data);
-
-            if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
-                send_requested_data(received_telecommand.arguments);
-            }
-
-            if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
-                ttc_command = TTC_CMD_SHUTDOWN;
-                update_operation_mode(SHUTDOWN_MODE);
-                xQueueOverwrite(ttc_queue, &ttc_command);
-            }
-        }
-
-        energy_level = read_current_energy_level();
-
-        switch (energy_level) {
-        case ENERGY_L1_MODE:
-        case ENERGY_L2_MODE:
-            turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
-            break;
-
-        case ENERGY_L3_MODE:
-            turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
-            break;
-
-        case ENERGY_L4_MODE:
-        default:
-            turns_to_wait = 0xFFFF;
-        }
-
-        if(++current_turn > turns_to_wait) {
-            send_periodic_data();               /**< send the last readings of each data of the packet */
-            current_turn = 0;
-        }
-
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
-    }
-
-    vTaskDelete( NULL );
+    ttc_command = TTC_CMD_TX_MUTEX_REQUEST;
+    xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task     */
+    xQueueReceive(tx_queue, &ttc_response,
+                  ANTENNA_MUTEX_WAIT_TIME);     /**< wait 2 seconds or until be answered               */
 }

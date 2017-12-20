@@ -87,7 +87,7 @@ typedef struct {
     uint8_t msp_sensors        [6];
     uint8_t systick            [4];
     uint8_t solar_panels       [12];
-    uint8_t transceiver        [90];
+    uint8_t transceiver        [85];
     //eps
     uint8_t adc_solar_panels   [18];
     uint8_t msp430_adc         [8];
@@ -183,8 +183,11 @@ typedef struct {
 #define TTC     0x04
 #define SD      0x05
 
+//#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
-#define _DEBUG_AS_LINK  1               /**< to simulate the radio link through UART */
+
+
+#define PING_MSG "Hello from FloripaSat, telecommand received from "
 
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"

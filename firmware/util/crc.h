@@ -66,7 +66,7 @@ uint8_t crc8(uint8_t initial_value, uint8_t polynomial, uint8_t *data, uint8_t l
  * 
  * \return Returns the crc16 value of the data.
  */
-uint16_t crc16_CCITT(uint16_t initial_value, uint8_t* data, uint8_t size);
+//uint16_t crc16_CCITT(uint16_t initial_value, uint8_t* data, uint8_t size);
 
 #endif // CRC_H_
 

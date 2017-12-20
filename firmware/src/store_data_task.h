@@ -46,7 +46,12 @@
 #define STORE_DATA_TASK_PERIOD_MS         1000          /**< Store data task period in miliseconds */
 #define STORE_DATA_TASK_PERIOD_TICKS      ( STORE_DATA_TASK_PERIOD_MS / portTICK_PERIOD_MS )    /**< Store data task period in ticks */
 
-#define FIRST_DATA_SECTOR   512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
+#define SECTOR_SIZE                       512
+#define MEMORY_CHECK_OPERATION_SIZE       128000000
+#define STORE_LAST_WRITE_SECTOR           2
+#define STORE_LAST_READ_SECTOR            (STORE_LAST_WRITE_SECTOR + 1)
+#define FIRST_DATA_SECTOR                 512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
+
 
 /**
  * \var static xTaskHandle store_data_task_handle
@@ -86,9 +91,9 @@ void store_data_on_flash( data_packet_t *packet );
  */
 uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read_sector);
 
-uint32_t get_last_read_pointer();
+uint32_t get_last_read_pointer(void);
 
-uint32_t get_last_write_pointer();
+uint32_t get_last_write_pointer(void);
 
 void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size);
 

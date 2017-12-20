@@ -38,13 +38,16 @@
 #include "FreeRTOS.h"
 #include "task_queues.h"
 #include "task.h"
+#include "../driver/wdti.h"
 
 #define HOUSEKEEPING_TASK_PRIORITY          5          /**< Housekeeping task priority */
 #define HOUSEKEEPING_TASK_PERIOD_MS         1000       /**< Housekeeping task period in miliseconds */
 #define HOUSEKEEPING_TASK_PERIOD_TICKS      ( HOUSEKEEPING_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< Housekeeping task period in ticks*/
 
 
-#define MINUTES_IN_A_DAY    1440 /**< 24 hours * 60 minutes = 1440 minutes */
+#define MINUTES_IN_A_DAY    1440    /**< 24 hours * 60 minutes = 1440 minutes */
+#define PERIODIC_RESET_TIME 43200   /**< 12 hours * 60 minutes * 60 seconds = 43200 minutes */
+
 /**
  * \var static xTaskHandle housekeeping_task_handle
  * \brief variable which holds the task reference, to allow it handling

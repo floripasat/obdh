@@ -195,7 +195,7 @@ void update_energy_level(uint8_t new_energy_level);
  * \param None
  * \return A unsigned 32-bit minutes counter
  */
-uint8_t read_time_state_changed(void);
+uint32_t read_time_state_changed(void);
 
 /**
  * \fn update_operation_mode(uint8_t new_operation_mode)

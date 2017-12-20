@@ -43,14 +43,21 @@ void housekeeping_task( void *pvParameters ) {
     uint8_t system_status[6];
     uint32_t reset_value;
     uint8_t temp_status_flags, status_flags;
-    uint8_t seconds_counter = 0;
     uint8_t current_mode;
-    uint32_t time_now, time_state_last_change;
+    uint32_t system_time, time_state_last_change;
+    uint32_t current_time;
+    uint8_t current_seconds;
+    uint8_t flag_updated_time = 0;
 
     last_wake_time = xTaskGetTickCount();
 
-    while(1)
-    {
+    while(1) {
+        /* Periodic reset */
+        current_time = xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ;
+        if (current_time >= PERIODIC_RESET_TIME) {
+            system_reboot();
+        }
+
         /* read internal temperature */
         temperature_raw = obdh_temperature_read();
 
@@ -105,29 +112,47 @@ void housekeeping_task( void *pvParameters ) {
         }
 
         reset_value = read_reset_value();
-        system_status[0] = reset_value      & 0xFF;
+        system_status[0] = reset_value>>16  & 0xFF;
         system_status[1] = reset_value>>8   & 0xFF;
-        system_status[2] = reset_value>>16  & 0xFF;
-        system_status[3] = reset_value>>24  & 0xFF;
-        system_status[4] = read_fault_flags();
+        system_status[2] = reset_value      & 0xFF;
+        system_status[3] = reset_value>>24  & 0xFF;     /**< reset cause        */
+        system_status[4] = read_fault_flags();          /**< clock fault flags  */
         system_status[5] = status_flags;
 
-        if( ++seconds_counter >= (60000 / HOUSEKEEPING_TASK_PERIOD_MS) ) {
-            update_time_counter();
-            seconds_counter = 0;
+        current_mode = read_current_operation_mode();
+        current_seconds =  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
+
+        if( current_seconds == 0 && flag_updated_time == 0) {/**< if 1 minute has passed     */
+            xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME); /**< protect the flash from mutual access */
+            update_time_counter();                           /**< update the minutes counter */
+            xSemaphoreGive(flash_semaphore);
+            flag_updated_time = 1;
+        }
+        /**< to prevent counting twice the same minute (if the task period was less than 1s */
+        else {
+            flag_updated_time = 0;
         }
 
-        current_mode = read_current_operation_mode();
+        system_time = read_time_counter();
 
         if(current_mode  == SHUTDOWN_MODE) {
-            time_now = read_time_counter();
             time_state_last_change = read_time_state_changed();
-            if( time_now - time_state_last_change >= (MINUTES_IN_A_DAY)  ) {
+            if( system_time - time_state_last_change >= (MINUTES_IN_A_DAY)  ) {
+                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);/**< protect the flash from mutual access */
                 update_operation_mode(NORMAL_OPERATION_MODE);
+                xSemaphoreGive(flash_semaphore);
             }
         }
 
+                                                          /**< shift minutes to the 24 most significant bits */
+        system_time = (system_time<<24 & 0xFF000000) |    /**< to agree with the big-endian format           */
+                      (system_time<<8  & 0x00FF0000) |
+                      (system_time>>8  & 0x0000FF00) |
+                      current_seconds;                    /**< seconds stored in the LSB                     */
+
         xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
+
+        xQueueSendToBack(system_time_queue, (void *)&system_time, portMAX_DELAY);
 
         xQueueSendToBack(internal_sensors_queue, (void *)internal_sensors_data, portMAX_DELAY);
         vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
