@@ -172,7 +172,7 @@ void hibernate(void) {
             update_time_counter();
         }
 
-    } while (read_time_counter() < 45); /**< loop until reach 45 minutes */
+    } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); /**< loop until reach 45 minutes */
 
     stop_timer_b();                     /**< stop counting time over the timer B */
 }

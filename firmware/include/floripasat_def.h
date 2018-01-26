@@ -185,7 +185,7 @@ typedef struct {
 
 //#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
-
+#define MINUTES_BEFORE_DEPLOY_ANTENNAS  45
 
 #define PING_MSG "Hello from FloripaSat, telecommand received from "
 
