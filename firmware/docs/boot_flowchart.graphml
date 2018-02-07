@@ -17,9 +17,9 @@
     <node id="n0">
       <data key="d4"><![CDATA[setup_hardware_flowchart.graphml]]></data>
       <data key="d6">
-        <y:GenericNode configuration="com.yworks.flowchart.process">
+        <y:GenericNode configuration="com.yworks.flowchart.predefinedProcess">
           <y:Geometry height="68.0" width="206.0" x="725.0" y="298.6"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
+          <y:Fill color="#FF3333" color2="#FF3333" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="101.154296875" x="52.4228515625" y="25.015625">Setup Hardware<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
@@ -34,9 +34,9 @@
     <node id="n1">
       <data key="d4"><![CDATA[update_reset_flowchart.graphml]]></data>
       <data key="d6">
-        <y:GenericNode configuration="com.yworks.flowchart.process">
+        <y:GenericNode configuration="com.yworks.flowchart.predefinedProcess">
           <y:Geometry height="68.0" width="206.0" x="725.0" y="395.20000000000005"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
+          <y:Fill color="#EE5555" color2="#EE5555" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="node_width" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="33.9375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="206.0" x="0.0" y="17.03125">Update reset counter and reset cause</y:NodeLabel>
         </y:GenericNode>
@@ -45,9 +45,9 @@
     <node id="n2">
       <data key="d4"><![CDATA[restore_time_counter_flowchart.graphml]]></data>
       <data key="d6">
-        <y:GenericNode configuration="com.yworks.flowchart.process">
+        <y:GenericNode configuration="com.yworks.flowchart.predefinedProcess">
           <y:Geometry height="68.0" width="206.0" x="725.0" y="491.80000000000007"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
+          <y:Fill color="#CC7777" color2="#CC7777" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="154.755859375" x="25.6220703125" y="25.015625">Restore the time counter<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
@@ -60,13 +60,13 @@
       </data>
     </node>
     <node id="n3">
+      <data key="d4"><![CDATA[OBDH_flowchart.graphml]]></data>
       <data key="d6">
-        <y:GenericNode configuration="com.yworks.flowchart.start2">
-          <y:Geometry height="40.0" width="80.0" x="788.0" y="230.0"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
+        <y:GenericNode configuration="com.yworks.flowchart.terminator">
+          <y:Geometry height="40.0" width="105.0" x="775.5" y="588.4000000000001"/>
+          <y:Fill color="#FF0000" color2="#FF0000" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="38.0" y="18.0">
-            <y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="92.892578125" x="6.0537109375" y="11.015625">Return to Main<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -77,14 +77,13 @@
       </data>
     </node>
     <node id="n4">
-      <data key="d4"><![CDATA[OBDH_flowchart.graphml]]></data>
+      <data key="d5"/>
       <data key="d6">
-        <y:GenericNode configuration="com.yworks.flowchart.terminator">
-          <y:Geometry height="40.0" width="80.0" x="788.0" y="588.4000000000001"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
+        <y:GenericNode configuration="com.yworks.flowchart.start1">
+          <y:Geometry height="40.0" width="105.0" x="775.5" y="236.5"/>
+          <y:Fill color="#FF0000" color2="#FF0000" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="38.0" y="18.0">
-            <y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="64.75" x="20.125" y="11.015625">Start Boot<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -94,7 +93,7 @@
         </y:GenericNode>
       </data>
     </node>
-    <edge id="e0" source="n3" target="n0">
+    <edge id="e0" source="n0" target="n1">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -104,7 +103,7 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e1" source="n0" target="n1">
+    <edge id="e1" source="n1" target="n2">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -114,7 +113,7 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e2" source="n1" target="n2">
+    <edge id="e2" source="n2" target="n3">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -124,7 +123,8 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e3" source="n2" target="n4">
+    <edge id="e3" source="n4" target="n0">
+      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
