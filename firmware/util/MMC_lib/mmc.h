@@ -93,11 +93,11 @@ char mmcSetBlockLength (const unsigned long);
 
 // read a size Byte big block beginning at the address.
 char mmcReadBlock(const unsigned long address, const unsigned long count, unsigned char *pBuffer);
-#define mmcReadSector(sector, pBuffer) mmcReadBlock(sector*512ul, 512, pBuffer)
+#define mmcReadSector(sector, pBuffer) mmcReadBlock((sector)*512ul, 512, pBuffer)
 
 // write a 512 Byte big block beginning at the (aligned) address
 char mmcWriteBlock (const unsigned long address, const unsigned long count, unsigned char *pBuffer);
-#define mmcWriteSector(sector, pBuffer) mmcWriteBlock(sector*512ul, 512, pBuffer)
+#define mmcWriteSector(sector, pBuffer) mmcWriteBlock((sector)*512ul, 512, pBuffer)
 
 // Read Register arg1 with Length arg2 (into the buffer)
 char mmcReadRegister(const char, const unsigned char, unsigned char *pBuffer);
