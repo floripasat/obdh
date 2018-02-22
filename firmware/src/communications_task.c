@@ -69,21 +69,24 @@ void communications_task( void *pvParameters ) {
 
     while(1) {
 
+        operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
         if(try_to_receive(data) > 7) {
             received_telecommand = decode_telecommand(data);
-
-            if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
-                send_requested_data(received_telecommand.arguments);
-            }
 
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
                 enter_in_shutdown();
             }
 
-            if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
-//                request_antenna_mutex();
-                answer_ping(received_telecommand);
+            if(operation_mode == NORMAL_OPERATION_MODE){
+                if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
+                    send_requested_data(received_telecommand.arguments);
+                }
+
+                if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
+    //                request_antenna_mutex();
+                    answer_ping(received_telecommand);
+                }
             }
         }
 
@@ -183,21 +186,17 @@ void send_requested_data(uint8_t *raw_package) {
     uint32_t read_position;
     uint16_t package_size = 0;
     uint8_t to_send_package[266];
-    uint8_t operation_mode;
 
-    operation_mode = read_current_operation_mode();
-    if(operation_mode == NORMAL_OPERATION_MODE){
-        rqt_packet = decode_request_data_telecommand(raw_package);
+    rqt_packet = decode_request_data_telecommand(raw_package);
 
-        read_position = calculate_read_position(rqt_packet);
+    read_position = calculate_read_position(rqt_packet);
 
-        while(rqt_packet.packages_count-- > 0) {
-            package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
-            if(package_size > 0) {
+    while(rqt_packet.packages_count-- > 0) {
+        package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
+        if(package_size > 0) {
 
-                request_antenna_mutex();
-                send_data(to_send_package, package_size);
-            }
+            request_antenna_mutex();
+            send_data(to_send_package, package_size);
         }
     }
 }
