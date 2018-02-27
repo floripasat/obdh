@@ -88,20 +88,20 @@ void debug_task( void *pvParameters ) {
         uint32_t systick;
         switch(cmd[0]) {
         case 't':
-            temp_raw = (uint16_t)satellite_data.msp_sensors[0]<<8;
-            temp_raw += satellite_data.msp_sensors[1];
+            temp_raw = (uint16_t)satellite_data.obdh_misc[0]<<8;
+            temp_raw += satellite_data.obdh_misc[1];
             temperature = obdh_temperature_convert(temp_raw);
             sprintf(answer,"Temperature: %.2f C\n", temperature);
             break;
         case 'v':
-            voltage_raw = (uint16_t)satellite_data.msp_sensors[2]<<8;
-            voltage_raw += satellite_data.msp_sensors[3];
+            voltage_raw = (uint16_t)satellite_data.obdh_misc[2]<<8;
+            voltage_raw += satellite_data.obdh_misc[3];
             voltage = obdh_voltage_convert(voltage_raw);
             sprintf(answer,"Voltage: %.2f V\n", voltage);
             break;
         case 'c':
-            current_raw = (uint16_t)satellite_data.msp_sensors[4]<<8;
-            current_raw += satellite_data.msp_sensors[5];
+            current_raw = (uint16_t)satellite_data.obdh_misc[4]<<8;
+            current_raw += satellite_data.obdh_misc[5];
             current = obdh_current_convert(current_raw);
             sprintf(answer,"Current: %.4f A\n", current);
             break;

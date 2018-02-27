@@ -46,10 +46,10 @@
  *  EPS FRAME
  */
 typedef struct {
-    uint8_t msp430[26];
+    uint8_t eps_misc[26];
     uint8_t battery_monitor[21];
-    uint8_t ads1248[21];
-    uint8_t task_scheduler[1];
+    uint8_t temperatures[21];
+    uint8_t energy_level[1];
 } eps_package_t;
 
 #define EPS_PACKAGE_LENGTH  sizeof(eps_package_t) + 7

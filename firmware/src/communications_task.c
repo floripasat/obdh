@@ -71,7 +71,7 @@ void communications_task( void *pvParameters ) {
 
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) > 7) {
+        if(try_to_receive(data) > sizeof(telecommand_t)) {
             received_telecommand = decode_telecommand(data);
 
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
@@ -125,7 +125,7 @@ void communications_task( void *pvParameters ) {
 
 #ifdef _DEBUG_AS_LINK
 void send_periodic_data(void) {
-    uart_tx_bytes((char *)&satellite_data, sizeof(data_packet_t));  //send data via uart, for debug purpouse
+    uart_tx_bytes((char *)&satellite_data, sizeof(data_packet_t));  //send data via uart, for debug purpose
 }
 #else
 void send_periodic_data(void) {

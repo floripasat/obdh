@@ -43,15 +43,15 @@
  */
 #define  SYSTEM_STATUS_FLAG         BIT0
 #define  IMU_FLAG                   BIT1
-#define  MSP_SENSORS_FLAG           BIT2
-#define  SYSTICK_FLAG               BIT3
-#define  SOLAR_PANELS_FLAG          BIT4
-#define  TRANSCEIVER_FLAG           BIT5
+#define  OBDH_MISC_FLAG             BIT2
+#define  OBDH_UPTIME_FLAG           BIT3
+#define  SOLAR_PANELS_SENSORS_FLAG  BIT4
+#define  MAIN_RADIO_FLAG            BIT5
 
-#define  ADC_SOLAR_PANELS_FLAG      BIT6
-#define  MSP430_ADC_FLAG            BIT7
+#define  SOLAR_PANELS_FLAG          BIT6
+#define  EPS_MISC_FLAG              BIT7
 #define  BATTERY_MONITOR_FLAG       BIT8
-#define  ADS1248_FLAG               BIT9
+#define  TEMPERATURES_FLAG          BIT9
 #define  TASK_SCHEDULER_FLAG        BITA
 
 #define  PAYLOAD1_FLAG              BITB
@@ -82,29 +82,31 @@ typedef struct {
 typedef struct {
     uint16_t package_flags;
     //obdh
-    uint8_t system_status      [6];
-    uint8_t imu                [24];
-    uint8_t msp_sensors        [6];
-    uint8_t systick            [4];
-    uint8_t solar_panels       [12];
-    uint8_t transceiver        [85];
+    uint8_t obdh_status             [6];
+    uint8_t imu                     [24];
+    uint8_t obdh_misc               [6];
+    uint8_t obdh_uptime             [4];
+    uint8_t solar_panels_sensors    [12];
+    uint8_t main_radio              [19];
     //eps
-    uint8_t adc_solar_panels   [18];
-    uint8_t msp430_adc         [8];
-    uint8_t battery_monitor    [21];
-    uint8_t ads1248            [21];
-    uint8_t task_scheduler     [1];
+    uint8_t solar_panels            [18];
+    uint8_t eps_misc                [8];
+    uint8_t battery_monitor         [21];
+    uint8_t temperatures            [21];
+    uint8_t energy_level            [1];
     //payloads
-    uint8_t payload1           [7];
-    uint8_t payload2           [100]; 
+    uint8_t payload1                [40];
+    uint8_t payload2                [7];
 } data_packet_t;
+
+
 
 typedef struct {
     uint8_t batteries[12];          /**< bat_1_voltage[2], bat_2_voltage[2], bat_1_temp[3], bat_2_temp[3], bat_charge[2] */
     uint8_t solar_panels[18];       /**< sp_1_volt[2], sp_2_volt[2], sp_3_volt[2], sp_1_cur[2], sp_2_cur[2], sp_3_cur[2], sp_4_cur[2], sp_5_cur[2], sp_6_cur[2] */
     uint8_t satellite_status[2];    /**< energy_mode,  */
     uint8_t imu[12];                /**< accel_0_x[1], accel_0_y[1], accel_0_z[1], gyr_0_x[1], gyr_0_y[1], gyr_0_z[1], accel_1_x[1], accel_1_y[1], accel_1_z[1], gyr_1_x[1], gyr_1_y[1], gyr_1_z[1] */
-    uint8_t system_time[4];         /**< time, in minutes, since deploy */
+    uint8_t obdh_uptime[4];         /**< time, in minutes, since deploy */
     uint8_t reset_counter[2];       /**< increment each time a reset happens */
 } beacon_packet_t;
 

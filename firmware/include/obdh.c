@@ -34,12 +34,12 @@ void create_tasks( void ) {
     /**
      * Create queues to communicate between tasks
      */
-    system_status_queue     = xQueueCreate( 5, sizeof( satellite_data.system_status ) );
+    obdh_status_queue       = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
     imu_queue               = xQueueCreate( 5, sizeof( satellite_data.imu ) );
-    internal_sensors_queue  = xQueueCreate( 5, sizeof( satellite_data.msp_sensors ) );
-    system_time_queue       = xQueueCreate( 5, sizeof( satellite_data.systick ) );
-    solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels ) );
-    transceiver_queue       = xQueueCreate( 5, sizeof( satellite_data.transceiver ) );
+    obdh_misc_queue         = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
+    obdh_uptime_queue       = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
+    solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
+    main_radio_queue        = xQueueCreate( 5, sizeof( satellite_data.main_radio ) );
     eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
     ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
     tx_queue                = xQueueCreate( 1, sizeof( uint8_t ) );
