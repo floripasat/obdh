@@ -8,6 +8,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./flash.obj" \
 "./i2c.obj" \
 "./imu.obj" \
 "./main.obj" \
@@ -154,8 +155,8 @@ Magnetometer_modificated.18.12.17.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "i2c.obj" "imu.obj" "main.obj" 
-	-$(RM) "i2c.d" "imu.d" "main.d" 
+	-$(RM) "flash.obj" "i2c.obj" "imu.obj" "main.obj" 
+	-$(RM) "flash.d" "i2c.d" "imu.d" "main.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
