@@ -71,7 +71,7 @@ void communications_task( void *pvParameters ) {
 
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) > sizeof(telecommand_t)) {
+        if(try_to_receive(data) > 7) {
             received_telecommand = decode_telecommand(data);
 
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
@@ -133,7 +133,15 @@ void send_periodic_data(void) {
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 220);
+
+   /*
+    *  This flag aware the GS to ignore the other flags, since the content
+    *  of the frame is the whole data, and may disagree with the indication
+    *  provided by the bit-flags.
+    */
+    satellite_data.package_flags |= WHOLE_ORBIT_DATA_FLAG;
+
+    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, sizeof(satellite_data));
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
@@ -185,16 +193,24 @@ void send_requested_data(uint8_t *raw_package) {
     request_data_packet_t rqt_packet;
     uint32_t read_position;
     uint16_t package_size = 0;
-    uint8_t to_send_package[266];
+    uint8_t to_send_package[220];
 
     rqt_packet = decode_request_data_telecommand(raw_package);
 
     read_position = calculate_read_position(rqt_packet);
 
+    if(rqt_packet.packages_count-- > 0)             /**< first packet to be sent -> send all fields of a frame */
+    {
+        package_size = get_packet(to_send_package, ALL_FLAGS, read_position++);
+        if(package_size > 0) {
+            request_antenna_mutex();
+            send_data(to_send_package, package_size);
+        }
+    }
+
     while(rqt_packet.packages_count-- > 0) {
         package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
         if(package_size > 0) {
-
             request_antenna_mutex();
             send_data(to_send_package, package_size);
         }

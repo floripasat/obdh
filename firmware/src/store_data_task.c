@@ -204,6 +204,7 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     data_packet_t *p_data_packet;
     uint16_t flags = 0x00;
 
+
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
         mmcReadSector(read_sector, (unsigned char *) flash_package);
         update_last_read_position(read_sector);
@@ -213,7 +214,12 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
 
     p_data_packet = (data_packet_t*)flash_package;
 
-    flags = rqst_flags & p_data_packet->package_flags;
+    if(has_flag(WHOLE_ORBIT_DATA_FLAG, rqst_flags)) {
+        flags = ALL_FLAGS;
+    }
+    else {
+        flags = rqst_flags & p_data_packet->package_flags;
+    }
 
     pack_module_data( 1 , 1, (uint8_t*) &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
     pack_module_data(flags, SYSTEM_STATUS_FLAG,  p_data_packet->obdh_status, sizeof(p_data_packet->obdh_status), to_send_packet, &package_size);

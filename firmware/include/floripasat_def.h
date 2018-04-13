@@ -56,6 +56,16 @@
 
 #define  PAYLOAD1_FLAG              BITB
 #define  PAYLOAD2_FLAG              BITC
+
+/*
+    *  This flag aware the GS to ignore the other flags, since the content
+    *  of the frame is the whole data, and may disagree with the indication
+    *  provided by the bit-flags.
+    */
+#define  WHOLE_ORBIT_DATA_FLAG      BITF
+
+#define  ALL_FLAGS                  0xFFFF
+
 //! \} End of flags
 
 /**
