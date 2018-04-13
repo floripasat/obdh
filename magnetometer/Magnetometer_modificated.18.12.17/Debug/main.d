@@ -16,6 +16,7 @@ main.obj: /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/stdbool.
 main.obj: /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/math.h
 main.obj: /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/linkage.h
 main.obj: /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/_defs.h
+main.obj: ../flash.h
 
 ../main.c: 
 /opt/ti/ccsv7/ccs_base/msp430/include/msp430.h: 
@@ -33,3 +34,4 @@ main.obj: /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/_defs.h
 /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/math.h: 
 /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/linkage.h: 
 /opt/ti/ccsv7/tools/compiler/ti-cgt-msp430_16.9.4.LTS/include/_defs.h: 
+../flash.h: 
