@@ -1,4 +1,4 @@
-/*
+    /*
  * flash.h
  *
  * Copyright (C) 2017, Universidade Federal de Santa Catarina
@@ -53,9 +53,23 @@
 #define BANK1_ADDR      0x028000
 #define BANK2_ADDR      0x048000
 #define BANK3_ADDR      0x068000
+
 //128 B info segments
 #define SEGD_ADDR       0x001800
 #define SEGC_ADDR       0x001880
+
+#define CAL_X_ACCEL_ADDR_FLASH   (SEGC_ADDR)
+#define CAL_Y_ACCEL_ADDR_FLASH   (SEGC_ADDR + 4)
+#define CAL_Z_ACCEL_ADDR_FLASH   (SEGC_ADDR + 8)
+
+#define CAL_X_GYR_ADDR_FLASH     (SEGC_ADDR + 12)
+#define CAL_Y_GYR_ADDR_FLASH     (SEGC_ADDR + 16)
+#define CAL_Z_GYR_ADDR_FLASH     (SEGC_ADDR + 20)
+
+#define CAL_X_MAG_ADDR_FLASH     (SEGC_ADDR + 24)
+#define CAL_Y_MAG_ADDR_FLASH     (SEGC_ADDR + 28)
+#define CAL_Z_MAG_ADDR_FLASH     (SEGC_ADDR + 32)
+
 #define SEGB_ADDR       0x001900
 #define SEGA_ADDR       0x001980
 //512 B bootstrap segments
