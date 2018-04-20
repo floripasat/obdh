@@ -300,20 +300,21 @@ void calibration_magnetometer(float *mag_max, float *mag_min, uint8_t *calibrati
     }
 
 
-    mag_offset[0] = (float)((mag_max[0] + mag_min[0])/2.); //average x mag bias in counts of magnetometer
-    mag_offset[1] = (float)((mag_max[1] + mag_min[1])/2.); //average y mag bias in counts of magnetometer
-    mag_offset[2] = (float)((mag_max[2] + mag_min[2])/2.); //average z mag bias in counts of magnetometer
+    mag_offset[0] = (float)((mag_max[0] + mag_min[0])/2.0); //average x mag bias in counts of magnetometer
+    mag_offset[1] = (float)((mag_max[1] + mag_min[1])/2.0); //average y mag bias in counts of magnetometer
+    mag_offset[2] = (float)((mag_max[2] + mag_min[2])/2.0); //average z mag bias in counts of magnetometer
 
-    flash_write_float( mag_offset[0], CAL_X_MAG_ADDR_FLASH);
-    flash_write_float( mag_offset[1], CAL_Y_MAG_ADDR_FLASH);
-    flash_write_float( mag_offset[2], CAL_Z_MAG_ADDR_FLASH);
+//    flash_erase(SEGC_ADDR);               //erase if will calibrate magnetometer, accelerometer and gyroscope.
+    flash_write_float (mag_offset[0], CAL_X_MAG_ADDR_FLASH);
+    flash_write_float (mag_offset[1], CAL_Y_MAG_ADDR_FLASH);
+    flash_write_float (mag_offset[2], CAL_Z_MAG_ADDR_FLASH);
 }
 
 void calibration_accelerometer(uint8_t *calibration_accelerometer_mode)
 {
     float sensors_buffer[7];
     float Xcal[6], Ycal[6], Zcal[6], Temp, Xgyr[6], Ygyr[6], Zgyr[6];
-    float X_ACC_CAL, Y_ACC_CAL, Z_ACC_CAL;
+    float x_acc_calib, y_acc_calib, z_acc_calib;
     uint8_t i = 0;
     uint8_t n = 50.0;
     float S_x, S_y, S_z;
@@ -338,12 +339,12 @@ void calibration_accelerometer(uint8_t *calibration_accelerometer_mode)
             Zgyr[k] = sensors_buffer[6] /n;   //average to 50 times
         }
 
-        X_ACC_CAL = (Xcal[0] + Xcal[1] + Xcal[2] + Xcal[3])/4;
-        Y_ACC_CAL = (Ycal[0] + Ycal[1] + Ycal[4] + Ycal[5])/4;
-        Z_ACC_CAL = (Zcal[2] + Zcal[3] + Zcal[4] + Zcal[5])/4;
-        flash_write_float(X_ACC_CAL, CAL_X_ACCEL_ADDR_FLASH);
-        flash_write_float(Y_ACC_CAL, CAL_Y_ACCEL_ADDR_FLASH);
-        flash_write_float(Z_ACC_CAL, CAL_Z_ACCEL_ADDR_FLASH);
+        x_acc_calib = (Xcal[0] + Xcal[1] + Xcal[2] + Xcal[3])/4;
+        y_acc_calib = (Ycal[0] + Ycal[1] + Ycal[4] + Ycal[5])/4;
+        z_acc_calib = (Zcal[2] + Zcal[3] + Zcal[4] + Zcal[5])/4;
+        flash_write_float(x_acc_calib, CAL_X_ACCEL_ADDR_FLASH);
+        flash_write_float(y_acc_calib, CAL_Y_ACCEL_ADDR_FLASH);
+        flash_write_float(z_acc_calib, CAL_Z_ACCEL_ADDR_FLASH);
 
         S_x = (Xcal[4] + Xcal[5]) /2;
         S_y = (Xcal[2] + Xcal[3]) /2;
