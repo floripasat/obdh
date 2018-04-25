@@ -89,6 +89,7 @@ data_packet_t read_and_pack_data( void ) {
     packet = satellite_data;
     packet.package_flags = 0;
 
+    xQueueReceive(obdh_uptime_queue, (void *) packet.obdh_uptime, DATA_QUEUE_WAIT_TIME);
 
     if(xQueueReceive(obdh_status_queue, (void *) packet.obdh_status, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= SYSTEM_STATUS_FLAG;
@@ -100,10 +101,6 @@ data_packet_t read_and_pack_data( void ) {
 
     if(xQueueReceive(obdh_misc_queue, (void *) packet.obdh_misc, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= OBDH_MISC_FLAG;
-    }
-
-    if(xQueueReceive(obdh_uptime_queue, (void *) packet.obdh_uptime, DATA_QUEUE_WAIT_TIME) == pdPASS) {
-        packet.package_flags |= OBDH_UPTIME_FLAG;
     }
 
     if(xQueueReceive(solar_panels_queue, (void *) packet.solar_panels_sensors, DATA_QUEUE_WAIT_TIME) == pdPASS) {
@@ -222,10 +219,10 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     }
 
     pack_module_data( 1 , 1, (uint8_t*) &p_data_packet->package_flags, sizeof(p_data_packet->package_flags), to_send_packet, &package_size);
+    pack_module_data( 1 , 1,  p_data_packet->obdh_uptime, sizeof(p_data_packet->obdh_uptime), to_send_packet, &package_size);
     pack_module_data(flags, SYSTEM_STATUS_FLAG,  p_data_packet->obdh_status, sizeof(p_data_packet->obdh_status), to_send_packet, &package_size);
     pack_module_data(flags, IMU_FLAG,  p_data_packet->imu, sizeof(p_data_packet->imu), to_send_packet, &package_size);
     pack_module_data(flags, OBDH_MISC_FLAG,  p_data_packet->obdh_misc, sizeof(p_data_packet->obdh_misc), to_send_packet, &package_size);
-    pack_module_data(flags, OBDH_UPTIME_FLAG,  p_data_packet->obdh_uptime, sizeof(p_data_packet->obdh_uptime), to_send_packet, &package_size);
     pack_module_data(flags, SOLAR_PANELS_SENSORS_FLAG,  p_data_packet->solar_panels_sensors, sizeof(p_data_packet->solar_panels_sensors), to_send_packet, &package_size);
     pack_module_data(flags, MAIN_RADIO_FLAG,  p_data_packet->main_radio, sizeof(p_data_packet->main_radio), to_send_packet, &package_size);
     pack_module_data(flags, SOLAR_PANELS_FLAG,  p_data_packet->solar_panels, sizeof(p_data_packet->solar_panels), to_send_packet, &package_size);

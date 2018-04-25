@@ -44,18 +44,17 @@
 #define  SYSTEM_STATUS_FLAG         BIT0
 #define  IMU_FLAG                   BIT1
 #define  OBDH_MISC_FLAG             BIT2
-#define  OBDH_UPTIME_FLAG           BIT3
-#define  SOLAR_PANELS_SENSORS_FLAG  BIT4
-#define  MAIN_RADIO_FLAG            BIT5
+#define  SOLAR_PANELS_SENSORS_FLAG  BIT3
+#define  MAIN_RADIO_FLAG            BIT4
 
-#define  SOLAR_PANELS_FLAG          BIT6
-#define  EPS_MISC_FLAG              BIT7
-#define  BATTERY_MONITOR_FLAG       BIT8
-#define  TEMPERATURES_FLAG          BIT9
-#define  TASK_SCHEDULER_FLAG        BITA
+#define  SOLAR_PANELS_FLAG          BIT5
+#define  EPS_MISC_FLAG              BIT6
+#define  BATTERY_MONITOR_FLAG       BIT7
+#define  TEMPERATURES_FLAG          BIT8
+#define  TASK_SCHEDULER_FLAG        BIT9
 
-#define  PAYLOAD1_FLAG              BITB
-#define  PAYLOAD2_FLAG              BITC
+#define  PAYLOAD1_FLAG              BITA
+#define  PAYLOAD2_FLAG              BITB
 
 /*
     *  This flag aware the GS to ignore the other flags, since the content
