@@ -35,40 +35,41 @@ void payload1_setup(void) {
 
 }
 
-uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes) {
-    uint8_t payload1_status = PAYLOAD1_POWER_ON;
+uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes) {  
+    uint8_t payload1_status = PAYLOAD1_POWER_ON;      //set status to payload alive
 
-    i2c_set_slave(PAYLOAD1_BASE_ADDRESS, PAYLOAD1_I2C_SLAVE_ADDRESS);
+    i2c_set_slave(PAYLOAD1_BASE_ADDRESS, PAYLOAD1_I2C_SLAVE_ADDRESS); //set to base adress the slave adress of RUSH (0x29)
 
-    i2c_set_mode(PAYLOAD1_BASE_ADDRESS, TRANSMIT_MODE);
+    i2c_set_mode(PAYLOAD1_BASE_ADDRESS, TRANSMIT_MODE);   //change to Transmit Mode
 
-    if(i2c_send_burst(PAYLOAD1_BASE_ADDRESS, (uint8_t *) &address, 4, NO_STOP) == I2C_FAIL) {
-        payload1_status = PAYLOAD1_COMM_ERROR;
+    if(i2c_send_burst(PAYLOAD1_BASE_ADDRESS, (uint8_t *) &address, 4, NO_STOP) == I2C_FAIL) {  //< try to send a register address //
+        payload1_status = PAYLOAD1_COMM_ERROR;  //set error case the communication between OBDH and Payload 1 fails
     }
 
-    i2c_set_mode(PAYLOAD1_BASE_ADDRESS, RECEIVE_MODE);
+    i2c_set_mode(PAYLOAD1_BASE_ADDRESS, RECEIVE_MODE); //change to Receive Mode
 
-    if(i2c_receive_burst(PAYLOAD1_BASE_ADDRESS, data, bytes, START_STOP) == I2C_FAIL) {
-        payload1_status = PAYLOAD1_COMM_ERROR;
+    
+    if(i2c_receive_burst(PAYLOAD1_BASE_ADDRESS, data, bytes, START_STOP) == I2C_FAIL) { // try to read from the register address of Payload1
+        payload1_status = PAYLOAD1_COMM_ERROR;      //set error case the communication between OBDH and Payload 1 fails
     }
 
-    return payload1_status;
+    return payload1_status;  //return status of Payload = PAYLOAD1_POWER_ON or PAYLOAD1_COMM_ERROR
 }
 
-uint8_t payload1_write(uint8_t* data, uint32_t address, uint8_t bytes) {
-    uint8_t payload1_status = PAYLOAD1_POWER_ON;
+uint8_t payload1_write(uint8_t* data, uint32_t address, uint8_t bytes) {  //write on adrres
+    uint8_t payload1_status = PAYLOAD1_POWER_ON;    //set status of Payload to Power On
 
-    i2c_set_slave(PAYLOAD1_BASE_ADDRESS, PAYLOAD1_I2C_SLAVE_ADDRESS);
+    i2c_set_slave(PAYLOAD1_BASE_ADDRESS, PAYLOAD1_I2C_SLAVE_ADDRESS);   //set to base adress the slave adress of RUSH (0x29)
 
-    i2c_set_mode(PAYLOAD1_BASE_ADDRESS, TRANSMIT_MODE);
+    i2c_set_mode(PAYLOAD1_BASE_ADDRESS, TRANSMIT_MODE);    //change to Transmit Mode
 
-    if(i2c_send_burst(PAYLOAD1_BASE_ADDRESS, (uint8_t *) &address, 4, NO_STOP) == I2C_FAIL) {
-        payload1_status = PAYLOAD1_COMM_ERROR;
+    if(i2c_send_burst(PAYLOAD1_BASE_ADDRESS, (uint8_t *) &address, 4, NO_STOP) == I2C_FAIL) {    // try to send a register address //
+        payload1_status = PAYLOAD1_COMM_ERROR;  //set error case the communication between OBDH and Payload 1 fails
     }
 
-    if(i2c_send_burst(PAYLOAD1_BASE_ADDRESS, data, bytes, NO_START) == I2C_FAIL) {
-        payload1_status = PAYLOAD1_COMM_ERROR;
+    if(i2c_send_burst(PAYLOAD1_BASE_ADDRESS, data, bytes, NO_START) == I2C_FAIL) {  // try to read from the register address of Payload1
+        payload1_status = PAYLOAD1_COMM_ERROR;  //set error case the communication between OBDH and Payload 1 fails
     }
 
-    return payload1_status;
+    return payload1_status; //return status of Payload = PAYLOAD1_POWER_ON or PAYLOAD1_COMM_ERROR
 }
