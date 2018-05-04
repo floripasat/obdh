@@ -47,6 +47,7 @@ int main(void)
 
            calibration_magnetometer(mag_max, mag_min, NO);
            calibration_accelerometer(NO);
+           calibration_gyroscope(YES);
 
 
            mag_x_calib_read =  flash_read_float(CAL_X_MAG_ADDR_FLASH);

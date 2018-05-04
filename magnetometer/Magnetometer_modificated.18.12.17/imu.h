@@ -186,6 +186,7 @@ void read_magnetometer (int16_t *mag_temp) ;
 void read_accel_gyr(float *mag_temp2);
 void calibration_magnetometer(float *mag_max, float *mag_min, uint8_t *calibration_magnetometer_mode);
 void calibration_accelerometer(uint8_t *calibration_accelerometer_mode);
+void calibration_gyroscope(uint8_t *calibration_gyroscope_mode);
 void average(float *sen_buff_temp, uint8_t *times);
 void imu_offset_accel    (uint8_t *p_imu_data);
 void imu_offset_gyro    (uint8_t *p_imu_data);
