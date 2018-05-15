@@ -77,7 +77,12 @@ void store_data_task( void *pvParameters ) {
             xSemaphoreGive(spi1_semaphore);
         }
 
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, STORE_DATA_TASK_PERIOD_TICKS );
+        if ( (last_wake_time + STORE_DATA_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, STORE_DATA_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );

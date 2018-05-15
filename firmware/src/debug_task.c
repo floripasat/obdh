@@ -115,8 +115,12 @@ void debug_task( void *pvParameters ) {
         uart_tx(answer);
 
 #endif
-
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, DEBUG_TASK_PERIOD_TICKS );
+        if ( (last_wake_time + DEBUG_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, DEBUG_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );

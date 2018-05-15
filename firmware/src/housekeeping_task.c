@@ -155,7 +155,13 @@ void housekeeping_task( void *pvParameters ) {
         xQueueSendToBack(obdh_uptime_queue, (void *)&system_time, portMAX_DELAY);
 
         xQueueSendToBack(obdh_misc_queue, (void *)internal_sensors_data, portMAX_DELAY);
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
+
+        if ( (last_wake_time + HOUSEKEEPING_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );

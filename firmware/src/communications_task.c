@@ -117,7 +117,13 @@ void communications_task( void *pvParameters ) {
                 current_turn = 0;
             }
         }
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
+
+        if ( (last_wake_time + COMMUNICATIONS_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );
