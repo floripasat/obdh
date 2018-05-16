@@ -46,6 +46,7 @@ void send_requested_data(uint8_t *raw_package);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
+void send_reset_charge_command(void);
 
 
 void communications_task( void *pvParameters ) {
@@ -76,6 +77,9 @@ void communications_task( void *pvParameters ) {
 
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
                 enter_in_shutdown();
+            }
+            if(received_telecommand.request_action == REQUEST_CHARGE_RESET_TELECOMMAND) {
+                send_reset_charge_command();
             }
 
             if(operation_mode == NORMAL_OPERATION_MODE){
@@ -250,6 +254,12 @@ void enter_in_shutdown(void) {
                    FLASH_SEMAPHORE_WAIT_TIME);  /**< protect the flash from mutual access               */
     update_operation_mode(SHUTDOWN_MODE);       /**< update the current operation mode in the flash mem */
     xSemaphoreGive(flash_semaphore);
+}
+
+void send_reset_charge_command(void) {
+    uint8_t eps_command;
+    eps_command = EPS_CHARGE_RESET_CMD;
+    xQueueOverwrite(eps_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
 }
 
 void request_antenna_mutex(void) {
