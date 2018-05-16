@@ -145,12 +145,12 @@ bool rf4463_tx_packet(uint8_t *data, uint8_t len)
     
     while(tx_timer--)
     {
-        if (rf4463_wait_nIRQ())         // Wait packet sent interruption
+        if (rf4463_wait_packet_sent())         // Wait packet sent interruption
         {
             return true;
         }
 
-        __delay_cycles(DELAY_1_MS_IN_CYCLES);
+        __delay_cycles(DELAY_100_uS_IN_CYCLES);
     }
     
     // If the packet transmission takes longer than expected, resets the radio.
@@ -206,7 +206,7 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
                 
                 while(tx_timer--)
                 {
-                    if (rf4463_wait_nIRQ())         // Wait packet sent interruption
+                    if (rf4463_wait_packet_sent())         // Wait packet sent interruption
                     {
                         return true;
                     }
@@ -490,8 +490,9 @@ bool rf4463_clear_interrupts()
     buffer[0] = 0x00;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
+    buffer[3] = 0x00;
     
-    return rf4463_set_cmd(RF4463_CMD_GET_INT_STATUS, buffer, 3);
+    return rf4463_set_cmd(RF4463_CMD_GET_INT_STATUS, buffer, 4);
 }
 
 void rf4463_write_tx_fifo(uint8_t *data, uint8_t len)
@@ -568,6 +569,21 @@ bool rf4463_wait_nIRQ()
     else
     {
         return true;
+    }
+}
+
+bool rf4463_wait_packet_sent() {
+    uint8_t interrupt_status[5];
+    rf4463_get_cmd(RF4463_CMD_GET_INT_STATUS, interrupt_status, 5);
+
+    if (interrupt_status[4] & 0x20)
+    {
+        rf4463_clear_interrupts();
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
