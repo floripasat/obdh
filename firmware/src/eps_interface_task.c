@@ -38,22 +38,20 @@ void eps_interface_task( void *pvParameters ) {
     uint8_t eps_status;
     uint8_t cmd_to_send = 0;
     uint8_t cmd_reset_charge = 0;
+    uint8_t send_attempts = 3;
 
     eps_setup();
 
     while(1) {
-        if(xQueueReceive(eps_charge_queue, (void *) &cmd_to_send, 100) == pdPASS) {
-            if(cmd_to_send == EPS_CHARGE_RESET_CMD) {               /**< if it is a charge reset cmd */
-                cmd_reset_charge = 1;
-            }
-        }
 
         if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {  /**< try to get the mutex     */
-
             if(xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME) == pdPASS) {
                 eps_status = eps_read(&eps_package);
-                if (cmd_reset_charge) {
-                    send_command_charge_reset();
+
+                if(xQueueReceive(eps_charge_queue, (void *) &cmd_to_send, 0) == pdPASS) {
+                    if(cmd_to_send == EPS_CHARGE_RESET_CMD) {               /**< if it is a charge reset cmd */
+                        while( ( send_command_charge_reset() != EPS_ACK ) && ( send_attempts-- != 0 ) );
+                    }
                 }
                 xSemaphoreGive(fsp_semaphore);
             }

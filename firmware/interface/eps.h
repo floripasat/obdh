@@ -36,12 +36,14 @@
 #include "../include/floripasat_def.h"
 #include "../util/crc.h"
 
-#define EPS_REQUEST_DATA_CMD    0x0F      /**< An arbitrary value was choosen                                           */
+#define EPS_REQUEST_DATA_CMD    0x0F      /**< An arbitrary value was chosen                                           */
 #define EPS_CHARGE_RESET_CMD    0xC1      /**< Warn the EPS to enter in reset battery charge mode (arbitrary value too) */
 
 #define EPS_TIMEOUT_ERROR       0x00
 #define EPS_OK                  0x01
 #define EPS_CRC_ERROR           0x02
+#define EPS_ACK                 0x03
+#define EPS_NACK                0x04
 
 /*
  *  EPS FRAME
