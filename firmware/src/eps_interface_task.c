@@ -42,7 +42,7 @@ void eps_interface_task( void *pvParameters ) {
     eps_setup();
 
     while(1) {
-        if(xQueueReceive(eps_queue, (void *) &cmd_to_send, 100) == pdPASS) {
+        if(xQueueReceive(eps_charge_queue, (void *) &cmd_to_send, 100) == pdPASS) {
             if(cmd_to_send == EPS_CHARGE_RESET_CMD) {               /**< if it is a charge reset cmd */
                 cmd_reset_charge = 1;
             }

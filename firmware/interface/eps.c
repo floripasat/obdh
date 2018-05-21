@@ -93,10 +93,10 @@ uint8_t send_command_charge_reset(void) {
     uint8_t eps_status = EPS_OK;
 
     fsp_init(FSP_ADR_OBDH);
-    fsp_gen_cmd_pkt(FSP_CMD_RESET_CHARGE, FSP_ADR_EPS, FSP_PKT_WITH_ACK, &fsp_command);
+    fsp_gen_cmd_pkt(FSP_CMD_RESET_CHARGE, FSP_ADR_EPS, FSP_PKT_TYPE_CMD, &fsp_command);
     fsp_encode(&fsp_command, eps_pkt_cmd, &eps_pkt_len);
 
-    if(i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd,eps_pkt_len, NO_STOP)) {     /**< send the bytes */
+    if(i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd,eps_pkt_len, START_STOP) == I2C_FAIL) {     /**< send the bytes */
         eps_status = EPS_TIMEOUT_ERROR;
     }
 

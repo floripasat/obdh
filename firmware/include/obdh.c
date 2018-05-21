@@ -50,6 +50,7 @@ void create_tasks( void ) {
     status_payload2_queue   = xQueueCreate( 1, sizeof(uint8_t) );
     status_mem1_queue       = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue        = xQueueCreate( 1, sizeof(uint8_t) );
+    eps_charge_queue        = xQueueCreate( 1, sizeof(uint8_t) );
 
     /**
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)

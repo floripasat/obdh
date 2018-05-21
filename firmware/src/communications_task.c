@@ -259,7 +259,7 @@ void enter_in_shutdown(void) {
 void send_reset_charge_command(void) {
     uint8_t eps_command;
     eps_command = EPS_CHARGE_RESET_CMD;
-    xQueueOverwrite(eps_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
+    xQueueOverwrite(eps_charge_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
 }
 
 void request_antenna_mutex(void) {
