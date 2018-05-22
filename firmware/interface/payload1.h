@@ -62,7 +62,7 @@ void payload1_setup(void);
 uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes);
 
 /**
- * \fn payload1_read
+ * \fn payload1_write
  *
  * \brief Write a packet of data from payload
  * \param data is a pointer of the data to be written
