@@ -50,6 +50,8 @@
  */
 void payload1_setup(void);
 
+void payload1_power_enable(uint8_t);
+
 /**
  * \fn payload1_read
  *
@@ -71,4 +73,7 @@ uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes);
  * \return if the write was successful or failed
  */
 uint8_t payload1_write(uint8_t* data, uint32_t address, uint8_t bytes);
+
+
+
 #endif /* PAYLOAD1_INTERFACE_H_ */

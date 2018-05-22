@@ -38,11 +38,10 @@ void payload1_interface_task( void *pvParameters ) {
     uint8_t payload1_data[PAYLOAD1_DATA_LENGTH];
     uint8_t payload1_status = PAYLOAD1_POWER_OFF;
     uint8_t energy_level;
-    uint8_t test_data[PAYLOAD1_DATA_LENGTH] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; //just for tests purpose
+    //variables declaration
+
 
     while(1) {
-        //TODO: TASK ROUTINE
-
         if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    /**< try to get the mutex */
 
             energy_level = read_current_energy_level();
@@ -51,7 +50,7 @@ void payload1_interface_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
                 if(payload1_status == PAYLOAD1_POWER_OFF) {        /**< if mode is power_off, turn it on   */
                     payload1_status = PAYLOAD1_POWER_ON;
-                    /**< send power on command              */
+                    payload1_power_enable(1);
                 }
                 break;
 
@@ -61,16 +60,21 @@ void payload1_interface_task( void *pvParameters ) {
             default:
                 if(payload1_status != PAYLOAD1_POWER_OFF) {        /**< if mode is power_on, turn it off    */
                     payload1_status = PAYLOAD1_POWER_OFF;
-                    /**< send power off command              */
+                    payload1_power_enable(0);
 
                 }
                 break;
             }
 
             if(payload1_status == PAYLOAD1_POWER_ON) {
-    //            payload1_status = payload1_write(test_data, 0x00000005, 10);  //write 10 bytes starting on the address 5
 
-                payload1_status = payload1_read(payload1_data, 0x00000005, 2);  //read the temperature register (2 bytes)
+                payload1_experiment_prepare();
+
+                // Check scratch bits
+                // Check time
+                // FPGA overtemperature protection
+                // Check to see if there's new data to log
+                /* Prepair the system for periodic power offs */
 
                 xSemaphoreGive( i2c0_semaphore );                               //release the mutex
             }

@@ -32,8 +32,23 @@
 #include "payload1.h"
 
 void payload1_setup(void) {
-
+    //payload1_dir
 }
+
+void payload1_power_enable(uint8_t){
+    //set or clear payload_out
+    //give a delay of 500ms before continue
+    //take care of do a "turn off protocol"
+}
+
+void payload1_experiment_prepare(void) {
+    //write in REG_DEBUGEN -> DEBUGEN_DISABLE_KEY
+    //get OBDH current time and send to payload
+    //write in REG_STATUS -> STATUS_SCRATCH_1_MASK
+    //give a delay of 500ms before continue
+}
+
+
 
 uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes) {  
     uint8_t payload1_status = PAYLOAD1_POWER_ON;
