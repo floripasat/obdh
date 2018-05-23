@@ -251,35 +251,155 @@ void average(float *sen_buff_temp, uint8_t *times) {
     }
 }
 
-void calibration(float *mag_max, float *mag_min){
+void calibration_magnetometer(float *mag_max, float *mag_min, uint8_t *calibration_magnetometer_mode){
     uint8_t i = 0;
     uint8_t j;
     int16_t count = 50;
     uint8_t  asa_temp[3], ASA_X, ASA_Y, ASA_Z; //axix sensitivity adjustment value
     int16_t mag_temp[3];
-
+    float mag_offset[3];
+    uint8_t YES = 1, NO = 0;
+ 
     mag_setup(0); //0 for Fuse ROM mode
     mag_read_asa(asa_temp);
     ASA_X =  asa_temp[0]; //x- axix sensitivity adjustment value
     ASA_Y =  asa_temp[1]; //y- axix sensitivity adjustment value
     ASA_Z =  asa_temp[2]; //z- axix sensitivity adjustment value
-
+ 
     mag_setup(1); //1 for Fuse ROM mode for Continuous measurement mode 1
-    for (i=0; i< count; i++) // verification of the maximum and minimum values for calibration
+ 
+    if (calibration_magnetometer_mode == YES)    //Hard Iron Correction of Magnetometer
     {
-       read_magnetometer(mag_temp);
-        mag_temp[0]= mag_temp[0] * (((ASA_X-128)*0.5/128.) + 1);
-        mag_temp[1]= mag_temp[1] * (((ASA_Y-128)*0.5/128.) + 1);
-        mag_temp[2]= mag_temp[2] * (((ASA_Z-128)*0.5/128.) + 1);
-
-        for (j = 0; j<3; j++)
+        for (i=0; i< count; i++) // verification of the maximum and minimum values for calibration
         {
-            if (mag_temp[j] > mag_max[j])
-                mag_max[j]= mag_temp[j];
-            if (mag_temp[j] < mag_min[j])
-                mag_min[j]= mag_temp[j];
+            read_magnetometer(mag_temp);
+            mag_temp[0]= mag_temp[0] * (((ASA_X-128)*0.5/128.) + 1);
+            mag_temp[1]= mag_temp[1] * (((ASA_Y-128)*0.5/128.) + 1);
+            mag_temp[2]= mag_temp[2] * (((ASA_Z-128)*0.5/128.) + 1);
+ 
+            for (j = 0; j<3; j++)
+            {
+                if (mag_temp[j] > mag_max[j])
+                    mag_max[j]= mag_temp[j];
+                if (mag_temp[j] < mag_min[j])
+                    mag_min[j]= mag_temp[j];
+            }
+            __delay_cycles(200000); //frequencia = 1 Mhz; tempo = 100 ms; tempo total = 0.1*128= 12 s
         }
-        __delay_cycles(200000); //frequencia = 1 Mhz; tempo = 100 ms; tempo total = 0.1*128= 12 s
+    }
+     else
+    {
+        mag_max[0]  = 39.0;     //value measured with calibration
+        mag_min[0] =  -1.0;    //value measured with calibration
+        mag_max[1] =  37.0;  //value measured with calibration
+        mag_min[1] = -4;     //value measured with calibration
+        mag_max[2] =  24;    //value measured with calibration
+        mag_min[2] = -26.0;  //value measured with calibration
+    }
+ 
+ 
+    mag_offset[0] = (float)((mag_max[0] + mag_min[0])/2.0); //average x mag bias in counts of magnetometer
+    mag_offset[1] = (float)((mag_max[1] + mag_min[1])/2.0); //average y mag bias in counts of magnetometer
+    mag_offset[2] = (float)((mag_max[2] + mag_min[2])/2.0); //average z mag bias in counts of magnetometer
+ 
+//    flash_erase(SEGC_ADDR);               //erase if will calibrate magnetometer, accelerometer and gyroscope.
+    flash_write_float (mag_offset[0], CAL_X_MAG_ADDR_FLASH);
+    flash_write_float (mag_offset[1], CAL_Y_MAG_ADDR_FLASH);
+    flash_write_float (mag_offset[2], CAL_Z_MAG_ADDR_FLASH);
+}
+
+
+
+void calibration_accelerometer(uint8_t *calibration_accelerometer_mode)
+{
+    float sensors_buffer[7];
+    float Xcal[6], Ycal[6], Zcal[6], Temp, Xgyr[6], Ygyr[6], Zgyr[6];
+    float x_acc_calib, y_acc_calib, z_acc_calib;
+    uint8_t i = 0;
+    uint8_t n = 50.0;
+    float S_x, S_y, S_z;
+    uint8_t YES = 1, NO = 0;
+ 
+    if (calibration_accelerometer_mode == YES)
+    {
+        i = 0;
+        uint8_t k = 0;
+ 
+        for (k=0; k< 6; k++)   //calibration gyroscope and accelerometer (6 positions)
+            //1nd: Front; 2nd:Back ; 3nd: LL; 4nd: LR; 5nd: PU ; 6nd: PD.
+        {
+            average(sensors_buffer, 50);
+ 
+            Xcal[k] = sensors_buffer[0] /n; //average to 50 times and X current accelerometer
+            Ycal[k] = sensors_buffer[1] /n; //average to 50 times
+            Zcal[k] = sensors_buffer[2] /n;
+         }
+ 
+        x_acc_calib = (Xcal[0] + Xcal[1] + Xcal[2] + Xcal[3])/4;
+        y_acc_calib = (Ycal[0] + Ycal[1] + Ycal[4] + Ycal[5])/4;
+        z_acc_calib = (Zcal[2] + Zcal[3] + Zcal[4] + Zcal[5])/4;
+        flash_write_float(x_acc_calib, CAL_X_ACCEL_ADDR_FLASH);
+        flash_write_float(y_acc_calib, CAL_Y_ACCEL_ADDR_FLASH);
+        flash_write_float(z_acc_calib, CAL_Z_ACCEL_ADDR_FLASH);
+ 
+        S_x = (Xcal[4] + Xcal[5]) /2;
+        S_y = (Xcal[2] + Xcal[3]) /2;
+        S_z = (Xcal[0] + Xcal[1]) /2;
+    }
+ 
+}
+
+void calibration_gyroscope(uint8_t *calibration_gyroscope_mode){
+ 
+ 
+    float Xcal, Ycal, Zcal, Temp, Xgyr, Ygyr, Zgyr;
+    uint8_t YES = 1, NO = 0;
+    uint8_t m = 300,i= 0, j = 0, k =0, l=0;
+    float  gyroscope_measures_x[500], gyroscope_measures_y[500], gyroscope_measures_z[500];
+ 
+    float sensors[7];
+    float gyr_bias_x = 0, gyr_bias_y = 0,gyr_bias_z = 0;
+    float integrate_x, integrate_y, integrate_z;
+ 
+    if (calibration_gyroscope_mode == YES)
+    {
+        for (i = 0; i<m; i++)
+        {
+            read_accel_gyr(sensors);
+            gyroscope_measures_x[i] = sensors[4];
+            gyroscope_measures_y[i] = sensors[5];
+            gyroscope_measures_z[i] = sensors[6];
+            __delay_cycles(100000); //frequencia = 1 Mhz;
+        }
+ 
+        for (j = 0; j<75; j++)   //Averaging the first 3 seconds of data
+        {
+            gyr_bias_x = gyr_bias_x - gyroscope_measures_x[j];
+            gyr_bias_y = gyr_bias_y - gyroscope_measures_y[j];
+            gyr_bias_z = gyr_bias_z - gyroscope_measures_z[j];
+          }
+        gyr_bias_x = gyr_bias_x/75.0 ;
+        gyr_bias_y = gyr_bias_y/75.0 ;
+        gyr_bias_z = gyr_bias_z/75.0 ;
+
+        for (k = 0; k<m; i++)
+               {
+                   read_accel_gyr(sensors);
+                   gyroscope_measures_x[i] = gyroscope_measures_x[i] - gyr_bias_x;
+                   gyroscope_measures_y[i] = gyroscope_measures_y[i] - gyr_bias_y;
+                   gyroscope_measures_z[i] = gyroscope_measures_z[i] - gyr_bias_z;
+                   __delay_cycles(50000); //frequencia = 1 Mhz;
+               }
+ 
+        for (l = 100; l<225; l++)   //Integration of 4 to 9 seconds
+        {
+          integrate_x = integrate_x + gyroscope_measures_x[i];
+          integrate_y = integrate_y + gyroscope_measures_y[i];
+          integrate_z = integrate_z + gyroscope_measures_z[i];
+        }
+        integrate_x = integrate_x/125.0;
+        integrate_y = integrate_y/125.0;
+        integrate_z = integrate_z/125.0;
     }
 }
 
@@ -308,6 +428,3 @@ void read_offset_gyro (float *mag_temp3) {
     mag_temp3[1]          =  imu_gyr_raw_to_dps(buffer2[2], buffer2[3]);
     mag_temp3[2]          =  imu_gyr_raw_to_dps(buffer2[4], buffer2[5]);
 }
-
-
-

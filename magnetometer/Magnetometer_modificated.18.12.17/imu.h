@@ -19,7 +19,7 @@
  * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
+ 
  /**
  * \file imu.h
  *
@@ -28,23 +28,23 @@
  * \author Mario Baldini
  *
  */
-
+ 
 #ifndef INTERFACE_IMU_H_
 #define INTERFACE_IMU_H_
-
+ 
 #include "i2c.h"
 #include "obdh_hal.h"
-
+ 
 #define MPU9150_SELF_TEST_X        0x0D   /**< Read/Write */
 #define MPU9150_SELF_TEST_Y        0x0E   /**< Read/Write */
 #define MPU9150_SELF_TEST_Z        0x0F   /**< Read/Write */
-#define MPU9150_SELF_TEST_A        0x10   /**< Read       */
-#define MPU9150_XG_OFFSET_H        0x13   /**< Read       */
-#define MPU9150_XG_OFFSET_L        0x14   /**< Read       */
-#define MPU9150_YG_OFFSET_H        0x15   /**< Read       */
-#define MPU9150_YG_OFFSET_L        0x16   /**< Read       */
-#define MPU9150_ZG_OFFSET_H        0x17   /**< Read       */
-#define MPU9150_ZG_OFFSET_L        0x18   /**< Read       */
+#define MPU9150_SELF_TEST_A        0x10   /**< Read/Write */
+#define MPU9150_XG_OFFSET_H        0x13   /**< Read/Write */
+#define MPU9150_XG_OFFSET_L        0x14   /**< Read/Write */
+#define MPU9150_YG_OFFSET_H        0x15   /**< Read/Write */
+#define MPU9150_YG_OFFSET_L        0x16   /**< Read/Write */
+#define MPU9150_ZG_OFFSET_H        0x17   /**< Read/Write */
+#define MPU9150_ZG_OFFSET_L        0x18   /**< Read/Write */
 #define MPU9150_SMPLRT_DIV         0x19   /**< Read/Write */
 #define MPU9150_CONFIG             0x1A   /**< Read/Write */
 #define MPU9150_GYRO_CONFIG        0x1B   /**< Read/Write */
@@ -137,9 +137,9 @@
 #define MPU9150_YA_OFFSET_L        0x7B   /**< Read       */
 #define MPU9150_ZA_OFFSET_H        0x7D   /**< Read       */
 #define MPU9150_ZA_OFFSET_L        0x7E   /**< Read       */
-
-
-
+ 
+ 
+ 
 //MPU9150 Compass
 #define MPU9150_CMPS_XOUT_L        0x4A   /**< Read       */
 #define MPU9150_CMPS_XOUT_H        0x4B   /**< Read       */
@@ -147,19 +147,19 @@
 #define MPU9150_CMPS_YOUT_H        0x4D   /**< Read       */
 #define MPU9150_CMPS_ZOUT_L        0x4E   /**< Read       */
 #define MPU9150_CMPS_ZOUT_H        0x4F   /**< Read       */
-
-
+ 
+ 
 #define IMU_ACC_RANGE       16.0          /**< Accelerometer resolution */ /*131 LBS (degrees per second)*/
 #define IMU_GYR_RANGE       250.0         /**< Gyroscope resolution     */
 #define IMU_TEMP_RANGE      500.0         /**< Temperature resolution   */
 #define IMU_MAG_RANGE       4800.0        /**<Magnetometer resolution   */
 #define ROOM_TEMP_OFFSET    0.0
-
+ 
 #define IMU_NOT_WORKING     0
 #define IMU_WORKING         1
-
+ 
 #define IMU_WHO_AM_I_VALUE  0x71          /**< Default factory value    */
-
+ 
 /**
  * \fn imu_setup
  *
@@ -168,7 +168,7 @@
  * \return if communication with IMU is working or not
  */
 uint8_t imu_setup(void);
-
+ 
 /**
  * \fn imu_read
  *
@@ -178,13 +178,15 @@ uint8_t imu_setup(void);
 uint8_t imu_read(uint8_t *p_imu_data);
 void write_i2c(uint8_t reg, uint8_t value);
 void imu_offset_accel(uint8_t *p_imu_data);
-
+ 
 void mag_read(uint8_t *p_imu_data) ;
 void mag_setup(int8_t mode);
 void mag_read_asa(uint8_t *p_imu_data);
 void read_magnetometer (int16_t *mag_temp) ;
 void read_accel_gyr(float *mag_temp2);
-void calibration(float *mag_max, float *mag_min);
+void calibration_magnetometer(float *mag_max, float *mag_min, uint8_t *calibration_magnetometer_mode);
+void calibration_accelerometer(uint8_t *calibration_accelerometer_mode);
+void calibration_gyroscope(uint8_t *calibration_gyroscope_mode);
 void average(float *sen_buff_temp, uint8_t *times);
 void imu_offset_accel    (uint8_t *p_imu_data);
 void imu_offset_gyro    (uint8_t *p_imu_data);
@@ -192,14 +194,14 @@ void read_offset_accel (float *mag_temp3);
 void read_offset_gyro (float *mag_temp3);
 
 
-/**
+ /**
  * Macros to convert raw value into understandable values
  */
 #define imu_acc_raw_to_g(H, L)       (float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
 #define imu_gyr_raw_to_dps(H, L)     (float)  (((H << 8 | L) * IMU_GYR_RANGE) / 32768.0)
 #define imu_temp_raw_to_degrees(H, L) (float) ((((H << 8 | L) - ROOM_TEMP_OFFSET) / IMU_TEMP_RANGE) + 21)
 #define imu_mag(H, L) (float) (((H << 8 | L) * IMU_MAG_RANGE)/32768.0)
-
-
-
+ 
+ 
+ 
 #endif /* INTERFACE_IMU_H_ */
