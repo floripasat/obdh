@@ -33,6 +33,7 @@
 #define SRC_PAYLOAD1_INTERFACE_TASK_H_
 
 #include "../include/floripasat_def.h"
+#include "../include/msp_internal.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "task_queues.h"
@@ -58,5 +59,12 @@ static xTaskHandle payload1_interface_task_handle;
  * \param pvParameters Not used
  */
 void payload1_interface_task( void *pvParameters );
+
+/**
+ * \fn void payload1_delay( uint8_t time_ms )
+ * This causes a delay that leaves the microcontroller free
+ * \param time_ms time to delay in milliseconds
+ */
+void payload1_delay_ms( uint8_t time_ms );
 
 #endif /* SRC_PAYLOAD1_INTERFACE_TASK_H_ */

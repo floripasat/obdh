@@ -40,17 +40,52 @@
 #define PAYLOAD1_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
 #define PAYLOAD1_POWER_OFF      0x02    /**< value when payload is powered off                 */
 
+#define PAYLOAD_BOARD       0
+#define PAYLOAD_FPGA        1
+#define TURN_ON             1
+#define TURN_OFF            0
+
+#define REG_STATUS          (0x2000000)
+#define REG_HEALTH          (0x2000001)
+#define REG_LASTADDR        (0x2000004)
+#define REG_TIME            (0x2000008)
+#define REG_BUSCURRENT      (0x200000C)
+#define REG_FPGATEMP        (0x2000010)
+#define REG_DEBUGEN         (0x2000012)
+#define REG_INIT            (0x2000013)
+#define REG_HEARTBEAT       (0x2000014)
+
+#define DEBUGEN_ENABLE_KEY  0x55
+#define DEBUGEN_DISABLE_KEY 0xAA
+
+#define STATUS_POWER_MASK           (1 << 0)
+#define STATUS_CONFIGURED_MASK      (1 << 1)
+#define STATUS_CONFIGSELECT_MASK    (1 << 2)
+#define STATUS_SCRATCH_1_MASK       (1 << 6)
+#define STATUS_SCRATCH_2_MASK       (1 << 7)
+
 #define PAYLOAD1_DATA_LENGTH    100     /**< 100 bytes */
+
+
+extern void payload1_delay_ms( uint8_t time_ms );
 
 /**
  * \fn payload1_setup
  *
- * \brief Initialize the communication with payload
+ * \brief Initialize and configure the payload
  * \return None
  */
-void payload1_setup(void);
+void payload1_setup( void );
 
-void payload1_power_enable(uint8_t);
+/**
+ * \fn payload1_power_state
+ *
+ * \brief Turn on/off the payload board or fpga
+ * \param selector chose between the board or fpga
+ * \param new_power_state turn on or off
+ * \return None
+ */
+void payload1_power_state( uint8_t selector, uint8_t new_power_state );
 
 /**
  * \fn payload1_read
@@ -61,7 +96,7 @@ void payload1_power_enable(uint8_t);
  * \param bytes is the length, in bytes, of the read data
  * \return if the read was successful or failed
  */
-uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes);
+uint8_t payload1_read( uint8_t* data, uint32_t address, uint8_t bytes );
 
 /**
  * \fn payload1_write
@@ -72,8 +107,7 @@ uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes);
  * \param bytes is the length, in bytes, of the data to write
  * \return if the write was successful or failed
  */
-uint8_t payload1_write(uint8_t* data, uint32_t address, uint8_t bytes);
-
+uint8_t payload1_write( uint8_t* data, uint32_t address, uint8_t bytes );
 
 
 #endif /* PAYLOAD1_INTERFACE_H_ */

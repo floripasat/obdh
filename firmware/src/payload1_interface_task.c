@@ -50,7 +50,7 @@ void payload1_interface_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
                 if(payload1_status == PAYLOAD1_POWER_OFF) {        /**< if mode is power_off, turn it on   */
                     payload1_status = PAYLOAD1_POWER_ON;
-                    payload1_power_enable(1);
+                    payload1_power_state(PAYLOAD_BOARD, TURN_ON);
                 }
                 break;
 
@@ -60,7 +60,7 @@ void payload1_interface_task( void *pvParameters ) {
             default:
                 if(payload1_status != PAYLOAD1_POWER_OFF) {        /**< if mode is power_on, turn it off    */
                     payload1_status = PAYLOAD1_POWER_OFF;
-                    payload1_power_enable(0);
+                    payload1_power_state(PAYLOAD_BOARD, TURN_OFF);
 
                 }
                 break;
@@ -68,7 +68,7 @@ void payload1_interface_task( void *pvParameters ) {
 
             if(payload1_status == PAYLOAD1_POWER_ON) {
 
-                payload1_experiment_prepare();
+                //payload1_experiment_prepare();
 
                 // Check scratch bits
                 // Check time
@@ -95,4 +95,9 @@ void payload1_interface_task( void *pvParameters ) {
     }
 
     vTaskDelete( NULL );
+}
+
+
+void payload1_delay_ms(uint8_t time_ms) {
+    vTaskDelayMs(time_ms);
 }

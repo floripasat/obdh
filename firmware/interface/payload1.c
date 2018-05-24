@@ -32,13 +32,41 @@
 #include "payload1.h"
 
 void payload1_setup(void) {
-    //payload1_dir
+    /**< Set the enable payload pin as output */
+    BIT_SET(PAYLOAD_0_EN_DIR, PAYLOAD_0_EN_PIN);
 }
 
-void payload1_power_enable(uint8_t){
-    //set or clear payload_out
-    //give a delay of 500ms before continue
-    //take care of do a "turn off protocol"
+void payload1_power_state(uint8_t selector, uint8_t new_power_state) {
+    uint8_t payload_status;
+
+    if (selector == PAYLOAD_BOARD) {
+        if (new_power_state == TURN_ON) {
+            BIT_SET(PAYLOAD_0_EN_OUT, PAYLOAD_0_EN_PIN);
+        }
+        else {
+            BIT_CLEAR(PAYLOAD_0_EN_OUT, PAYLOAD_0_EN_PIN);
+        }
+    }
+
+    if (selector == PAYLOAD_FPGA) {
+        /**< Figure out the current state */
+        payload1_read(&payload_status, REG_STATUS, 1);
+
+        /**< Set/clear only the fpga power bit */
+        if (new_power_state == TURN_ON) {
+            BIT_SET(payload_status, STATUS_POWER_MASK);
+        }
+        else {
+            BIT_CLEAR(payload_status, STATUS_POWER_MASK);
+        }
+
+        /**< Send the new fpga power state */
+        payload1_read(&payload_status, REG_STATUS, 1);
+    }
+
+    payload1_delay_ms(500);
+
+    //TODO: take care of do a "turn off protocol"
 }
 
 void payload1_experiment_prepare(void) {
