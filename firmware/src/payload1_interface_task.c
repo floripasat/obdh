@@ -36,14 +36,15 @@ void payload1_experiment_log( void );
 uint8_t payload1_overtemperature_check( void );
 void payload1_delay_ms( uint8_t time_ms );
 
+uint8_t payload1_data[PAYLOAD1_DATA_LENGTH];
+uint32_t last_address_read = 0;
+
 void payload1_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
 
-    uint32_t last_address_read = 0;
     uint8_t last_address_update = 0;
     uint8_t energy_level;
-    uint8_t payload1_data[PAYLOAD1_DATA_LENGTH];
     uint8_t payload1_status = PAYLOAD1_POWER_OFF;
 
     while(1) {
@@ -74,7 +75,7 @@ void payload1_interface_task( void *pvParameters ) {
             if(payload1_status == PAYLOAD1_POWER_ON) {
                 if ( last_address_update ) {
                     payload1_experiment_prepare();
-                    payload1_experiment_run();
+                    payload1_experiment_log();
                 }
                 else {
                     /**< Set a start address to read */
@@ -173,3 +174,52 @@ uint8_t payload1_overtemperature_check( void ) {
 void payload1_delay_ms( uint8_t time_ms ) {
     vTaskDelayMs(time_ms);
 }
+
+/*
+ * Debug functions for integration
+
+uint8_t payload1_health_test( void ) {
+    uint8_t tx_byte;
+    uint32_t start_time;
+    uint8_t health_test_result;
+
+    // Start the health test
+    tx_byte = HEALTH_RUN_MASK;
+    payload1_write(&tx_byte, REG_HEALTH, 1);
+    start_time = xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ;
+
+    uint8_t i = 0;
+    while ( ( xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ ) < ( start_time + HEALTH_TIMEOUT ) || i++ < HEALTH_TIMEOUT) {
+        payload1_read(&health_test_result, REG_HEALTH, 1);
+        if (!(health_test_result & HEALTH_RUN_MASK)) {
+            return health_test_result;
+        }
+        payload1_delay_ms(1000);
+    }
+
+    // Timed out, try to stop test
+    tx_byte = 0;
+    payload1_write(&tx_byte, REG_HEALTH, 1);
+
+    return health_test_result;
+}
+
+uint16_t payload1_data_genetarion_test( void ) {
+    uint16_t data_generation, last_position, current_position;
+
+    payload1_read((uint8_t *)&last_position, REG_LASTADDR, 4);
+    __delay_cycles(DELAY_60_S_IN_CYCLES);
+    payload1_read((uint8_t *)&current_position, REG_LASTADDR, 4);
+
+    data_generation = current_position - last_position;
+
+    return data_generation;
+}
+
+*/
+
+
+
+
+
+

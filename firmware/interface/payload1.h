@@ -67,6 +67,13 @@
 #define STATUS_SCRATCH_1_MASK       (1 << 6)
 #define STATUS_SCRATCH_2_MASK       (1 << 7)
 
+#define HEALTH_RUN_MASK             (1 << 0)
+#define HEALTH_CONFIG_0_MASK        (1 << 1)
+#define HEALTH_CONFIG_1_MASK        (1 << 2)
+#define HEALTH_FLASH_MASK           (1 << 3)
+#define HEALTH_FLASHRUN_MASK        (1 << 4)
+
+#define HEALTH_TIMEOUT              30        /**< seconds */
 #define TEMPERATURE_HIGH_LIMIT      95
 #define TEMPERATURE_LOW_LIMIT       40
 #define MAX_BLOCKS_PER_HEARTBEAT    3
