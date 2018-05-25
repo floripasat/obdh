@@ -61,22 +61,13 @@ void payload1_power_state(uint8_t selector, uint8_t new_power_state) {
         }
 
         /**< Send the new fpga power state */
-        payload1_read(&payload_status, REG_STATUS, 1);
+        payload1_write(&payload_status, REG_STATUS, 1);
     }
 
     payload1_delay_ms(500);
 
     //TODO: take care of do a "turn off protocol"
 }
-
-void payload1_experiment_prepare(void) {
-    //write in REG_DEBUGEN -> DEBUGEN_DISABLE_KEY
-    //get OBDH current time and send to payload
-    //write in REG_STATUS -> STATUS_SCRATCH_1_MASK
-    //give a delay of 500ms before continue
-}
-
-
 
 uint8_t payload1_read(uint8_t* data, uint32_t address, uint8_t bytes) {  
     uint8_t payload1_status = PAYLOAD1_POWER_ON;

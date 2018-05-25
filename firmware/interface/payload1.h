@@ -40,6 +40,9 @@
 #define PAYLOAD1_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
 #define PAYLOAD1_POWER_OFF      0x02    /**< value when payload is powered off                 */
 
+#define PAYLOAD_NOT_OK      0
+#define PAYLOAD_OK          1
+
 #define PAYLOAD_BOARD       0
 #define PAYLOAD_FPGA        1
 #define TURN_ON             1
@@ -64,8 +67,11 @@
 #define STATUS_SCRATCH_1_MASK       (1 << 6)
 #define STATUS_SCRATCH_2_MASK       (1 << 7)
 
-#define PAYLOAD1_DATA_LENGTH    100     /**< 100 bytes */
-
+#define TEMPERATURE_HIGH_LIMIT      95
+#define TEMPERATURE_LOW_LIMIT       40
+#define MAX_BLOCKS_PER_HEARTBEAT    3
+#define BLOCK_SIZE                  32
+#define PAYLOAD1_DATA_LENGTH        ( MAX_BLOCKS_PER_HEARTBEAT * BLOCK_SIZE )       /**< in bytes */
 
 extern void payload1_delay_ms( uint8_t time_ms );
 

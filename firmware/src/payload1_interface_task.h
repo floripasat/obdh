@@ -62,7 +62,7 @@ void payload1_interface_task( void *pvParameters );
 
 /**
  * \fn void payload1_delay( uint8_t time_ms )
- * This causes a delay that leaves the microcontroller free
+ * This causes a delay that leaves the microcontroller free for other tasks run
  * \param time_ms time to delay in milliseconds
  */
 void payload1_delay_ms( uint8_t time_ms );
