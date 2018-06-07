@@ -33,11 +33,12 @@
 
 void payload1_setup(void) {
     /**< Set the enable payload pin as output */
+    BIT_CLEAR(PAYLOAD_0_EN_OUT, PAYLOAD_0_EN_PIN);
     BIT_SET(PAYLOAD_0_EN_DIR, PAYLOAD_0_EN_PIN);
 }
 
 void payload1_power_state(uint8_t selector, uint8_t new_power_state) {
-    uint8_t payload_status;
+    uint8_t payload_status = 0;
 
     if (selector == PAYLOAD_BOARD) {
         if (new_power_state == TURN_ON) {
@@ -59,6 +60,8 @@ void payload1_power_state(uint8_t selector, uint8_t new_power_state) {
         else {
             BIT_CLEAR(payload_status, STATUS_POWER_MASK);
         }
+
+        payload1_delay_ms(500);
 
         /**< Send the new fpga power state */
         payload1_write(&payload_status, REG_STATUS, 1);

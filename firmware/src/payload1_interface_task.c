@@ -35,9 +35,12 @@ void payload1_experiment_prepare( void );
 void payload1_experiment_log( void );
 uint8_t payload1_overtemperature_check( void );
 void payload1_delay_ms( uint8_t time_ms );
+uint8_t payload1_health_test( void );
+uint16_t payload1_data_generation_test( void );
 
 uint8_t payload1_data[PAYLOAD1_DATA_LENGTH];
 uint32_t last_address_read = 0;
+uint8_t counter = 0;
 
 void payload1_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -46,6 +49,9 @@ void payload1_interface_task( void *pvParameters ) {
     uint8_t last_address_update = 0;
     uint8_t energy_level;
     uint8_t payload1_status = PAYLOAD1_POWER_OFF;
+    uint16_t data_generated = 0;
+
+    payload1_setup();
 
     while(1) {
         if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    /**< try to get the mutex */
@@ -73,15 +79,19 @@ void payload1_interface_task( void *pvParameters ) {
             }
 
             if(payload1_status == PAYLOAD1_POWER_ON) {
-                if ( last_address_update ) {
-                    payload1_experiment_prepare();
-                    payload1_experiment_log();
-                }
-                else {
-                    /**< Set a start address to read */
-                    payload1_read((uint8_t *)&last_address_read, REG_LASTADDR, 4);
-                    last_address_update = 1;
-                }
+                //
+                //if ( last_address_update ) {
+                //    payload1_experiment_prepare();
+                //    payload1_experiment_log();
+                //}
+                //
+                //else {
+                //    /**< Set a start address to read */
+                //    payload1_read((uint8_t *)&last_address_read, REG_LASTADDR, 4);
+                //    last_address_update = 1;
+                //}
+
+                data_generated = payload1_data_generation_test();
 
 
                 xSemaphoreGive( i2c0_semaphore );                  /**< release the mutex                   */
@@ -175,13 +185,10 @@ void payload1_delay_ms( uint8_t time_ms ) {
     vTaskDelayMs(time_ms);
 }
 
-/*
- * Debug functions for integration
-
 uint8_t payload1_health_test( void ) {
     uint8_t tx_byte;
     uint32_t start_time;
-    uint8_t health_test_result;
+    uint8_t health_test_result = 0;
 
     // Start the health test
     tx_byte = HEALTH_RUN_MASK;
@@ -194,7 +201,7 @@ uint8_t payload1_health_test( void ) {
         if (!(health_test_result & HEALTH_RUN_MASK)) {
             return health_test_result;
         }
-        payload1_delay_ms(1000);
+        __delay_cycles(DELAY_1_S_IN_CYCLES);
     }
 
     // Timed out, try to stop test
@@ -204,19 +211,24 @@ uint8_t payload1_health_test( void ) {
     return health_test_result;
 }
 
-uint16_t payload1_data_genetarion_test( void ) {
-    uint16_t data_generation, last_position, current_position;
+uint16_t payload1_data_generation_test( void ) {
+    uint16_t data_generation[30] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, last_position, current_position;
 
-    payload1_read((uint8_t *)&last_position, REG_LASTADDR, 4);
-    __delay_cycles(DELAY_60_S_IN_CYCLES);
-    payload1_read((uint8_t *)&current_position, REG_LASTADDR, 4);
+    payload1_power_state(PAYLOAD_FPGA, TURN_ON);
 
-    data_generation = current_position - last_position;
+    while(counter++<30) {
+        payload1_read((uint8_t *)&last_position, REG_LASTADDR, 4);
+        __delay_cycles(4*DELAY_100_MS_IN_CYCLES);
+        payload1_read((uint8_t *)&current_position, REG_LASTADDR, 4);
+        __delay_cycles(DELAY_100_MS_IN_CYCLES);
+
+        data_generation[counter] = current_position - last_position;
+    }
+
+    payload1_power_state(PAYLOAD_FPGA, TURN_OFF);
 
     return data_generation;
 }
-
-*/
 
 
 
