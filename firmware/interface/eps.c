@@ -89,9 +89,9 @@ uint8_t eps_read(eps_package_t *package) {
 uint8_t send_command_charge_reset(void) {
     FSPPacket fsp_packet;
     uint8_t eps_pkt_len;
-    uint8_t eps_pkt_cmd[FSP_PKT_MIN_LENGTH];
+    uint8_t eps_pkt_cmd[8];
     uint8_t eps_status = EPS_OK;
-    uint8_t rx_buffer[7];
+    uint8_t rx_buffer[8];
     uint8_t fsp_status = FSP_PKT_NOT_READY;
     uint8_t i = 0;
 
@@ -106,7 +106,7 @@ uint8_t send_command_charge_reset(void) {
     fsp_gen_cmd_pkt(FSP_CMD_RESET_CHARGE, FSP_ADR_EPS, FSP_PKT_TYPE_CMD_WITH_ACK, &fsp_packet);
     fsp_encode(&fsp_packet, eps_pkt_cmd, &eps_pkt_len);
 
-    if(i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd,eps_pkt_len, NO_STOP) == I2C_FAIL) {     /**< send the bytes */
+    if(i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd, eps_pkt_len, NO_STOP) == I2C_FAIL) {     /**< send the bytes */
         eps_status = EPS_TIMEOUT_ERROR;
     }
 
