@@ -39,8 +39,6 @@ uint8_t payload1_health_test( void );
 uint16_t payload1_data_generation_test( void );
 
 uint8_t payload1_data[PAYLOAD1_DATA_LENGTH];
-uint32_t last_address_read = 0;
-uint8_t counter = 0;
 
 void payload1_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -79,20 +77,17 @@ void payload1_interface_task( void *pvParameters ) {
             }
 
             if(payload1_status == PAYLOAD1_POWER_ON) {
-                //
-                //if ( last_address_update ) {
-                //    payload1_experiment_prepare();
-                //    payload1_experiment_log();
-                //}
-                //
-                //else {
-                //    /**< Set a start address to read */
-                //    payload1_read((uint8_t *)&last_address_read, REG_LASTADDR, 4);
-                //    last_address_update = 1;
-                //}
 
-                data_generated = payload1_data_generation_test();
+                if ( last_address_update ) {
+                    payload1_experiment_prepare();
+                    payload1_experiment_log();
+                }
 
+                else {
+                    /**< Set a start address to read */
+                    payload1_read((uint8_t *)&last_address_read, REG_LASTADDR, 4);
+                    last_address_update = 1;
+                }
 
                 xSemaphoreGive( i2c0_semaphore );                  /**< release the mutex                   */
             }
@@ -212,15 +207,28 @@ uint8_t payload1_health_test( void ) {
 }
 
 uint16_t payload1_data_generation_test( void ) {
-    uint16_t data_generation[30] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, last_position, current_position;
+    uint16_t data_generation[60], last_position, current_position;
+    static uint8_t counter = 0;
+    static uint32_t last_address_read = 0;
+    uint8_t test_type = 0;  // Change for different tests (High/medium/low resolutions)
+
+    if (test_type == 0) {   // High resolution
+        delay_time = DELAY_100_MS_IN_CYCLES;
+    }
+    if (test_type == 1) {   // Medium resolution
+        delay_time = DELAY_1_S_IN_CYCLES
+    }
+    else {                  // Low resolution
+        delay_time = DELAY_60_S_IN_CYCLES;
+    }
 
     payload1_power_state(PAYLOAD_FPGA, TURN_ON);
 
-    while(counter++<30) {
+    while((counter++ < 60) && (payload1_overtemperature_check())) {
+        vTaskDelayMs(delay_time);
         payload1_read((uint8_t *)&last_position, REG_LASTADDR, 4);
-        __delay_cycles(4*DELAY_100_MS_IN_CYCLES);
+        vTaskDelayMs(delay_time);
         payload1_read((uint8_t *)&current_position, REG_LASTADDR, 4);
-        __delay_cycles(DELAY_100_MS_IN_CYCLES);
 
         data_generation[counter] = current_position - last_position;
     }
@@ -229,9 +237,3 @@ uint16_t payload1_data_generation_test( void ) {
 
     return data_generation;
 }
-
-
-
-
-
-
