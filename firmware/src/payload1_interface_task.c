@@ -39,6 +39,7 @@ uint8_t payload1_health_test( void );
 uint16_t payload1_data_generation_test( void );
 
 uint8_t payload1_data[PAYLOAD1_DATA_LENGTH];
+uint32_t last_address_read = 0;
 
 void payload1_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -46,7 +47,7 @@ void payload1_interface_task( void *pvParameters ) {
 
     uint8_t last_address_update = 0;
     uint8_t energy_level;
-    uint8_t payload1_status = PAYLOAD1_POWER_OFF;
+    uint8_t payload1_status = PAYLOAD1_POWER_OFF, payload1_fpga_enable = PAYLOAD1_FPGA_DISABLE;
     uint16_t data_generated = 0;
 
     payload1_setup();
@@ -60,11 +61,18 @@ void payload1_interface_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
                 if(payload1_status == PAYLOAD1_POWER_OFF) {        /**< if mode is power_off, turn it on   */
                     payload1_status = PAYLOAD1_POWER_ON;
-                    payload1_power_state(PAYLOAD_BOARD, TURN_ON);
+                    if( payload1_overtemperature_check() ) {
+                        payload1_fpga_enable = PAYLOAD1_FPGA_ENABLE;
+                    }
                 }
                 break;
 
             case ENERGY_L2_MODE:
+                if(payload1_status == PAYLOAD1_POWER_OFF){
+                    payload1_power_state(PAYLOAD_BOARD, TURN_ON);
+                    payload1_fpga_enable = PAYLOAD1_FPGA_DISABLE;
+                }
+                break;
             case ENERGY_L3_MODE:
             case ENERGY_L4_MODE:
             default:
@@ -77,10 +85,14 @@ void payload1_interface_task( void *pvParameters ) {
             }
 
             if(payload1_status == PAYLOAD1_POWER_ON) {
-
                 if ( last_address_update ) {
-                    payload1_experiment_prepare();
-                    payload1_experiment_log();
+                    if (payload1_fpga_enable == PAYLOAD1_FPGA_ENABLE) {
+                        payload1_power_state(PAYLOAD_FPGA, TURN_ON);
+                        //TODO: Do the necessary delay to log data
+                        payload1_experiment_prepare();
+                        payload1_experiment_log();
+                        payload1_power_state(PAYLOAD_FPGA, TURN_OFF);
+                    }
                 }
 
                 else {
@@ -127,16 +139,6 @@ void payload1_experiment_prepare( void ) {
     payload1_write(&setup_byte, REG_STATUS, 1);
 
     payload1_delay_ms(500);
-
-    /**< fpga overtemperature protection */
-    if(payload1_overtemperature_check()) {
-        payload1_power_state(PAYLOAD_FPGA, TURN_ON);
-    }
-    else {
-        payload1_power_state(PAYLOAD_FPGA, TURN_OFF);
-    }
-
-    payload1_delay_ms(500);
 }
 
 void payload1_experiment_log( void ) {
@@ -158,8 +160,7 @@ void payload1_experiment_log( void ) {
     else {
         payload1_read((uint8_t *)&last_address_read, REG_LASTADDR, 4);
     }
-
-    payload1_power_state(PAYLOAD_FPGA, TURN_OFF);
+    //TODO: Verify the MAX_BLOCK_PER_HEARTBEAT size and the last position update
 }
 
 uint8_t payload1_overtemperature_check( void ) {
@@ -208,15 +209,15 @@ uint8_t payload1_health_test( void ) {
 
 uint16_t payload1_data_generation_test( void ) {
     uint16_t data_generation[60], last_position, current_position;
+    uint32_t delay_time;
     static uint8_t counter = 0;
-    static uint32_t last_address_read = 0;
     uint8_t test_type = 0;  // Change for different tests (High/medium/low resolutions)
 
     if (test_type == 0) {   // High resolution
         delay_time = DELAY_100_MS_IN_CYCLES;
     }
     if (test_type == 1) {   // Medium resolution
-        delay_time = DELAY_1_S_IN_CYCLES
+        delay_time = DELAY_1_S_IN_CYCLES;
     }
     else {                  // Low resolution
         delay_time = DELAY_60_S_IN_CYCLES;

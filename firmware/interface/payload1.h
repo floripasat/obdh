@@ -39,6 +39,8 @@
 #define PAYLOAD1_COMM_ERROR     0x00    /**< value when communication with payload is in error */
 #define PAYLOAD1_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
 #define PAYLOAD1_POWER_OFF      0x02    /**< value when payload is powered off                 */
+#define PAYLOAD1_FPGA_DISABLE   0x03
+#define PAYLOAD1_FPGA_ENABLE    0x04
 
 #define PAYLOAD_NOT_OK      0
 #define PAYLOAD_OK          1
