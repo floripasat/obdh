@@ -53,8 +53,8 @@
 #define  TEMPERATURES_FLAG          BIT8
 #define  TASK_SCHEDULER_FLAG        BIT9
 
-#define  PAYLOAD1_FLAG              BITA
-#define  PAYLOAD2_FLAG              BITB
+#define  PAYLOAD_RUSH_FLAG          BITA
+#define  PAYLOAD_BRAVE_FLAG         BITB
 
 /*
     *  This flag aware the GS to ignore the other flags, since the content
@@ -104,8 +104,8 @@ typedef struct {
     uint8_t temperatures            [21];
     uint8_t energy_level            [1];
     //payloads
-    uint8_t payload1                [40];
-    uint8_t payload2                [7];
+    uint8_t payload_rush            [40];
+    uint8_t payload_brave           [7];
 } data_packet_t;
 
 

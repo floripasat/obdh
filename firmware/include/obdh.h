@@ -54,7 +54,7 @@
 #include "../src/eps_interface_task.h"
 #include "../src/housekeeping_task.h"
 #include "../src/imu_interface_task.h"
-#include "../src/payload1_interface_task.h"
+#include "../src/payload_rush_interface_task.h"
 #include "../src/store_data_task.h"
 #include "../src/solar_panels_interface_task.h"
 #include "../src/ttc_interface_task.h"

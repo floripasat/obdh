@@ -1,5 +1,5 @@
 /*
- * payload1.h
+ * payload_rush.h
  *
  * Copyright (C) 2017, Universidade Federal de Santa Catarina
  *
@@ -21,26 +21,26 @@
  */
 
  /**
- * \file payload1.h
+ * \file payload_rush.h
  *
- * \brief Interface to deals with the Payload 1
+ * \brief Interface to deals with the payload
  *
  * \author Elder Tramontin
  *
  */
 
-#ifndef PAYLOAD1_INTERFACE_H_
-#define PAYLOAD1_INTERFACE_H_
+#ifndef PAYLOAD_RUSH_INTERFACE_H_
+#define PAYLOAD_RUSH_INTERFACE_H_
 
 #include "../include/floripasat_def.h"
 #include "../driver/i2c.h"
 
 
-#define PAYLOAD1_COMM_ERROR     0x00    /**< value when communication with payload is in error */
-#define PAYLOAD1_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
-#define PAYLOAD1_POWER_OFF      0x02    /**< value when payload is powered off                 */
-#define PAYLOAD1_FPGA_DISABLE   0x03
-#define PAYLOAD1_FPGA_ENABLE    0x04
+#define RUSH_COMM_ERROR     0x00    /**< value when communication with payload is in error */
+#define RUSH_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
+#define RUSH_POWER_OFF      0x02    /**< value when payload is powered off                 */
+#define RUSH_FPGA_DISABLE   0x03
+#define RUSH_FPGA_ENABLE    0x04
 
 #define PAYLOAD_NOT_OK      0
 #define PAYLOAD_OK          1
@@ -80,30 +80,30 @@
 #define TEMPERATURE_LOW_LIMIT       40
 #define MAX_BLOCKS_PER_HEARTBEAT    3
 #define BLOCK_SIZE                  32
-#define PAYLOAD1_DATA_LENGTH        ( MAX_BLOCKS_PER_HEARTBEAT * BLOCK_SIZE )       /**< in bytes */
+#define RUSH_DATA_LENGTH        	( MAX_BLOCKS_PER_HEARTBEAT * BLOCK_SIZE )       /**< in bytes */
 
-extern void payload1_delay_ms( uint8_t time_ms );
+extern void rush_delay_ms( uint8_t time_ms );
 
 /**
- * \fn payload1_setup
+ * \fn rush_setup
  *
  * \brief Initialize and configure the payload
  * \return None
  */
-void payload1_setup( void );
+void rush_setup( void );
 
 /**
- * \fn payload1_power_state
+ * \fn rush_power_state
  *
  * \brief Turn on/off the payload board or fpga
  * \param selector chose between the board or fpga
  * \param new_power_state turn on or off
  * \return None
  */
-void payload1_power_state( uint8_t selector, uint8_t new_power_state );
+void rush_power_state( uint8_t selector, uint8_t new_power_state );
 
 /**
- * \fn payload1_read
+ * \fn rush_read
  *
  * \brief Read a packet of data from payload
  * \param data is a pointer where will be stored the read data
@@ -111,10 +111,10 @@ void payload1_power_state( uint8_t selector, uint8_t new_power_state );
  * \param bytes is the length, in bytes, of the read data
  * \return if the read was successful or failed
  */
-uint8_t payload1_read( uint8_t* data, uint32_t address, uint8_t bytes );
+uint8_t rush_read( uint8_t* data, uint32_t address, uint16_t bytes );
 
 /**
- * \fn payload1_write
+ * \fn rush_write
  *
  * \brief Write a packet of data from payload
  * \param data is a pointer of the data to be written
@@ -122,7 +122,7 @@ uint8_t payload1_read( uint8_t* data, uint32_t address, uint8_t bytes );
  * \param bytes is the length, in bytes, of the data to write
  * \return if the write was successful or failed
  */
-uint8_t payload1_write( uint8_t* data, uint32_t address, uint8_t bytes );
+uint8_t rush_write( uint8_t* data, uint32_t address, uint16_t bytes );
 
 
-#endif /* PAYLOAD1_INTERFACE_H_ */
+#endif /* PAYLOAD_RUSH_INTERFACE_H_ */

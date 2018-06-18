@@ -98,10 +98,10 @@ void housekeeping_task( void *pvParameters ) {
         if(xQueuePeek(status_eps_queue, &temp_status_flags, 0) == pdPASS) {
             status_flags |= temp_status_flags<<0;
         }
-        if(xQueuePeek(status_payload1_queue, &temp_status_flags, 0) == pdPASS) {
+        if(xQueuePeek(status_payload_rush_queue, &temp_status_flags, 0) == pdPASS) {
             status_flags |= temp_status_flags<<1;
         }
-        if(xQueuePeek(status_payload2_queue, &temp_status_flags, 0) == pdPASS) {
+        if(xQueuePeek(status_payload_brave_queue, &temp_status_flags, 0) == pdPASS) {
             status_flags |= temp_status_flags<<2;
         }
         if(xQueuePeek(status_mem1_queue, &temp_status_flags, 0) == pdPASS) {
