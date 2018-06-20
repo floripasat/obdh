@@ -52,6 +52,7 @@
 #define STORE_LAST_READ_SECTOR            (STORE_LAST_WRITE_SECTOR + 1)
 #define FIRST_DATA_SECTOR                 512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
 
+#define TELECOMMAND_COUNTER_OFFSET        440
 
 /**
  * \var static xTaskHandle store_data_task_handle

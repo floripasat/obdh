@@ -34,7 +34,8 @@
 #include "../driver/uart.h"
 #endif
 
-#define ANTENNA_MUTEX_WAIT_TIME     (2000 / portTICK_RATE_MS)
+#define ANTENNA_MUTEX_WAIT_TIME         ( 2000 / portTICK_RATE_MS )
+#define RADIO_STATUS_QUEUE_WAIT_TIME    ( 100 / portTICK_PERIOD_MS ) //100ms of wait time
 
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 #define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
@@ -46,6 +47,7 @@ void send_requested_data(uint8_t *raw_package);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
+void update_last_telecommand_status(telecommand_t *last_telecommand);
 
 
 void communications_task( void *pvParameters ) {
@@ -88,6 +90,9 @@ void communications_task( void *pvParameters ) {
                     answer_ping(received_telecommand);
                 }
             }
+
+            /**< update the last telecommands, rssi and counter */
+            update_last_telecommand_status(&received_telecommand);
         }
 
         operation_mode = read_current_operation_mode();
@@ -260,4 +265,41 @@ void request_antenna_mutex(void) {
     xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task     */
     xQueueReceive(tx_queue, &ttc_response,
                   ANTENNA_MUTEX_WAIT_TIME);     /**< wait 2 seconds or until be answered               */
+}
+
+/**
+ * \fn void update_last_telecommand_status(telecommand_t *last_telecommand)
+ * Updates the last telecommand stored, its signal strength indicator and counter
+ * \param last_telecommand Last telecommand received
+ */
+void update_last_telecommand_status( telecommand_t *last_telecommand ) {
+    uint8_t telecommand_status[19];
+    uint8_t radio_int_status[7];
+    uint8_t radio_signal_strengh;
+    uint16_t telecommand_counter;
+    uint8_t i = 0;
+
+    /**< get the last telecommand counter value */
+    xQueueReceive(telecommand_counter_queue, &telecommand_counter, RADIO_STATUS_QUEUE_WAIT_TIME);
+    telecommand_counter++;
+
+    /**< get the radio signal strength indicator located in the last byte received */
+    rf4463_get_cmd(RF4463_CMD_GET_INT_STATUS, radio_int_status, 1);
+    radio_signal_strengh = radio_int_status[6];
+
+    /**< wrap the data in a packet to be stored, via store data task */
+    for(i=0; i<6; i++) {
+        telecommand_status[i] = last_telecommand->ID[i];
+    }
+    telecommand_status[i++] = (uint8_t)last_telecommand->request_action;
+    telecommand_status[i++] = (uint8_t)last_telecommand->request_action >> 8;
+    for(i=8; i<16; i++) {
+        telecommand_status[i] = last_telecommand->arguments[i];
+    }
+    telecommand_status[i++] = radio_signal_strengh;
+    telecommand_status[i++] = (uint8_t)telecommand_counter;
+    telecommand_status[i]   = (uint8_t)telecommand_counter >> 8;
+
+    /**< send to the store data task */
+    xQueueOverwrite(main_radio_queue, telecommand_status);
 }

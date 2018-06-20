@@ -40,6 +40,7 @@ void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
     data_packet_t new_packet;
     uint8_t mem1_status;
+    uint16_t telecommand_counter;
     last_wake_time = xTaskGetTickCount();
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
@@ -61,19 +62,24 @@ void store_data_task( void *pvParameters ) {
     while(1) {
         mem1_status = 0;
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            /**< test if memory size is greater than 128MB */
             card_size = mmcReadCardSize();
-            if(card_size >= MEMORY_CHECK_OPERATION_SIZE) { //test if memory size is greater than 128MB
+            if(card_size >= MEMORY_CHECK_OPERATION_SIZE) {
                 mem1_status = 1;
             }
             xSemaphoreGive(spi1_semaphore);
         }
-
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
         new_packet = read_and_pack_data();
 
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
             store_data_on_flash(&new_packet);
+
+            /**< get the last telecommand counter value and send to communications task */
+            mmcReadBlock( (last_write_pointer-TELECOMMAND_COUNTER_OFFSET) * SECTOR_SIZE, 2, (unsigned char *)&telecommand_counter);
+            xQueueOverwrite(telecommand_counter_queue, &telecommand_counter);
+
             xSemaphoreGive(spi1_semaphore);
         }
 
