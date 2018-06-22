@@ -40,7 +40,6 @@ void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
     data_packet_t new_packet;
     uint8_t mem1_status;
-    uint16_t telecommand_counter;
     last_wake_time = xTaskGetTickCount();
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
@@ -75,11 +74,6 @@ void store_data_task( void *pvParameters ) {
 
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
             store_data_on_flash(&new_packet);
-
-            /**< get the last telecommand counter value and send to communications task */
-            mmcReadBlock( (last_write_pointer-TELECOMMAND_COUNTER_OFFSET) * SECTOR_SIZE, 2, (unsigned char *)&telecommand_counter);
-            xQueueOverwrite(telecommand_counter_queue, &telecommand_counter);
-
             xSemaphoreGive(spi1_semaphore);
         }
 
@@ -96,6 +90,7 @@ void store_data_task( void *pvParameters ) {
 
 data_packet_t read_and_pack_data( void ) {
     data_packet_t packet = {0};
+    static uint16_t telecommand_counter;
 
     packet = satellite_data;
     packet.package_flags = 0;
@@ -119,6 +114,15 @@ data_packet_t read_and_pack_data( void ) {
     }
 
     if(xQueueReceive(main_radio_queue, (void *) packet.main_radio, DATA_QUEUE_WAIT_TIME) == pdPASS) {
+        /**< update the last telecommand counter value */
+        if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            mmcReadBlock( TELECOMMAND_COUNTER_SECTOR * SECTOR_SIZE, 2, (unsigned char *)&telecommand_counter);
+            xSemaphoreGive(spi1_semaphore);
+        }
+        telecommand_counter++;
+        packet.main_radio[17] = (uint8_t)telecommand_counter >> 8;
+        packet.main_radio[18] = (uint8_t)telecommand_counter;
+
         packet.package_flags |= MAIN_RADIO_FLAG;
     }
 

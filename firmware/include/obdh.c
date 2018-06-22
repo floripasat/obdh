@@ -39,8 +39,7 @@ void create_tasks( void ) {
     obdh_misc_queue            = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
     obdh_uptime_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
     solar_panels_queue         = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
-    main_radio_queue           = xQueueCreate( 5, sizeof( satellite_data.main_radio ) );
-    telecommand_counter_queue  = xQueueCreate( 1, sizeof( uint16_t ) );
+    main_radio_queue           = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
     eps_queue                  = xQueueCreate( 5, sizeof( eps_package_t ) );
     ttc_queue                  = xQueueCreate( 1, sizeof( uint8_t ) );
     tx_queue                   = xQueueCreate( 1, sizeof( uint8_t ) );

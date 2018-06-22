@@ -59,7 +59,6 @@ volatile xQueueHandle obdh_misc_queue;
 volatile xQueueHandle obdh_uptime_queue;
 volatile xQueueHandle solar_panels_queue;
 volatile xQueueHandle main_radio_queue;
-volatile xQueueHandle telecommand_counter_queue;
 volatile xQueueHandle eps_queue;
 volatile xQueueHandle ttc_queue;
 volatile xQueueHandle tx_queue;
