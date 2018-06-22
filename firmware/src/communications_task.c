@@ -46,6 +46,7 @@ void send_requested_data(uint8_t *raw_package);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
+void radioamateur_repeater(telecommand_t telecommand);
 
 
 void communications_task( void *pvParameters ) {
@@ -86,6 +87,10 @@ void communications_task( void *pvParameters ) {
                 if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
     //                request_antenna_mutex();
                     answer_ping(received_telecommand);
+                }
+
+                if(received_telecommand.request_action == REQUEST_REPEAT_TELECOMMAND){
+                    radioamateur_repeater(received_telecommand);
                 }
             }
         }
@@ -235,6 +240,36 @@ void answer_ping(telecommand_t telecommand) {
     }
 
     ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+}
+
+void radioamateur_repeater(telecommand_t telecommand){
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t msg[28];
+    uint8_t i = 0;
+
+    for(i = 0; i<6; i++){
+        msg[i] = telecommand.ID[i];
+    }
+
+    msg[6]= (uint8_t)telecommand.request_action & 0xff;
+    msg[7]= (uint8_t)(telecommand.request_action >> 8);
+
+    for(i = 0; i<8; i++){
+        msg[8 + i] = telecommand.arguments[i];
+    }
+
+    for(i = 0; i<12; i++){
+        msg[16 + i] = telecommand.reserved[i];
+    }
+
+
+    ngham_TxPktGen(&ngham_packet, msg, sizeof(msg));
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));

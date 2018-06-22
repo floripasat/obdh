@@ -165,6 +165,7 @@ typedef struct {
 #define REQUEST_DATA_TELECOMMAND            0x7764    /**< uplink command to request whole data orbit - dw */
 #define REQUEST_SHUTDOWN_TELECOMMAND        0x6473    /**< uplink command to request a 24 hours shutdown - sd */
 #define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
+#define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
 //! \} End of uplink_commands
 
 
