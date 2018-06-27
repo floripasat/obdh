@@ -25,7 +25,7 @@
  *
  * \brief Task that deals with the payload
  *
- * \author Elder Tramontin
+ * \author Andre Mattos
  *
  */
 
@@ -46,6 +46,9 @@
 #define PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY        5
 #define PAYLOAD_RUSH_INTERFACE_TASK_PERIOD_MS       1000
 #define PAYLOAD_RUSH_INTERFACE_TASK_PERIOD_TICKS    ( PAYLOAD_RUSH_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+
+#define EXPERIMENT_START_ITERATION        30
+#define EXPERIMENT_END_ITERATION          60
 
 /**
  * \var static xTaskHandle rush_interface_task_handle

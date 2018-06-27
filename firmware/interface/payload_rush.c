@@ -61,15 +61,13 @@ void rush_power_state(uint8_t selector, uint8_t new_power_state) {
             BIT_CLEAR(payload_status, STATUS_POWER_MASK);
         }
 
-        rush_delay_ms(500);
+        rush_delay_ms(RESPONSE_TIME_MS);
 
         /**< Send the new fpga power state */
         rush_write(&payload_status, REG_STATUS, 1);
     }
 
-    rush_delay_ms(500);
-
-    //TODO: take care of do a "turn off protocol"
+    rush_delay_ms(RESPONSE_TIME_MS);
 }
 
 uint8_t rush_read(uint8_t* data, uint32_t address, uint16_t bytes) {

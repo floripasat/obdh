@@ -50,6 +50,8 @@
 #define TURN_ON             1
 #define TURN_OFF            0
 
+#define RESPONSE_TIME_MS    700
+
 #define REG_STATUS          (0x2000000)
 #define REG_HEALTH          (0x2000001)
 #define REG_LASTADDR        (0x2000004)
@@ -75,12 +77,10 @@
 #define HEALTH_FLASH_MASK           (1 << 3)
 #define HEALTH_FLASHRUN_MASK        (1 << 4)
 
-#define HEALTH_TIMEOUT              30        /**< seconds */
-#define TEMPERATURE_HIGH_LIMIT      95
-#define TEMPERATURE_LOW_LIMIT       40
-#define MAX_BLOCKS_PER_HEARTBEAT    3
-#define BLOCK_SIZE                  32
-#define RUSH_DATA_LENGTH        	( MAX_BLOCKS_PER_HEARTBEAT * BLOCK_SIZE )       /**< in bytes */
+#define HEALTH_TIMEOUT              30        /**< in seconds */
+#define TEMPERATURE_HIGH_LIMIT      95        /**< in degrees */
+#define TEMPERATURE_LOW_LIMIT       40        /**< in degrees */
+#define RUSH_DATA_LENGTH            32
 
 extern void rush_delay_ms( uint8_t time_ms );
 

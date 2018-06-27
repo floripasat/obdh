@@ -104,7 +104,7 @@ typedef struct {
     uint8_t temperatures            [21];
     uint8_t energy_level            [1];
     //payloads
-    uint8_t payload_rush            [40];
+    uint8_t payload_rush            [32];
     uint8_t payload_brave           [7];
 } data_packet_t;
 
