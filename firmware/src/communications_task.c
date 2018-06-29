@@ -46,7 +46,7 @@ void send_requested_data(uint8_t *raw_package);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
-void radioamateur_repeater(telecommand_t *telecommand);
+void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len);
 
 
 void communications_task( void *pvParameters ) {
@@ -59,6 +59,7 @@ void communications_task( void *pvParameters ) {
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
+    uint8_t data_len;
 
     PA_ENABLE();
     radio_status = rf4463_init();
@@ -72,7 +73,8 @@ void communications_task( void *pvParameters ) {
 
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) > 7) {
+        data_len = try_to_receive(data);
+        if(data_len > 7) {
             received_telecommand = decode_telecommand(data);
 
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
@@ -90,7 +92,7 @@ void communications_task( void *pvParameters ) {
                 }
 
                 if(received_telecommand.request_action == REQUEST_REPEAT_TELECOMMAND){
-                    radioamateur_repeater(&received_telecommand);
+                    radioamateur_repeater(&received_telecommand, &data_len);
                 }
             }
         }
@@ -246,7 +248,7 @@ void answer_ping(telecommand_t telecommand) {
     rf4463_rx_init();
 }
 
-void radioamateur_repeater(telecommand_t *telecommand){
+void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len){
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
@@ -268,7 +270,7 @@ void radioamateur_repeater(telecommand_t *telecommand){
         msg[16 + i] = telecommand->reserved[i];
     }
 
-    ngham_TxPktGen(&ngham_packet, msg, sizeof(msg));
+    ngham_TxPktGen(&ngham_packet, msg, *data_len);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
