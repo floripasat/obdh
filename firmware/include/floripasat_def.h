@@ -168,6 +168,10 @@ typedef struct {
 #define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
 //! \} End of uplink_commands
 
+/**
+ * \brief Downlink answer action for repeater telecommand
+ */
+#define ACTION_REPEAT_TELECOMMAND           0x7262    /**< broadcast repeater answer - br */
 
 /**
  * \defgroup communications

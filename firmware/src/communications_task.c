@@ -257,8 +257,8 @@ void radioamateur_repeater(telecommand_t telecommand){
         msg[i] = telecommand.ID[i];
     }
 
-    msg[6]= (uint8_t)telecommand.request_action & 0xff;
-    msg[7]= (uint8_t)(telecommand.request_action >> 8);
+    msg[6]= (uint8_t) ACTION_REPEAT_TELECOMMAND;
+    msg[7]= (uint8_t) (ACTION_REPEAT_TELECOMMAND >> 8);
 
     for(i = 0; i<8; i++){
         msg[8 + i] = telecommand.arguments[i];
