@@ -286,7 +286,7 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
         telecommand_status[i] = last_telecommand->ID[i];
     }
     telecommand_status[i++] = (uint8_t)last_telecommand->request_action;
-    telecommand_status[i++] = (uint8_t)last_telecommand->request_action >> 8;
+    telecommand_status[i++] = (uint8_t)(last_telecommand->request_action >> 8);
     for(i=8; i<16; i++) {
         telecommand_status[i] = last_telecommand->arguments[i-8];
     }
