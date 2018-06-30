@@ -61,13 +61,13 @@ void store_data_task( void *pvParameters ) {
     while(1) {
         mem1_status = 0;
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            /**< test if memory size is greater than 128MB */
             card_size = mmcReadCardSize();
-            if(card_size >= MEMORY_CHECK_OPERATION_SIZE) { //test if memory size is greater than 128MB
+            if(card_size >= MEMORY_CHECK_OPERATION_SIZE) {
                 mem1_status = 1;
             }
             xSemaphoreGive(spi1_semaphore);
         }
-
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
         new_packet = read_and_pack_data();
@@ -90,6 +90,7 @@ void store_data_task( void *pvParameters ) {
 
 data_packet_t read_and_pack_data( void ) {
     data_packet_t packet = {0};
+    uint16_t telecommand_counter = 0;
 
     packet = satellite_data;
     packet.package_flags = 0;
@@ -113,6 +114,16 @@ data_packet_t read_and_pack_data( void ) {
     }
 
     if(xQueueReceive(main_radio_queue, (void *) packet.main_radio, DATA_QUEUE_WAIT_TIME) == pdPASS) {
+        /**< update the last telecommand counter value */
+        if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+            mmcReadBlock((TELECOMMAND_COUNTER_SECTOR * SECTOR_SIZE), 2, (unsigned char *)&telecommand_counter);
+            telecommand_counter++;
+            packet.main_radio[17] = (uint8_t)(telecommand_counter >> 8);
+            packet.main_radio[18] = (uint8_t)telecommand_counter;
+            mmcWriteSector(TELECOMMAND_COUNTER_SECTOR, (unsigned char *)&telecommand_counter);
+            xSemaphoreGive(spi1_semaphore);
+        }
+
         packet.package_flags |= MAIN_RADIO_FLAG;
     }
 

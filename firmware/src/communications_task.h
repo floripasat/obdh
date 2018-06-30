@@ -39,6 +39,7 @@
 #include "../util/link.h"
 #include "../interface/ttc.h"
 #include "../rf4463/rf4463.h"
+#include "../rf4463/rf4463_registers.h"
 #include "../libs/ngham/ngham.h"
 
 /*

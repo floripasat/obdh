@@ -34,22 +34,22 @@ void create_tasks( void ) {
     /**
      * Create queues to communicate between tasks
      */
-    obdh_status_queue       = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
-    imu_queue               = xQueueCreate( 5, sizeof( satellite_data.imu ) );
-    obdh_misc_queue         = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
-    obdh_uptime_queue       = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
-    solar_panels_queue      = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
-    main_radio_queue        = xQueueCreate( 5, sizeof( satellite_data.main_radio ) );
-    eps_queue               = xQueueCreate( 5, sizeof( eps_package_t ) );
-    ttc_queue               = xQueueCreate( 1, sizeof( uint8_t ) );
-    tx_queue                = xQueueCreate( 1, sizeof( uint8_t ) );
-    payload1_queue          = xQueueCreate( 5, sizeof( satellite_data.payload1) );
-    payload2_queue          = xQueueCreate( 5, sizeof( satellite_data.payload2) );
-    status_eps_queue        = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload1_queue   = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload2_queue   = xQueueCreate( 1, sizeof(uint8_t) );
-    status_mem1_queue       = xQueueCreate( 1, sizeof(uint8_t) );
-    status_imu_queue        = xQueueCreate( 1, sizeof(uint8_t) );
+    obdh_status_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
+    imu_queue                  = xQueueCreate( 5, sizeof( satellite_data.imu ) );
+    obdh_misc_queue            = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
+    obdh_uptime_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
+    solar_panels_queue         = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
+    main_radio_queue           = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
+    eps_queue                  = xQueueCreate( 5, sizeof( eps_package_t ) );
+    ttc_queue                  = xQueueCreate( 1, sizeof( uint8_t ) );
+    tx_queue                   = xQueueCreate( 1, sizeof( uint8_t ) );
+    payload1_queue             = xQueueCreate( 5, sizeof( satellite_data.payload1) );
+    payload2_queue             = xQueueCreate( 5, sizeof( satellite_data.payload2) );
+    status_eps_queue           = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload1_queue      = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload2_queue      = xQueueCreate( 1, sizeof(uint8_t) );
+    status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
+    status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
 
     /**
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
@@ -65,7 +65,7 @@ void create_tasks( void ) {
      */
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
     xTaskCreate( communications_task, "Communications", 5 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
-    xTaskCreate( store_data_task, "StoreData", 8 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
+    xTaskCreate( store_data_task, "StoreData", 10 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
     xTaskCreate( ttc_interface_task, "TT&C", 4 * configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
