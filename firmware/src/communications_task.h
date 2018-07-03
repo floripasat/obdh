@@ -53,6 +53,8 @@
 #define PERIODIC_DOWNLINK_INTERVAL_MS         60000
 #define PERIODIC_DOWNLINK_INTERVAL_TURNS      ( PERIODIC_DOWNLINK_INTERVAL_MS / COMMUNICATIONS_TASK_PERIOD_MS )
 
+#define ENABLE_REPEATER_TRANSMISSION          1
+#define DISABLE_REPEATER_TRANSMISSION         0
 /**
  * \var static xTaskHandle xCommunicationsTask
  * \brief variable which holds the task reference
