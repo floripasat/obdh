@@ -37,8 +37,7 @@ void eps_interface_task( void *pvParameters ) {
     eps_package_t eps_package;
     uint8_t eps_status;
     uint8_t cmd_to_send = 0;
-    uint8_t cmd_reset_charge = 0;
-    uint8_t send_attempts = 3;
+    uint8_t send_attempts = 0;
 
     eps_setup();
 
@@ -49,8 +48,10 @@ void eps_interface_task( void *pvParameters ) {
                 eps_status = eps_read(&eps_package);
 
                 if(xQueueReceive(eps_charge_queue, (void *) &cmd_to_send, 0) == pdPASS) {
-                    if(cmd_to_send == EPS_CHARGE_RESET_CMD) {               /**< if it is a charge reset cmd */
-                        while( ( send_command_charge_reset() != EPS_ACK ) && ( send_attempts-- != 0 ) );
+                    if(cmd_to_send == EPS_CHARGE_RESET_CMD) {                       /**< if it is a charge reset cmd */
+                        for(send_attempts = 0; send_attempts <= 3; send_attempts++) {
+                            send_command_charge_reset();
+                        }
                     }
                 }
                 xSemaphoreGive(fsp_semaphore);
@@ -59,7 +60,7 @@ void eps_interface_task( void *pvParameters ) {
             xSemaphoreGive( i2c0_semaphore );                                       /**< release the i2c mutex    */
 
             if(eps_package.energy_level[0] != read_current_energy_level()) {
-                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);    /**< protect the flash from mutual access */
+                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);         /**< protect the flash from mutual access */
                 update_energy_level(eps_package.energy_level[0]);
                 xSemaphoreGive(flash_semaphore);
             }

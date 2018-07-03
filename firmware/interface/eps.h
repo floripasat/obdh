@@ -72,8 +72,8 @@ uint8_t eps_read(eps_package_t *package);
  * \fn send_command_charge_reset
  *
  * \brief Send the charge reset command to EPS
- * \return Success or fail
+ * \return None
  */
-uint8_t send_command_charge_reset(void);
+void send_command_charge_reset(void);
 
 #endif /* INTERFACE_EPS_H_ */

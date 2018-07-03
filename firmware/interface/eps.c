@@ -86,58 +86,23 @@ uint8_t eps_read(eps_package_t *package) {
     return eps_status;
 }
 
-uint8_t send_command_charge_reset(void) {
+void send_command_charge_reset(void) {
     FSPPacket fsp_packet;
     uint8_t eps_pkt_len;
     uint8_t eps_pkt_cmd[8];
     uint8_t eps_status = EPS_OK;
-    uint8_t rx_buffer[8];
-    uint8_t fsp_status = FSP_PKT_NOT_READY;
-    uint8_t i = 0;
 
-    i2c_set_slave(EPS_BASE_ADDRESS, EPS_I2C_SLAVE_ADRESS);  /**< set the slave address to be the EPS address */
-
-    i2c_set_mode(EPS_BASE_ADDRESS, TRANSMIT_MODE);          /**< set to transmit */
+    i2c_set_slave(EPS_BASE_ADDRESS, EPS_I2C_SLAVE_ADRESS);                  /**< set the slave address to be the EPS address */
+    i2c_set_mode(EPS_BASE_ADDRESS, TRANSMIT_MODE);                          /**< set to transmit */
 
     /*
      *  Send the battery charge reset command
      */
     fsp_init(FSP_ADR_OBDH);
-    fsp_gen_cmd_pkt(FSP_CMD_RESET_CHARGE, FSP_ADR_EPS, FSP_PKT_TYPE_CMD_WITH_ACK, &fsp_packet);
+    fsp_gen_cmd_pkt(FSP_CMD_RESET_CHARGE, FSP_ADR_EPS, FSP_PKT_TYPE_CMD, &fsp_packet);
     fsp_encode(&fsp_packet, eps_pkt_cmd, &eps_pkt_len);
 
-    if(i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd, eps_pkt_len, NO_STOP) == I2C_FAIL) {     /**< send the bytes */
-        eps_status = EPS_TIMEOUT_ERROR;
-    }
-
-    i2c_set_mode(EPS_BASE_ADDRESS, RECEIVE_MODE);           /**< set to receive */
-
-    /*
-     * Receive the packet
-     */
-    fsp_reset();
-    if(i2c_receive_burst(EPS_BASE_ADDRESS, rx_buffer, FSP_PKT_MIN_LENGTH, START_STOP) == I2C_FAIL) {
-        eps_status = EPS_TIMEOUT_ERROR;
-    }
-    else {
-        /*
-         * Verify the response, if not ACK this function is called again
-         */
-        do {
-            fsp_status = fsp_decode(rx_buffer[i++], &fsp_packet);
-        } while(fsp_status == FSP_PKT_NOT_READY);
-
-        if(fsp_status == FSP_PKT_READY) {
-            if(fsp_packet.type == FSP_PKT_TYPE_ACK) {
-                eps_status = EPS_ACK;
-            }
-            if(fsp_packet.type == FSP_PKT_TYPE_NACK) {
-                eps_status = EPS_NACK;
-            }
-        }
-    }
-
-    return eps_status;
+    i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd, eps_pkt_len, NO_STOP);    /**< send the bytes */
 }
 
 
