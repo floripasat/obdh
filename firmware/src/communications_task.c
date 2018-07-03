@@ -53,6 +53,7 @@ void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t current_turn = 0, turns_to_wait;
+    uint8_t enable_repeater;
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
@@ -91,8 +92,10 @@ void communications_task( void *pvParameters ) {
                     answer_ping(received_telecommand);
                 }
 
-                if(received_telecommand.request_action == REQUEST_REPEAT_TELECOMMAND){
-                    radioamateur_repeater(&received_telecommand, &data_len);
+                if (enable_repeater == 1){
+                    if(received_telecommand.request_action == REQUEST_REPEAT_TELECOMMAND){
+                        radioamateur_repeater(&received_telecommand, &data_len);
+                    }
                 }
             }
         }
@@ -106,15 +109,18 @@ void communications_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
             case ENERGY_L2_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+                enable_repeater = 1;
                 break;
 
             case ENERGY_L3_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+                enable_repeater = 0;
                 break;
 
             case ENERGY_L4_MODE:
             default:
                 turns_to_wait = 0xFFFF;
+                enable_repeater = 0;
             }
 
             if(++current_turn > turns_to_wait) {
