@@ -41,7 +41,7 @@ uint8_t eps_read(eps_package_t *package) {
     uint8_t data[FSP_PKT_MAX_LENGTH];
     uint8_t cmd[10];
     uint8_t pkt_len;
-    uint8_t *received_data = (uint8_t *)package;         /**< copy the address and work as a byte vector */
+    uint8_t *received_data = (uint8_t *)package;            /**< copy the address and work as a byte vector */
     uint8_t eps_status = EPS_OK;
     FSPPacket fsp_packet;
     uint8_t fsp_status = 0;
@@ -84,6 +84,25 @@ uint8_t eps_read(eps_package_t *package) {
     eps_status = fsp_status;
 
     return eps_status;
+}
+
+void send_command_charge_reset(void) {
+    FSPPacket fsp_packet;
+    uint8_t eps_pkt_len;
+    uint8_t eps_pkt_cmd[8];
+    uint8_t eps_status = EPS_OK;
+
+    i2c_set_slave(EPS_BASE_ADDRESS, EPS_I2C_SLAVE_ADRESS);                  /**< set the slave address to be the EPS address */
+    i2c_set_mode(EPS_BASE_ADDRESS, TRANSMIT_MODE);                          /**< set to transmit */
+
+    /*
+     *  Send the battery charge reset command
+     */
+    fsp_init(FSP_ADR_OBDH);
+    fsp_gen_cmd_pkt(FSP_CMD_RESET_CHARGE, FSP_ADR_EPS, FSP_PKT_TYPE_CMD, &fsp_packet);
+    fsp_encode(&fsp_packet, eps_pkt_cmd, &eps_pkt_len);
+
+    i2c_send_burst(EPS_BASE_ADDRESS, eps_pkt_cmd, eps_pkt_len, NO_STOP);    /**< send the bytes */
 }
 
 

@@ -38,6 +38,7 @@
 #include "../include/msp_internal.h"
 #include "../util/link.h"
 #include "../interface/ttc.h"
+#include "../interface/eps.h"
 #include "../rf4463/rf4463.h"
 #include "../rf4463/rf4463_registers.h"
 #include "../libs/ngham/ngham.h"
