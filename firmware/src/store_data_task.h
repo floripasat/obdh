@@ -48,10 +48,12 @@
 
 #define SECTOR_SIZE                       512
 #define MEMORY_CHECK_OPERATION_SIZE       128000000
-#define STORE_LAST_WRITE_SECTOR           2
-#define STORE_LAST_READ_SECTOR            (STORE_LAST_WRITE_SECTOR + 1)
+#define STORE_LAST_READ_SECTOR            2
+#define STORE_LAST_WRITE_POINTER_POINTER_SECTOR   (STORE_LAST_READ_SECTOR + 1)
 #define TELECOMMAND_COUNTER_SECTOR        4
-#define FIRST_DATA_SECTOR                 512   /**< First sector where data can be write. The previous sectors will be reserved to write some status values*/
+#define STORE_INITIAL_LAST_WRITE_SECTOR   (TELECOMMAND_COUNTER_SECTOR + 1)
+#define FIRST_DATA_SECTOR                 4096   /**< First sector where data can be writen. The previous sectors will be reserved to write some status values*/
+#define MEMORY_USABLE_SIZE                4194304 // 2 GB/512 bytes = 4194304 sectors
 
 /**
  * \var static xTaskHandle store_data_task_handle

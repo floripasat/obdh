@@ -40,6 +40,9 @@ void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
     data_packet_t new_packet;
     uint8_t mem1_status;
+    uint32_t last_write_pointer_sector_array = STORE_INITIAL_LAST_WRITE_SECTOR;
+    uint32_t last_write_pointer_array = FIRST_DATA_SECTOR;
+
     last_wake_time = xTaskGetTickCount();
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
@@ -172,10 +175,29 @@ void update_last_read_position(uint32_t new_position) {
  */
 void update_last_write_position(void) {
 
-    uint32_t last_write_array[128];
+    uint32_t last_write_array;
+    uint32_t last_write_pointer_sector;
+    uint32_t last_write_pointer_sector_array;
 
-    last_write_array[0] = ++last_write_pointer;
-    mmcWriteSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)last_write_array);
+    last_write_pointer = ++last_write_pointer % MEMORY_USABLE_SIZE;
+
+    if (last_write_pointer == 0){
+        last_write_pointer = FIRST_DATA_SECTOR;
+    }
+
+    last_write_array = last_write_pointer;
+
+    last_write_pointer_sector = mmcReadBlock(STORE_LAST_WRITE_POINTER_POINTER_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&last_write_pointer_sector);
+
+    mmcWriteSector(last_write_pointer_sector, (unsigned char *)&last_write_array);
+
+    while ((mmcReadBlock(last_write_pointer_sector * SECTOR_SIZE, 4, (unsigned char *)&last_write_pointer_sector)) != last_write_pointer){
+        last_write_array = last_write_pointer;
+        mmcWriteSector(++last_write_pointer_sector, (unsigned char *)last_write_array);
+
+        last_write_pointer_sector_array = last_write_pointer_sector;
+        mmcWriteSector(STORE_LAST_WRITE_POINTER_POINTER_SECTOR, (unsigned char *)&last_write_pointer_sector_array);
+    }
 }
 
 /*
@@ -274,8 +296,11 @@ uint32_t get_last_read_pointer(void) {
  */
 uint32_t get_last_write_pointer(void) {
     uint32_t write_pointer_value;
+    uint32_t last_write_pointer_sector;
 
-    mmcReadBlock(STORE_LAST_WRITE_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&write_pointer_value);
+    last_write_pointer_sector = mmcReadBlock(STORE_LAST_WRITE_POINTER_POINTER_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&last_write_pointer_sector);
+
+    mmcReadBlock(last_write_pointer_sector * SECTOR_SIZE, 4, (unsigned char *)&write_pointer_value);
     return write_pointer_value;
 }
 
