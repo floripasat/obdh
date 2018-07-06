@@ -38,7 +38,8 @@ uint8_t rush_overtemperature_check( void );
 uint8_t rush_health_test( void );
 
 uint8_t rush_data[RUSH_DATA_LENGTH];
-uint32_t last_data_address = 0, current_data_address;
+static uint32_t last_data_address = 0;
+uint32_t current_data_address;
 
 void payload_rush_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -48,7 +49,7 @@ void payload_rush_interface_task( void *pvParameters ) {
     uint8_t energy_level;
     uint8_t rush_status = RUSH_POWER_OFF, rush_fpga_enable = RUSH_FPGA_DISABLE;
     uint16_t iteration_counter = 0;
-    uint16_t current_bytes_length = 0;
+    uint8_t read_attempts = 0;
 
     rush_setup();
 
@@ -60,10 +61,11 @@ void payload_rush_interface_task( void *pvParameters ) {
             switch ( energy_level ) {
             case ENERGY_L1_MODE:
                 if( rush_status == RUSH_POWER_OFF ) {        /**< if mode is power_off, turn it on   */
+                    rush_power_state(PAYLOAD_BOARD, TURN_ON);
                     rush_status = RUSH_POWER_ON;
-                    if( rush_overtemperature_check() ) {
-                        rush_fpga_enable = RUSH_FPGA_ENABLE;
-                    }
+                }
+                if ( ( rush_fpga_enable == RUSH_FPGA_DISABLE ) && rush_overtemperature_check() ) {
+                    rush_fpga_enable = RUSH_FPGA_ENABLE;
                 }
                 break;
 
@@ -86,31 +88,31 @@ void payload_rush_interface_task( void *pvParameters ) {
 
             if( rush_status == RUSH_POWER_ON ) {
                 if ( last_address_update ) {
-                    if ( rush_fpga_enable == RUSH_FPGA_ENABLE ) {
-                        rush_read((uint8_t *)&current_data_address, REG_LASTADDR, 4);
-                        current_bytes_length = current_data_address - last_data_address;
-
-                        if (iteration_counter++ == EXPERIMENT_START_ITERATION) {
+                    if ( ( rush_fpga_enable == RUSH_FPGA_ENABLE ) && rush_overtemperature_check() ) {
+                        if (iteration_counter == EXPERIMENT_START_ITERATION) {
                             rush_power_state(PAYLOAD_FPGA, TURN_ON);
-                            rush_experiment_prepare();
                         }
 
-                        if ( ( iteration_counter >= EXPERIMENT_END_ITERATION ) || ( current_bytes_length >= RUSH_DATA_LENGTH ) ) {
-                            rush_experiment_log();
+                        if ( iteration_counter++ >= EXPERIMENT_END_ITERATION ) {
+                            rush_experiment_prepare();
                             rush_power_state(PAYLOAD_FPGA, TURN_OFF);
+                            rush_experiment_log();
                             iteration_counter = 0;
                             xQueueSendToBack(payload_rush_queue, &rush_data, portMAX_DELAY);
                         }
                     }
                     else {
                         rush_power_state(PAYLOAD_FPGA, TURN_OFF);
+                        rush_fpga_enable == RUSH_FPGA_DISABLE;
                         iteration_counter = 0;
                     }
                 }
 
                 else {
                     /**< Set a start address to read */
-                    rush_read((uint8_t *)&last_data_address, REG_LASTADDR, 4);
+                    for( read_attempts = 0; read_attempts < 3; read_attempts++) {
+                        rush_read((uint8_t *)&last_data_address, REG_LASTADDR, 4);
+                    }
                     last_address_update = 1;
                 }
             }
@@ -187,7 +189,7 @@ uint8_t rush_overtemperature_check( void ) {
     return payload_status;
 }
 
-void rush_delay_ms( uint8_t time_ms ) {
+void rush_delay_ms( uint16_t time_ms ) {
     vTaskDelayMs(time_ms);
 }
 

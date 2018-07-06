@@ -64,10 +64,10 @@ static xTaskHandle payload_rush_interface_task_handle;
 void payload_rush_interface_task( void *pvParameters );
 
 /**
- * \fn void rush_delay( uint8_t time_ms )
+ * \fn void rush_delay( uint16_t time_ms )
  * This causes a delay that leaves the microcontroller free for other tasks run
  * \param time_ms time to delay in milliseconds
  */
-void rush_delay_ms( uint8_t time_ms );
+void rush_delay_ms( uint16_t time_ms );
 
 #endif /* SRC_PAYLOAD_RUSH_INTERFACE_TASK_H_ */

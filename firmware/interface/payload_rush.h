@@ -80,7 +80,7 @@
 #define HEALTH_TIMEOUT              30        /**< in seconds */
 #define TEMPERATURE_HIGH_LIMIT      95        /**< in degrees */
 #define TEMPERATURE_LOW_LIMIT       40        /**< in degrees */
-#define RUSH_DATA_LENGTH            32
+#define RUSH_DATA_LENGTH            64
 
 extern void rush_delay_ms( uint8_t time_ms );
 
