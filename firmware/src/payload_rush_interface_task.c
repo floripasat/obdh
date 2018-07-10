@@ -31,9 +31,9 @@
 
 #include "payload_rush_interface_task.h"
 
-void rush_experiment_prepare( void );
+void rush_experiment_perform( void );
 void rush_experiment_log( void );
-void rush_delay_ms( uint8_t time_ms );
+void rush_delay_ms( uint16_t time_ms );
 uint8_t rush_overtemperature_check( void );
 uint8_t rush_health_test( void );
 
@@ -47,9 +47,10 @@ void payload_rush_interface_task( void *pvParameters ) {
 
     uint8_t last_address_update = 0;
     uint8_t energy_level;
-    uint8_t rush_status = RUSH_POWER_OFF, rush_fpga_enable = RUSH_FPGA_DISABLE;
     uint16_t iteration_counter = 0;
-    uint8_t read_attempts = 0;
+    uint8_t read_attempts = COMMUNICATION_MAX_ATTEMPTS;
+    uint8_t rush_status = RUSH_POWER_OFF;
+    volatile uint8_t rush_fpga_enable = RUSH_FPGA_DISABLE;
 
     rush_setup();
 
@@ -94,7 +95,7 @@ void payload_rush_interface_task( void *pvParameters ) {
                         }
 
                         if ( iteration_counter++ >= EXPERIMENT_END_ITERATION ) {
-                            rush_experiment_prepare();
+                            rush_experiment_perform();
                             rush_power_state(PAYLOAD_FPGA, TURN_OFF);
                             rush_experiment_log();
                             iteration_counter = 0;
@@ -110,9 +111,7 @@ void payload_rush_interface_task( void *pvParameters ) {
 
                 else {
                     /**< Set a start address to read */
-                    for( read_attempts = 0; read_attempts < 3; read_attempts++) {
-                        rush_read((uint8_t *)&last_data_address, REG_LASTADDR, 4);
-                    }
+                    while( ( rush_read( (uint8_t *)&last_data_address, REG_LASTADDR, 4 ) == RUSH_COMM_ERROR ) && ( read_attempts-- != 0 ) );
                     last_address_update = 1;
                 }
             }
@@ -129,11 +128,11 @@ void payload_rush_interface_task( void *pvParameters ) {
 }
 
 /**
- * \fn void rush_experiment_prepare( void )
+ * \fn void rush_experiment_perform( void )
  * Prepare rush to perform an experiment
  * \return none
  */
-void rush_experiment_prepare( void ) {
+void rush_experiment_perform( void ) {
     uint8_t setup_byte;
     uint32_t obdh_current_time;
 
@@ -158,16 +157,22 @@ void rush_experiment_prepare( void ) {
  * \return none
  */
 void rush_experiment_log( void ) {
-    uint8_t send_attempts = 3;
+    uint8_t read_attempts = COMMUNICATION_MAX_ATTEMPTS;
+    uint32_t data_length;
 
     /**< Get the current data address */
-    rush_read((uint8_t *)&current_data_address, REG_LASTADDR, 4);
+    while( ( rush_read( (uint8_t *)&current_data_address, REG_LASTADDR, 4 ) == RUSH_COMM_ERROR ) && ( read_attempts-- != 0 ) );
+
+    /**< Set the length of data to be read */
+    data_length = current_data_address - last_data_address;
+    if ( data_length >= RUSH_DATA_LENGTH ){
+        data_length = RUSH_DATA_LENGTH;
+    }
 
     /**< Read the last rush data packet */
-    if ( ( current_data_address - last_data_address ) > 0 ) {
-        while( ( rush_read(rush_data, last_data_address, RUSH_DATA_LENGTH) == RUSH_COMM_ERROR ) && ( send_attempts-- != 0 ) );
-        last_data_address = current_data_address;
-    }
+    read_attempts = COMMUNICATION_MAX_ATTEMPTS;
+    while( ( rush_read( rush_data, last_data_address, data_length ) == RUSH_COMM_ERROR ) && ( read_attempts-- != 0 ) );
+    last_data_address += data_length;
 }
 
 /**

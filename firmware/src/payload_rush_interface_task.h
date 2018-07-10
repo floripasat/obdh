@@ -50,6 +50,8 @@
 #define EXPERIMENT_START_ITERATION        30
 #define EXPERIMENT_END_ITERATION          60
 
+#define COMMUNICATION_MAX_ATTEMPTS        3
+
 /**
  * \var static xTaskHandle rush_interface_task_handle
  * \brief variable which holds the task reference

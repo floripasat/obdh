@@ -50,7 +50,7 @@
 #define TURN_ON             1
 #define TURN_OFF            0
 
-#define RESPONSE_TIME_MS    700
+#define RESPONSE_TIME_MS    500
 
 #define REG_STATUS          (0x2000000)
 #define REG_HEALTH          (0x2000001)
@@ -82,7 +82,7 @@
 #define TEMPERATURE_LOW_LIMIT       40        /**< in degrees */
 #define RUSH_DATA_LENGTH            64
 
-extern void rush_delay_ms( uint8_t time_ms );
+extern void rush_delay_ms( uint16_t time_ms );
 
 /**
  * \fn rush_setup
