@@ -48,18 +48,21 @@ void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
 void send_reset_charge_command(void);
+void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len);
 
 
 void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t current_turn = 0, turns_to_wait;
+    uint8_t enable_repeater;
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
+    uint8_t data_len;
 
     PA_ENABLE();
     radio_status = rf4463_init();
@@ -73,7 +76,8 @@ void communications_task( void *pvParameters ) {
 
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) > 7) {
+        data_len = try_to_receive(data);
+        if(data_len > 7) {
             received_telecommand = decode_telecommand(data);
 
             if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
@@ -92,6 +96,12 @@ void communications_task( void *pvParameters ) {
     //                request_antenna_mutex();
                     answer_ping(received_telecommand);
                 }
+
+                if (enable_repeater == ENABLE_REPEATER_TRANSMISSION){
+                    if(received_telecommand.request_action == REQUEST_REPEAT_TELECOMMAND){
+                        radioamateur_repeater(&received_telecommand, &data_len);
+                    }
+                }
             }
 
             /**< update the last telecommands, rssi and counter */
@@ -107,15 +117,18 @@ void communications_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
             case ENERGY_L2_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+                enable_repeater = ENABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L3_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L4_MODE:
             default:
                 turns_to_wait = 0xFFFF;
+                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
             }
 
             if(++current_turn > turns_to_wait) {
@@ -243,6 +256,35 @@ void answer_ping(telecommand_t telecommand) {
     }
 
     ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+}
+
+void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len){
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t msg[28];
+    uint8_t i = 0;
+
+    for(i = 0; i<6; i++){
+        msg[i] = telecommand->ID[i];
+    }
+
+    msg[6]= (uint8_t) ACTION_REPEAT_TELECOMMAND;
+    msg[7]= (uint8_t) (ACTION_REPEAT_TELECOMMAND >> 8);
+
+    for(i = 0; i<8; i++){
+        msg[8 + i] = telecommand->arguments[i];
+    }
+
+    for(i = 0; i<12; i++){
+        msg[16 + i] = telecommand->reserved[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, msg, *data_len);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
