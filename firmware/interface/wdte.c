@@ -34,13 +34,11 @@
 void wdte_setup(void) {
 
     BIT_SET(WDI_EXT_DIR, WDI_EXT_PIN);     /**< Set as output pin */
-	BIT_SET(MR_WDog_DIR, MR_WDog_PIN);     /**< Set as output pin */
+    BIT_SET(MR_WDog_DIR, MR_WDog_PIN);     /**< Set as output pin */
 	BIT_SET(MR_WDog_OUT, MR_WDog_PIN);     /**< Set output        */
 }
 
 void wdte_reset_counter(void) {
-#ifndef _DEBUG
-    BIT_TOGGLE(WDI_EXT_OUT, WDI_EXT_PIN);  /**< Toggle the pin to reset the counter */
-#endif
 
+    BIT_TOGGLE(WDI_EXT_OUT, WDI_EXT_PIN);  /**< Toggle the pin to reset the counter */
 }
