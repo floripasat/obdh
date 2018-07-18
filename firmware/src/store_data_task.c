@@ -179,7 +179,9 @@ void update_last_write_position(void) {
     uint32_t last_write_pointer_sector;
     uint32_t last_write_pointer_sector_array;
 
-    last_write_pointer = ++last_write_pointer % MEMORY_USABLE_SIZE;
+    if(card_size >= MEMORY_CHECK_OPERATION_SIZE) {
+        last_write_pointer = ++last_write_pointer % (card_size / SECTOR_SIZE);
+    }
 
     if (last_write_pointer == 0){
         last_write_pointer = FIRST_DATA_SECTOR;
@@ -199,24 +201,6 @@ void update_last_write_position(void) {
         mmcWriteSector(STORE_LAST_WRITE_POINTER_POINTER_SECTOR, (unsigned char *)&last_write_pointer_sector_array);
     }
 }
-
-/*
- * For future releases that consider more problematic situations.
- *
-void update_last_read_position(uint32_t new_position) {
-
-    uint32_t last_read_sector_number;
-
-    if(new_position > last_read_pointer) {
-        last_read_pointer = new_position;
-
-        last_read_pointer = last_read_pointer % MEMORY_USABLE_SIZE;
-        last_read_sector_number = ++last_read_pointer % 128;
-
-        mmcWriteBlock(STORE_LAST_READ_BYTE + last_read_sector_number * 4, 4, (unsigned char *)last_read_pointer);
-    }
-}
-*/
 
 void store_data_on_flash( data_packet_t *packet ) {
     //write new packet
@@ -282,10 +266,10 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
  */
 uint32_t get_last_read_pointer(void) {
 
-    uint32_t read_pointer_value;
+    uint32_t last_read_pointer;
 
-    mmcReadBlock(STORE_LAST_READ_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&read_pointer_value);
-    return read_pointer_value;
+    mmcReadBlock(STORE_LAST_READ_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&last_read_pointer);
+    return last_read_pointer;
 }
 
 /**
@@ -295,48 +279,17 @@ uint32_t get_last_read_pointer(void) {
  * \return last_write_pointer is the last sector of write data
  */
 uint32_t get_last_write_pointer(void) {
-    uint32_t write_pointer_value;
-    uint32_t last_write_pointer_sector;
+    uint32_t last_write_pointer;
+    uint32_t store_write_pointer_sector;
 
-    last_write_pointer_sector = mmcReadBlock(STORE_LAST_WRITE_POINTER_POINTER_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&last_write_pointer_sector);
+    /**< Get the current position of the storage sector to the last write pointer */
+    mmcReadBlock(STORE_LAST_WRITE_SECTOR * SECTOR_SIZE, 4, (unsigned char *)&store_write_pointer_sector);
 
-    mmcReadBlock(last_write_pointer_sector * SECTOR_SIZE, 4, (unsigned char *)&write_pointer_value);
-    return write_pointer_value;
+    /**< Read this sector to get the last write pointer value */
+    mmcReadBlock(store_write_pointer_sector * SECTOR_SIZE, 4, (unsigned char *)&last_write_pointer);
+
+    return last_write_pointer;
 }
-
-/*
- * For future releases that consider more problematic situations.
- *
-uint32_t get_last_read_pointer(void) {
-
-    uint32_t sector_pointer_value[2];
-    uint32_t sector_pointer_position;
-
-    sector_pointer_position = END_STORE_LAST_READ_BYTE - 4;
-    mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
-
-    while(sector_pointer_value[0] <= sector_pointer_value[1]) {
-        if(sector_pointer_position == STORE_LAST_READ_BYTE) {
-            if(sector_pointer_value[0] == DEFAULT_DATA_AFTER_RESET) {
-                sector_pointer_value[0] = 0;
-                break;
-            }
-            else {
-                mmcReadBlock(END_STORE_LAST_READ_BYTE, 4, (unsigned char *)sector_pointer_value[0]);
-                if (sector_pointer_value[0] > MEMORY_USABLE_SIZE) {
-                    sector_pointer_value[0] = 0;
-                }
-                break;
-            }
-        }
-        sector_pointer_position = sector_pointer_position - 4;
-        mmcReadBlock(sector_pointer_position, 8, (unsigned char *)sector_pointer_value);
-    }
-
-    last_read_pointer = sector_pointer_value[0];
-    return last_read_pointer;
-}
-*/
 
 void pack_module_data(uint16_t flags, uint16_t bit_flag, uint8_t *module_data, uint8_t module_size, uint8_t* to_send_packet, uint16_t *total_package_size) {
     uint16_t i;
