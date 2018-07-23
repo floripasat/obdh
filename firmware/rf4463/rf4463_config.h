@@ -54,6 +54,10 @@
 #define RF4463_TX_TIMEOUT                       20000   // Waiting time for packet send interrupt. this time is depended on tx length and data rate of wireless.
 #define RF4463_FREQ_CHANNEL                     0       // Frequency channel.
 
+// This value must be obtained measuring the output signal with a frequency analyzer
+// The register value is tuned according to the desired output frequency
+#define RF4463_XO_TUNE_REG_VALUE                97
+
 #endif // RF4463_CONFIG_H_
 
 //! \} End of rf4463 group
