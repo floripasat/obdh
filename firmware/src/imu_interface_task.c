@@ -30,6 +30,7 @@
  */
 
 #include "imu_interface_task.h"
+#include "../sun_position.h"
 
 void imu_interface_task( void *pvParameters ) {
     uint8_t imu_data_temp[14];
@@ -71,6 +72,16 @@ void imu_interface_task( void *pvParameters ) {
         gyroscope_absolute_module = sqrtf(gyroscope_z * gyroscope_z + gyroscope_y * gyroscope_y + gyroscope_x * gyroscope_x);
 #endif
 
+        int16_t d1, d2, d3;
+
+        position_sun test;
+
+        test = sun_position();
+
+        d1 = (test.X / 2.0) * 32768;
+        d2 = (test.Y / 2.0) * 32768;
+        d3 = (test.teta / 180.0) * 32768;
+
         /*
          * Use 8-bit IMU and save 2 samples/packet (sampling rate = 2Hz)
          */
@@ -78,9 +89,16 @@ void imu_interface_task( void *pvParameters ) {
             for(i = 0; i < 6; i++) {
                 imu_data[i] = imu_data_temp[i];         /**< accelerometer data */
             }
-            for(i = 6; i < 12; i++) {
-                imu_data[i] = imu_data_temp[i+2];       /**< gyroscope data     */
-            }
+            //for(i = 6; i < 12; i++) {
+            //    imu_data[i] = imu_data_temp[i+2];       /**< gyroscope data     */
+            //}
+
+            imu_data[6]  = ((uint16_t)d1 >> 8) & 0x00FF;
+            imu_data[7]  = ((uint16_t)d1) & 0x00FF;
+            imu_data[8]  = ((uint16_t)d2 >> 8) & 0x00FF;
+            imu_data[9]  = ((uint16_t)d2) & 0x00FF;
+            imu_data[10] = ((uint16_t)d3 >> 8) & 0x00FF;
+            imu_data[11] = ((uint16_t)d3) & 0x00FF;
 
             turn = 1;
         }
@@ -88,9 +106,16 @@ void imu_interface_task( void *pvParameters ) {
             for(i = 0; i < 6; i++) {
                 imu_data[i+12] = imu_data_temp[i];      /**< accelerometer data */
             }
-            for(i = 6; i < 12; i++) {
-                imu_data[i+12] = imu_data_temp[i+2];    /**< gyroscope data     */
-            }
+            //for(i = 6; i < 12; i++) {
+            //    imu_data[i+12] = imu_data_temp[i+2];    /**< gyroscope data     */
+            //}
+
+            imu_data[6+12]  = ((uint16_t)d1 >> 8) & 0x00FF;
+            imu_data[7+12]  = ((uint16_t)d1) & 0x00FF;
+            imu_data[8+12]  = ((uint16_t)d2 >> 8) & 0x00FF;
+            imu_data[9+12]  = ((uint16_t)d2) & 0x00FF;
+            imu_data[10+12] = ((uint16_t)d3 >> 8) & 0x00FF;
+            imu_data[11+12] = ((uint16_t)d3) & 0x00FF;
 
             xQueueOverwrite(status_imu_queue, &imu_status);
 
@@ -111,4 +136,3 @@ void imu_interface_task( void *pvParameters ) {
 
     vTaskDelete( NULL );
 }
-
