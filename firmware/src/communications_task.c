@@ -196,6 +196,7 @@ uint16_t try_to_receive(uint8_t *data) {
     uint8_t rx_buf[266];
     uint16_t data_len = 0;
     uint8_t ngham_status = 0;
+    uint8_t FORCE_TELECOMMAND = 0;
 
     if(rf4463_wait_nIRQ()) {            // verify if PACKET_RX interrupt was happened
 //        rf4463_clear_interrupts();
@@ -213,6 +214,24 @@ uint16_t try_to_receive(uint8_t *data) {
 
         rf4463_rx_init();    // wait for packet from tx
     }
+
+    if(FORCE_TELECOMMAND == 1)
+    {
+        data[7] = 0x77;
+        data[6] = 0x64;
+
+        data[8] = 0xFF;
+        data[9] = 0xFF;
+        data[10] = 0x01;
+        data[11] = 0x01;
+        data[12] = 0x00;
+        data[13] = 0x00;
+        data[14] = 0x00;
+        data[15] = 0x00;
+
+        data_len = 28;
+    }
+
     return data_len;
 }
 
