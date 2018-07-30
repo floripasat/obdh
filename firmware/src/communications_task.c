@@ -225,6 +225,8 @@ void send_requested_data(uint8_t *raw_package) {
             send_data(to_send_package, package_size);
         }
     }
+
+    update_last_read_position(read_position);
 }
 
 void answer_ping(telecommand_t telecommand) {
