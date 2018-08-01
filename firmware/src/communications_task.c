@@ -327,13 +327,13 @@ void request_antenna_mutex(void) {
  */
 void update_last_telecommand_status( telecommand_t *last_telecommand ) {
     uint8_t telecommand_status[19];
-    uint8_t radio_modem_status[4];
-    uint8_t radio_signal_strengh;
+    uint8_t radio_modem_status[5];
+    uint8_t latched_radio_signal_strengh;
     uint8_t i = 0;
 
     /**< get the radio signal strength indicator located in the last byte received */
-    rf4463_get_cmd(RF4463_CMD_GET_MODEM_STATUS, radio_modem_status, 4);
-    radio_signal_strengh = radio_modem_status[3];
+    rf4463_get_cmd(RF4463_CMD_GET_MODEM_STATUS, radio_modem_status, 5);
+    latched_radio_signal_strengh = radio_modem_status[4];
 
     /**< wrap the data in a packet to be stored, via store data task */
     for(i=0; i<6; i++) {
@@ -344,7 +344,7 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
     for(i=8; i<16; i++) {
         telecommand_status[i] = last_telecommand->arguments[i-8];
     }
-    telecommand_status[i++] = radio_signal_strengh;
+    telecommand_status[i++] = latched_radio_signal_strengh;
 
     /**< send to the store data task */
     xQueueOverwrite(main_radio_queue, telecommand_status);
