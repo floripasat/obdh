@@ -37,6 +37,8 @@ uint32_t get_last_read_pointer(void);
 uint32_t get_last_write_pointer(void);
 void update_last_write_position(void);
 void update_last_read_position(uint32_t new_position);
+void mmc_write_sector(uint32_t sector, uint8_t *data);
+void mmc_read_sector(uint32_t sector, uint8_t *data);
 
 volatile uint32_t last_read_position, last_write_position;
 volatile uint32_t card_size;
@@ -77,7 +79,7 @@ void store_data_task( void *pvParameters ) {
         /**< Store packet routine */
         new_packet = read_and_pack_data();
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
-            store_data_on_flash(&new_packet);
+            mmc_write_sector(last_write_position, (uint8_t *)&new_packet);
             xSemaphoreGive(spi1_semaphore);
             update_last_write_position();
         }
@@ -126,7 +128,7 @@ data_packet_t read_and_pack_data( void ) {
             telecommand_counter++;
             packet.main_radio[17] = (uint8_t)(telecommand_counter >> 8);
             packet.main_radio[18] = (uint8_t)telecommand_counter;
-            mmcWriteSector(TELECOMMAND_COUNTER_SECTOR, (unsigned char *)&telecommand_counter);
+            mmc_write_sector(TELECOMMAND_COUNTER_SECTOR, (uint8_t *)&telecommand_counter);
             xSemaphoreGive(spi1_semaphore);
         }
 
@@ -173,7 +175,7 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
 
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
-        mmcReadSector(read_sector, (unsigned char *) flash_package);
+        mmc_read_sector(read_sector, flash_package);
         xSemaphoreGive(spi1_semaphore);
     }
 
@@ -204,20 +206,6 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     return package_size;
 }
 
-void store_data_on_flash( data_packet_t *packet ) {
-    //write new packet
-    unsigned char data[512];
-    unsigned int i;
-
-    for(i = 0; i < sizeof(data_packet_t); i++) {
-        data[i] = ((uint8_t *)packet)[i];
-    }
-
-    mmcWriteSector(last_write_position, data);
-    //write new status
-//    mmcWriteSector(0, (unsigned char *) status_packet);
-}
-
 /**
  * \fn get_last_read_pointer
  * Get the last read pointer after a MCU reset.
@@ -226,14 +214,14 @@ void store_data_on_flash( data_packet_t *packet ) {
  */
 uint32_t get_last_read_pointer(void) {
 
-    uint32_t last_read_pointer[128];
+    uint32_t last_read_pointer;
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
-        mmcReadSector(STORE_LAST_READ_SECTOR, (unsigned char *)last_read_pointer);
+        mmc_read_sector(STORE_LAST_READ_SECTOR, (uint8_t *)&last_read_pointer);
         xSemaphoreGive(spi1_semaphore);
     }
 
-    return last_read_pointer[0];
+    return last_read_pointer;
 }
 
 /**
@@ -243,29 +231,26 @@ uint32_t get_last_read_pointer(void) {
  * \return last_write_pointer is the last sector of write data
  */
 uint32_t get_last_write_pointer(void) {
-    uint32_t last_write_pointer[128];
-    volatile uint32_t store_write_pointer_sector[128];
+    uint32_t last_write_pointer;
+    volatile uint32_t store_write_pointer_sector;
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
         /**< Get the current position of the storage sector to the last write pointer */
-        mmcReadSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)store_write_pointer_sector);
+        mmc_read_sector(STORE_LAST_WRITE_SECTOR, (uint8_t *)&store_write_pointer_sector);
 
         /**< Prevent overwrite of the status sectors */
-        if (store_write_pointer_sector[0] < STORE_AUXILIAR_LAST_WRITE_SECTOR) {
-            store_write_pointer_sector[0] = STORE_AUXILIAR_LAST_WRITE_SECTOR;
-            mmcWriteSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)store_write_pointer_sector);
-
-            /**< Get the value back after the write sector function change it */
-            store_write_pointer_sector[0] = STORE_AUXILIAR_LAST_WRITE_SECTOR;
+        if (store_write_pointer_sector < STORE_AUXILIAR_LAST_WRITE_SECTOR) {
+            store_write_pointer_sector = STORE_AUXILIAR_LAST_WRITE_SECTOR;
+            mmc_write_sector(STORE_LAST_WRITE_SECTOR, (uint8_t *)&store_write_pointer_sector);
         }
 
         /**< Read this sector to get the last write pointer value */
-        mmcReadSector(store_write_pointer_sector[0], (unsigned char *)last_write_pointer);
+        mmc_read_sector(store_write_pointer_sector, (uint8_t *)&last_write_pointer);
 
         xSemaphoreGive(spi1_semaphore);
     }
 
-    return last_write_pointer[0];
+    return last_write_pointer;
 }
 
 /**
@@ -276,12 +261,12 @@ uint32_t get_last_write_pointer(void) {
  */
 void update_last_read_position(uint32_t new_position) {
 
-    uint32_t last_read_pointer[128];
+    uint32_t last_read_pointer;
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
         if(new_position > last_read_position) {
-            last_read_pointer[0] = new_position;
-            mmcWriteSector(STORE_LAST_READ_SECTOR, (unsigned char *)last_read_pointer);
+            last_read_pointer = new_position;
+            mmc_write_sector(STORE_LAST_READ_SECTOR, (uint8_t *)&last_read_pointer);
         }
         xSemaphoreGive(spi1_semaphore);
     }
@@ -295,8 +280,8 @@ void update_last_read_position(uint32_t new_position) {
  */
 void update_last_write_position(void) {
 
-    uint32_t last_write_pointer[128];
-    uint32_t store_write_pointer_sector[128];
+    uint32_t last_write_pointer;
+    uint32_t store_write_pointer_sector;
     uint32_t store_write_pointer_sector_backup;
 
     /**< Turn the memory positions cyclic */
@@ -309,27 +294,64 @@ void update_last_write_position(void) {
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
         /**< Get the current position of the storage sector to the last write pointer */
-        mmcReadSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)store_write_pointer_sector);
+        mmc_read_sector(STORE_LAST_WRITE_SECTOR, (uint8_t *)&store_write_pointer_sector);
 
-        /**< Backup value for the last write position and its store sector*/
-        store_write_pointer_sector_backup = store_write_pointer_sector[0];
+        /**< Backup value for store sector for the last write sector pointer */
+        store_write_pointer_sector_backup = store_write_pointer_sector;
 
         /**< Check for corrupted sectors */
         do {
             /**< Update the last write position with the new one and get it back */
-            last_write_pointer[0] = last_write_position;
-            mmcWriteSector(store_write_pointer_sector[0], (unsigned char *)last_write_pointer);
-            mmcReadSector(store_write_pointer_sector[0], (unsigned char *)last_write_pointer);
+            last_write_pointer = last_write_position;
+            mmc_write_sector(store_write_pointer_sector, (uint8_t *)&last_write_pointer);
+            mmc_read_sector(store_write_pointer_sector, (uint8_t *)&last_write_pointer);
 
-            if (last_write_position != last_write_pointer[0]) {
-                store_write_pointer_sector[0]++;
+            if (last_write_position != last_write_pointer) {
+                store_write_pointer_sector++;
             }
-        } while ( ( last_write_position != last_write_pointer[0] ) && ( store_write_pointer_sector[0] < FIRST_DATA_SECTOR ) );
+        } while ( ( last_write_position != last_write_pointer ) && ( store_write_pointer_sector < FIRST_DATA_SECTOR ) );
 
         /**< Update the current sector to store the last write sector if necessary */
-        if (store_write_pointer_sector_backup != store_write_pointer_sector[0]) {
-            mmcWriteSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)store_write_pointer_sector);
+        if (store_write_pointer_sector_backup != store_write_pointer_sector) {
+            mmc_write_sector(STORE_LAST_WRITE_SECTOR, (uint8_t *)&store_write_pointer_sector);
         }
         xSemaphoreGive(spi1_semaphore);
+    }
+}
+
+/**
+ * \fn mmc_write_sector
+ * Write a sector on the memory card regardless of the size of the source variable.
+ * \param sector to write and the data to be written
+ * \return none
+ */
+void mmc_write_sector(uint32_t sector, uint8_t *data) {
+    uint8_t buffer[512];
+    uint16_t i;
+
+    for(i = 0; i < sizeof(data); i++) {
+        buffer[i] = data[i];
+    }
+    for(i = sizeof(data); i < 512; i++) {
+        buffer[i] = 0xFF;
+    }
+
+    mmcWriteSector(sector, (unsigned char *)buffer);
+}
+
+/**
+ * \fn mmc_read_sector
+ * Read a sector on the memory card regardless of the size of the receiver variable.
+ * \param sector to read and the data to be read
+ * \return none
+ */
+void mmc_read_sector(uint32_t sector, uint8_t *data) {
+    uint8_t buffer[512];
+    uint16_t i;
+
+    mmcReadSector(sector, (unsigned char *)buffer);
+
+    for(i = 0; i < sizeof(data); i++) {
+        data[i] = buffer[i];
     }
 }
