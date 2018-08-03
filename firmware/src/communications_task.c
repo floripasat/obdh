@@ -80,28 +80,32 @@ void communications_task( void *pvParameters ) {
         if(data_len > 7) {
             received_telecommand = decode_telecommand(data);
 
-            if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
-                enter_in_shutdown();
-            }
-            if(received_telecommand.request_action == REQUEST_CHARGE_RESET_TELECOMMAND) {
-                send_reset_charge_command();
-            }
-
-            if(operation_mode == NORMAL_OPERATION_MODE){
-                if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
-                    send_requested_data(received_telecommand.arguments);
-                }
-
-                if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
-    //                request_antenna_mutex();
-                    answer_ping(received_telecommand);
-                }
-
-                if (enable_repeater == ENABLE_REPEATER_TRANSMISSION){
-                    if(received_telecommand.request_action == REQUEST_REPEAT_TELECOMMAND){
-                        radioamateur_repeater(&received_telecommand, &data_len);
+            switch (received_telecommand.request_action) {
+                case REQUEST_PING_TELECOMMAND:
+                    if (operation_mode == NORMAL_OPERATION_MODE) {
+                        answer_ping(received_telecommand);
                     }
-                }
+                    break;
+                case REQUEST_DATA_TELECOMMAND:
+                    if (operation_mode == NORMAL_OPERATION_MODE) {
+                        send_requested_data(received_telecommand.arguments);
+                    }
+                    break;
+                case REQUEST_REPEAT_TELECOMMAND:
+                    if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
+                        if (operation_mode == NORMAL_OPERATION_MODE) {
+                            radioamateur_repeater(&received_telecommand, &data_len);
+                        }
+                    }
+                    break;
+                case REQUEST_SHUTDOWN_TELECOMMAND:
+                    enter_in_shutdown();
+                    break;
+                case REQUEST_CHARGE_RESET_TELECOMMAND:
+                    send_reset_charge_command();
+                    break;
+                default:
+                    break;
             }
 
             /**< update the last telecommands, rssi and counter */
