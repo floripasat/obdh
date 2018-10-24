@@ -48,8 +48,15 @@ void store_data_task( void *pvParameters ) {
     data_packet_t new_packet;
     uint8_t mem1_status;
 
+    uint8_t memflag;
+    uint8_t datatest_write[4]={0xA1, 0xB2, 0xC3, 0xD4};
+    uint8_t datatest_read[4]={0};
+    uint32_t address;
+    uint8_t byte_length;
+
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
         card_size = mmc_setup();
+        pin_setup();
         xSemaphoreGive(spi1_semaphore);
     }
 
@@ -57,9 +64,10 @@ void store_data_task( void *pvParameters ) {
     if(card_size > MEMORY_CHECK_OPERATION_SIZE) {
         last_read_position = get_last_read_pointer();
         last_write_position = get_last_write_pointer();
+        memflag = 0;
     }
     else {
-        //TODO: use another memory
+        memflag =1;
     }
 
     while(1) {
@@ -74,12 +82,55 @@ void store_data_task( void *pvParameters ) {
         }
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
+        if (memflag == 0) {
         /**< Store packet routine */
         new_packet = read_and_pack_data();
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
             store_data_on_flash(&new_packet);
             xSemaphoreGive(spi1_semaphore);
             update_last_write_position();
+        }
+        }
+        else {
+            address = 0x00000000;
+            byte_length = 4;
+
+            if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+
+            mem_SER(address, Mem0);
+            mem_SER(address, Mem1);
+            mem_SER(address, Mem2);
+
+            mem_read_multiple(datatest_read, address, byte_length, Mem0);
+            mem_read_multiple(datatest_read, address, byte_length, Mem1);
+            mem_read_multiple(datatest_read, address, byte_length, Mem2);
+
+
+            mem_pp_multiple(datatest_write, address, byte_length, Mem0);
+            mem_read_multiple(datatest_read, address, byte_length, Mem0);
+
+            mem_pp_multiple(datatest_write, address, byte_length, Mem1);
+            mem_read_multiple(datatest_read, address, byte_length, Mem1);
+
+            mem_pp_multiple(datatest_write, address, byte_length, Mem2);
+            mem_read_multiple(datatest_read, address, byte_length, Mem2);
+
+            mem_BER64K(address, Mem0);
+            mem_read_multiple(datatest_read, address, byte_length, Mem0);
+
+            mem_BER64K(address, Mem1);
+            mem_read_multiple(datatest_read, address, byte_length, Mem1);
+
+            mem_BER64K(address, Mem2);
+            mem_read_multiple(datatest_read, address, byte_length, Mem2);
+
+            mem_id(datatest_read, Mem0);
+            mem_id(datatest_read, Mem1);
+            mem_id(datatest_read, Mem2);
+
+            xSemaphoreGive(spi1_semaphore);
+            }
+
         }
 
         /**< Operating system delay for periodicity between task calls */

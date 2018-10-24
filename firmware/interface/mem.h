@@ -33,6 +33,10 @@
 #include <stdint.h>
 #include "../driver/spi.h"
 
+/*Memory selection*/
+#define Mem0    0
+#define Mem1    1
+#define Mem2    2
 
 /* Instructions */
 

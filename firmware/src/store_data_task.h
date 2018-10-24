@@ -37,6 +37,7 @@
 #include "task_queues.h"
 #include "../util/MMC_lib/mmc.h"
 #include "../util/MMC_lib/hal_MMC_hardware_board.h"
+#include "../interface/mem.h"
 
 /* TODO: remove the global variables in obdh_def*/
 #include "../include/floripasat_def.h"

@@ -36,13 +36,13 @@
 void mem_disable(uint8_t mem_number){
 
 	switch(mem_number){
-        case 0:
+        case Mem0:
             Mem0_CE_OUT |= Mem0_CE_PIN;
             break;
-        case 1:
+        case Mem1:
             Mem1_CE_OUT |= Mem1_CE_PIN;
             break;
-        case 2:
+        case Mem2:
             Mem2_CE_OUT |= Mem2_CE_PIN;
             break;
 	}
@@ -51,13 +51,13 @@ void mem_disable(uint8_t mem_number){
 void mem_enable(uint8_t mem_number){
 
 	switch(mem_number){
-        case 0:
+        case Mem0:
             Mem0_CE_OUT &= ~Mem0_CE_PIN;
             break;
-        case 1:
+        case Mem1:
             Mem1_CE_OUT &= ~Mem1_CE_PIN;
             break;
-        case 2:
+        case Mem2:
             Mem2_CE_OUT &= ~Mem2_CE_PIN;
             break;
 	}
@@ -66,15 +66,15 @@ void mem_enable(uint8_t mem_number){
 void mem_pulse(uint8_t mem_number) {
 
 	switch(mem_number) {
-        case 0:
+        case Mem0:
             Mem0_CE_OUT |= Mem0_CE_PIN;
             Mem0_CE_OUT &= ~Mem0_CE_PIN;
             break;
-        case 1:
+        case Mem1:
             Mem1_CE_OUT |= Mem1_CE_PIN;
             Mem1_CE_OUT &= ~Mem1_CE_PIN;
             break;
-        case 2:
+        case Mem2:
             Mem2_CE_OUT |= Mem2_CE_PIN;
             Mem2_CE_OUT &= ~Mem2_CE_PIN;
             break;
@@ -96,7 +96,7 @@ uint8_t mem_status(uint8_t mem_number) {
 
 void mem_id(uint8_t *data_read, uint8_t mem_number) {
 
-	mem_pulse(mem_number);
+	mem_enable(mem_number);
 
 	spi_tx(NV_MEM_BASE_ADDRESS, MEM_RDID);
 
@@ -107,7 +107,7 @@ void mem_id(uint8_t *data_read, uint8_t mem_number) {
 		data_read++;
 
 	}
-	mem_pulse(mem_number);
+	mem_disable(mem_number);
 }
 
 void pin_setup(){
@@ -176,7 +176,7 @@ void mem_read(uint8_t* data_read, uint32_t mem_addr, uint8_t mem_number) {
 
 void mem_read_multiple(uint8_t *data_read, uint32_t mem_addr, uint8_t data_byte_length, uint8_t mem_number) {
 
-	mem_pulse(mem_number);
+	mem_enable(mem_number);
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_READ);
 
@@ -190,12 +190,12 @@ void mem_read_multiple(uint8_t *data_read, uint32_t mem_addr, uint8_t data_byte_
 
 	for(i=0; i < data_byte_length; i++) {
 		*data_read = spi_rx(NV_MEM_BASE_ADDRESS) ;
-		if(*data_read != 0xFF)
-			while(1);
+	//	if(*data_read != 0xFF)
+	//		while(1);
 		data_read++;
 	}
 
-	mem_pulse(mem_number);
+	mem_disable(mem_number);
 }
 
 void mem_pp_multiple(uint8_t *data,uint32_t mem_addr,uint8_t data_byte_length,uint8_t mem_number) {
@@ -203,6 +203,8 @@ void mem_pp_multiple(uint8_t *data,uint32_t mem_addr,uint8_t data_byte_length,ui
 //	data_byte_length menor que 256 bytes
 
 	mem_WREN(mem_number);
+
+	mem_enable(mem_number);
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_PP);
 
@@ -218,11 +220,10 @@ void mem_pp_multiple(uint8_t *data,uint32_t mem_addr,uint8_t data_byte_length,ui
 
 		spi_tx(NV_MEM_BASE_ADDRESS,*data);
 		data++;
-		i++;
 
 	}
 
-	mem_pulse(mem_number);
+	mem_disable(mem_number);
 
 	while(((mem_status(mem_number)) & BIT0));
 }
