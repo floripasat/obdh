@@ -38,8 +38,14 @@ uint32_t get_last_write_pointer(void);
 void update_last_write_position(void);
 void update_last_read_position(uint32_t new_position);
 
+uint32_t get_aux_next_write_position(void);
+void update_aux_next_write_position(void);
+
 volatile uint32_t last_read_position, last_write_position;
+volatile uint32_t aux_next_write_position;
 volatile uint32_t card_size;
+volatile uint8_t current_aux_mem;
+uint32_t next_write_store_address;
 
 void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -47,12 +53,9 @@ void store_data_task( void *pvParameters ) {
 
     data_packet_t new_packet;
     uint8_t mem1_status;
-
-    uint8_t memflag;
-    uint8_t datatest_write[4]={0xA1, 0xB2, 0xC3, 0xD4};
-    uint8_t datatest_read[4]={0};
-    uint32_t address;
-    uint8_t byte_length;
+    uint8_t mem_malf_flag;
+    uint16_t i;
+    uint32_t datatest;
 
     if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
         card_size = mmc_setup();
@@ -64,10 +67,14 @@ void store_data_task( void *pvParameters ) {
     if(card_size > MEMORY_CHECK_OPERATION_SIZE) {
         last_read_position = get_last_read_pointer();
         last_write_position = get_last_write_pointer();
-        memflag = 0;
+        mem_malf_flag = 0;
     }
     else {
-        memflag =1;
+        mem_malf_flag =1;
+        mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem0);
+        mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem1);
+        mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem2);
+        aux_next_write_position = get_aux_next_write_position();
     }
 
     while(1) {
@@ -82,7 +89,7 @@ void store_data_task( void *pvParameters ) {
         }
         xQueueOverwrite(status_mem1_queue, &mem1_status);
 
-        if (memflag == 0) {
+        if (mem_malf_flag == 0) {
         /**< Store packet routine */
         new_packet = read_and_pack_data();
         if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
@@ -92,43 +99,25 @@ void store_data_task( void *pvParameters ) {
         }
         }
         else {
-            address = 0x00000000;
-            byte_length = 4;
 
             if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
+                for(i = 4094;i > 0;i--){
+                    update_aux_next_write_position();
+                    mem_read_multiple((uint8_t *)&datatest, (next_write_store_address-4), 4, current_aux_mem);
+                }
+                __no_operation();
+                for(i = 4095;i > 0;i--){
+                    update_aux_next_write_position();
+                    mem_read_multiple((uint8_t *)&datatest, (next_write_store_address-4), 4, current_aux_mem);
+                }
+                __no_operation();
+                for(i = 2000;i > 0;i--){
+                    update_aux_next_write_position();
+                    mem_read_multiple((uint8_t *)&datatest, (next_write_store_address-4), 4, current_aux_mem);
+                }
+                aux_next_write_position = get_aux_next_write_position();
 
-            mem_SER(address, Mem0);
-            mem_SER(address, Mem1);
-            mem_SER(address, Mem2);
-
-            mem_read_multiple(datatest_read, address, byte_length, Mem0);
-            mem_read_multiple(datatest_read, address, byte_length, Mem1);
-            mem_read_multiple(datatest_read, address, byte_length, Mem2);
-
-
-            mem_pp_multiple(datatest_write, address, byte_length, Mem0);
-            mem_read_multiple(datatest_read, address, byte_length, Mem0);
-
-            mem_pp_multiple(datatest_write, address, byte_length, Mem1);
-            mem_read_multiple(datatest_read, address, byte_length, Mem1);
-
-            mem_pp_multiple(datatest_write, address, byte_length, Mem2);
-            mem_read_multiple(datatest_read, address, byte_length, Mem2);
-
-            mem_BER64K(address, Mem0);
-            mem_read_multiple(datatest_read, address, byte_length, Mem0);
-
-            mem_BER64K(address, Mem1);
-            mem_read_multiple(datatest_read, address, byte_length, Mem1);
-
-            mem_BER64K(address, Mem2);
-            mem_read_multiple(datatest_read, address, byte_length, Mem2);
-
-            mem_id(datatest_read, Mem0);
-            mem_id(datatest_read, Mem1);
-            mem_id(datatest_read, Mem2);
-
-            xSemaphoreGive(spi1_semaphore);
+                xSemaphoreGive(spi1_semaphore);
             }
 
         }
@@ -382,5 +371,116 @@ void update_last_write_position(void) {
             mmcWriteSector(STORE_LAST_WRITE_SECTOR, (unsigned char *)store_write_pointer_sector);
         }
         xSemaphoreGive(spi1_semaphore);
+    }
+}
+
+/**
+ * \fn get_aux_next_write_position
+ * Get the auxiliary memory's next_write_position after reset.
+ * \param none
+ * \return next_write_position is the next position to be written
+ */
+uint32_t get_aux_next_write_position(void){
+    volatile uint32_t next_write_position = 0;
+
+    current_aux_mem = Mem0;
+    next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+    mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+
+    if (next_write_position != 0xFFFFFFFF){
+        do{
+            next_write_store_address += 4;
+            mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+            if (next_write_store_address >= AUX_NWP_STORAGE_END){
+                next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+                current_aux_mem++;
+                if (current_aux_mem > 2){
+                    break;
+                }
+                mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+                if (next_write_position == 0xFFFFFFFF){
+                    break;
+                }
+            }
+            if (next_write_position == AUX_DATA_STORAGE_END){
+                current_aux_mem++;
+                next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+                if (current_aux_mem > 2){
+                    break;
+                }
+                mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+                if (next_write_position == 0xFFFFFFFF){
+                    break;
+                }
+            }
+        }
+        while(next_write_position != 0xFFFFFFFF);
+
+        if (current_aux_mem > Mem2){
+            current_aux_mem = Mem0;
+            next_write_position = AUX_DATA_STORAGE_BEGIN;
+            next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+            //insert erase routine
+            mem_pp_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+            next_write_store_address += 4;
+        }
+        else{
+            if (next_write_store_address == AUX_NWP_STORAGE_BEGIN){
+                next_write_position = AUX_DATA_STORAGE_BEGIN;
+                //insert erase routine
+                mem_pp_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+                next_write_store_address += 4;
+            }
+            else{
+                mem_read_multiple((uint8_t *)&next_write_position, (next_write_store_address - 4), 4, current_aux_mem);
+            }
+        }
+    }
+    else{
+        next_write_position = AUX_DATA_STORAGE_BEGIN;
+        next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+        //erase routine
+        mem_pp_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+        next_write_store_address += 4;
+    }
+
+    return next_write_position;
+}
+
+/**
+ * \fn update_aux_next_write_position
+ * Update the auxiliary memory's next_write_position to the next position.
+ * \param none
+ * \return none
+ */
+
+void update_aux_next_write_position(void){
+
+    //Memory switching
+    if (aux_next_write_position >= AUX_DATA_STORAGE_END){
+        aux_next_write_position = AUX_DATA_STORAGE_BEGIN;
+        current_aux_mem++;
+        if (current_aux_mem > Mem2){
+            current_aux_mem = Mem0;
+        }
+        next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+        //insert erase routine
+        mem_pp_multiple((uint8_t *)&aux_next_write_position, next_write_store_address, 4, current_aux_mem);
+        next_write_store_address += 4;
+    }
+    else{
+    //Storage sectors management
+        if (next_write_store_address >= AUX_NWP_STORAGE_END){
+            next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+            //insert erase routine
+            aux_next_write_position += PACKET_SIZE;
+            mem_pp_multiple((uint8_t *)&aux_next_write_position, next_write_store_address, 4, current_aux_mem);
+            next_write_store_address += 4;
+        }
+        else{
+            aux_next_write_position += PACKET_SIZE;
+            mem_pp_multiple((uint8_t *)&aux_next_write_position, next_write_store_address, 4, current_aux_mem);
+            next_write_store_address += 4;
+        }
     }
 }

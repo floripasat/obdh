@@ -56,6 +56,12 @@
 #define STORE_LAST_WRITE_SECTOR           3
 #define STORE_AUXILIAR_LAST_WRITE_SECTOR  4
 
+#define AUX_DATA_STORAGE_BEGIN            0x00003FFD	//< First address where data can be stored in the auxiliary memories;
+#define AUX_DATA_STORAGE_END			  0x00FFFFFD	//< Last address where data can be stored inthe auxiliary memories;
+#define AUX_NWP_STORAGE_BEGIN			  0x00000000	//< First position dedicated to storing the packet addresses;
+#define AUX_NWP_STORAGE_END				  0x00003FFC	//<	Last position dedicated to storing the packet addresses;
+#define PACKET_SIZE						  512
+
 /**
  * \var static xTaskHandle store_data_task_handle
  * \brief variable which holds the task reference

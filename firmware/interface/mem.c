@@ -139,13 +139,13 @@ void mem_pp(uint8_t data, uint32_t mem_addr, uint8_t mem_number ) {
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_PP);
 
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr & 0xFF));
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 
 	spi_tx(NV_MEM_BASE_ADDRESS,data);
@@ -162,11 +162,11 @@ void mem_read(uint8_t* data_read, uint32_t mem_addr, uint8_t mem_number) {
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_READ);
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,mem_addr & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 	*data_read = spi_rx(NV_MEM_BASE_ADDRESS);
 
@@ -180,11 +180,11 @@ void mem_read_multiple(uint8_t *data_read, uint32_t mem_addr, uint8_t data_byte_
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_READ);
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,mem_addr & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 	uint8_t i;
 
@@ -208,11 +208,11 @@ void mem_pp_multiple(uint8_t *data,uint32_t mem_addr,uint8_t data_byte_length,ui
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_PP);
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,mem_addr & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 	uint8_t i;
 
@@ -237,11 +237,11 @@ void mem_SER(uint32_t mem_addr, uint8_t mem_number) {
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_SER);
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr & 0xFF));
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 	mem_disable(mem_number);
 
@@ -258,11 +258,11 @@ void mem_BER32K(uint32_t mem_addr, uint8_t mem_number) {
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_BER32);
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,mem_addr & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 	mem_disable(mem_number);
 
@@ -279,11 +279,11 @@ void mem_BER64K(uint32_t mem_addr, uint8_t mem_number) {
 
 	spi_tx(NV_MEM_BASE_ADDRESS,MEM_BER64);
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 16) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 16));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,(mem_addr >> 8) & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)(mem_addr >> 8));
 
-	spi_tx(NV_MEM_BASE_ADDRESS,mem_addr & 0xFF);
+	spi_tx(NV_MEM_BASE_ADDRESS,(uint8_t)mem_addr);
 
 	mem_disable(mem_number);
 
