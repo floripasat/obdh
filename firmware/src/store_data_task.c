@@ -45,7 +45,8 @@ volatile uint32_t last_read_position, last_write_position;
 volatile uint32_t aux_next_write_position;
 volatile uint32_t card_size;
 volatile uint8_t current_aux_mem;
-uint32_t next_write_store_address;
+uint32_t aux_nwp_store_address;
+uint8_t aux_packets_stored_count = 0;
 
 void store_data_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -71,7 +72,7 @@ void store_data_task( void *pvParameters ) {
     }
     else {
         mem_malf_flag =1;
-        mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem0);
+        mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem0);       //for  testing
         mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem1);
         mem_BER32K(AUX_NWP_STORAGE_BEGIN, Mem2);
         aux_next_write_position = get_aux_next_write_position();
@@ -101,19 +102,19 @@ void store_data_task( void *pvParameters ) {
         else {
 
             if (xSemaphoreTake(spi1_semaphore, SPI_SEMAPHORE_WAIT_TIME) == pdPASS) {
-                for(i = 4094;i > 0;i--){
+                for(i = 8191;i > 0;i--){
                     update_aux_next_write_position();
-                    mem_read_multiple((uint8_t *)&datatest, (next_write_store_address-4), 4, current_aux_mem);
+                    mem_read_multiple((uint8_t *)&datatest, (aux_nwp_store_address-4), 4, current_aux_mem);
                 }
                 __no_operation();
-                for(i = 4095;i > 0;i--){
+                for(i = 32768;i > 0;i--){
                     update_aux_next_write_position();
-                    mem_read_multiple((uint8_t *)&datatest, (next_write_store_address-4), 4, current_aux_mem);
+                    mem_read_multiple((uint8_t *)&datatest, (aux_nwp_store_address-4), 4, current_aux_mem);
                 }
                 __no_operation();
-                for(i = 2000;i > 0;i--){
+                for(i = 32768;i > 0;i--){
                     update_aux_next_write_position();
-                    mem_read_multiple((uint8_t *)&datatest, (next_write_store_address-4), 4, current_aux_mem);
+                    mem_read_multiple((uint8_t *)&datatest, (aux_nwp_store_address-4), 4, current_aux_mem);
                 }
                 aux_next_write_position = get_aux_next_write_position();
 
@@ -384,31 +385,31 @@ uint32_t get_aux_next_write_position(void){
     volatile uint32_t next_write_position = 0;
 
     current_aux_mem = Mem0;
-    next_write_store_address = AUX_NWP_STORAGE_BEGIN;
-    mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+    aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
+    mem_read_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
 
     if (next_write_position != 0xFFFFFFFF){
         do{
-            next_write_store_address += 4;
-            mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
-            if (next_write_store_address >= AUX_NWP_STORAGE_END){
-                next_write_store_address = AUX_NWP_STORAGE_BEGIN;
+            aux_nwp_store_address += 4;
+            mem_read_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+            if (aux_nwp_store_address >= AUX_NWP_STcurrent_aux_mem >ORAGE_END){
+                aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
                 current_aux_mem++;
-                if (current_aux_mem > 2){
+                if (current_aux_mem > Mem2){
                     break;
                 }
-                mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+                mem_read_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
                 if (next_write_position == 0xFFFFFFFF){
                     break;
                 }
             }
-            if (next_write_position == AUX_DATA_STORAGE_END){
+            if (next_write_position >= AUX_DATA_STORAGE_END){
                 current_aux_mem++;
-                next_write_store_address = AUX_NWP_STORAGE_BEGIN;
-                if (current_aux_mem > 2){
+                aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
+                if (current_aux_mem > Mem2){
                     break;
                 }
-                mem_read_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
+                mem_read_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
                 if (next_write_position == 0xFFFFFFFF){
                     break;
                 }
@@ -419,29 +420,38 @@ uint32_t get_aux_next_write_position(void){
         if (current_aux_mem > Mem2){
             current_aux_mem = Mem0;
             next_write_position = AUX_DATA_STORAGE_BEGIN;
-            next_write_store_address = AUX_NWP_STORAGE_BEGIN;
-            //insert erase routine
-            mem_pp_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
-            next_write_store_address += 4;
+            aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
+            //Erase Routine
+            mem_BER32K(AUX_NWP_STORAGE_BEGIN, current_aux_mem);
+            mem_BER32K(AUX_DATA_STORAGE_BEGIN, current_aux_mem);
+            aux_packets_stored_count = 0;
+            mem_pp_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+            aux_nwp_store_address += 4;
         }
         else{
-            if (next_write_store_address == AUX_NWP_STORAGE_BEGIN){
+            if (aux_nwp_store_address == AUX_NWP_STORAGE_BEGIN){
                 next_write_position = AUX_DATA_STORAGE_BEGIN;
-                //insert erase routine
-                mem_pp_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
-                next_write_store_address += 4;
+                //Erase routine
+                mem_BER32K(AUX_NWP_STORAGE_BEGIN, current_aux_mem);
+                mem_BER32K(AUX_DATA_STORAGE_BEGIN, current_aux_mem);
+                aux_packets_stored_count = 0;
+                mem_pp_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+                aux_nwp_store_address += 4;
             }
             else{
-                mem_read_multiple((uint8_t *)&next_write_position, (next_write_store_address - 4), 4, current_aux_mem);
+                mem_read_multiple((uint8_t *)&next_write_position, (aux_nwp_store_address - 4), 4, current_aux_mem);
             }
         }
     }
     else{
         next_write_position = AUX_DATA_STORAGE_BEGIN;
-        next_write_store_address = AUX_NWP_STORAGE_BEGIN;
-        //erase routine
-        mem_pp_multiple((uint8_t *)&next_write_position, next_write_store_address, 4, current_aux_mem);
-        next_write_store_address += 4;
+        aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
+        //Erase routine
+        mem_BER32K(AUX_NWP_STORAGE_BEGIN, current_aux_mem);
+        mem_BER32K(AUX_DATA_STORAGE_BEGIN, current_aux_mem);
+        aux_packets_stored_count = 0;
+        mem_pp_multiple((uint8_t *)&next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+        aux_nwp_store_address += 4;
     }
 
     return next_write_position;
@@ -463,24 +473,32 @@ void update_aux_next_write_position(void){
         if (current_aux_mem > Mem2){
             current_aux_mem = Mem0;
         }
-        next_write_store_address = AUX_NWP_STORAGE_BEGIN;
-        //insert erase routine
-        mem_pp_multiple((uint8_t *)&aux_next_write_position, next_write_store_address, 4, current_aux_mem);
-        next_write_store_address += 4;
+        aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
+        //Erase routine
+        mem_BER32K(AUX_NWP_STORAGE_BEGIN, current_aux_mem);
+        mem_BER32K(AUX_DATA_STORAGE_BEGIN, current_aux_mem);
+        aux_packets_stored_count = 0;
+        mem_pp_multiple((uint8_t *)&aux_next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+        aux_nwp_store_address += 4;
     }
     else{
     //Storage sectors management
-        if (next_write_store_address >= AUX_NWP_STORAGE_END){
-            next_write_store_address = AUX_NWP_STORAGE_BEGIN;
-            //insert erase routine
+        if (aux_nwp_store_address >= AUX_NWP_STORAGE_END){
+            aux_nwp_store_address = AUX_NWP_STORAGE_BEGIN;
+            //Erase routine
+            mem_BER32K(AUX_NWP_STORAGE_BEGIN, current_aux_mem);
             aux_next_write_position += PACKET_SIZE;
-            mem_pp_multiple((uint8_t *)&aux_next_write_position, next_write_store_address, 4, current_aux_mem);
-            next_write_store_address += 4;
+            mem_pp_multiple((uint8_t *)&aux_next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+            aux_nwp_store_address += 4;
         }
         else{
             aux_next_write_position += PACKET_SIZE;
-            mem_pp_multiple((uint8_t *)&aux_next_write_position, next_write_store_address, 4, current_aux_mem);
-            next_write_store_address += 4;
+            //Erase routine
+            if (aux_packets_stored_count == 8){
+                mem_SER(aux_next_write_position, current_aux_mem);
+            }
+            mem_pp_multiple((uint8_t *)&aux_next_write_position, aux_nwp_store_address, 4, current_aux_mem);
+            aux_nwp_store_address += 4;
         }
     }
 }
