@@ -54,6 +54,7 @@
 #define FSP_ADR_EPS                     1
 #define FSP_ADR_TTC                     2
 #define FSP_ADR_OBDH                    3
+#define FSP_ADR_PAYLOAD2                4
 
 // Types of packets
 #define FSP_PKT_TYPE_DATA               1
@@ -64,11 +65,17 @@
 #define FSP_PKT_TYPE_NACK               6
 
 // Commands
-#define FSP_CMD_NOP                     1
-#define FSP_CMD_SEND_DATA               2
-#define FSP_CMD_REQUEST_RF_MUTEX        3
-#define FSP_CMD_SHUTDOWN                4
-#define FSP_CMD_RESET_CHARGE            5
+#define FSP_CMD_NOP                         1
+#define FSP_CMD_SEND_DATA                   2
+#define FSP_CMD_REQUEST_RF_MUTEX            3
+#define FSP_CMD_SHUTDOWN                    4
+#define FSP_CMD_RESET_CHARGE                5
+#define FSP_CMD_BITSTREAM_STATUS_REPLAY     6
+#define FSP_CMD_CCSDS_TELEMETRY             7
+#define FSP_CMD_BITSTREAM_SWAP              8
+#define FSP_CMD_CCSDS_TELECOMMAND           9
+#define FSP_CMD_BITSTREAM_UPLOAD            10
+#define FSP_CMD_BITSTREAM_STATUS_REQUEST    11
 
 // Ack answers
 #define FSP_ACK_RF_MUTEX_FREE           1

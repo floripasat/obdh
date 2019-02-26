@@ -43,6 +43,11 @@ telecommand_t  decode_telecommand(uint8_t *raw_package) {
 
     telecommand.request_action = ((uint16_t)raw_package[7]<<8) + (uint16_t)(raw_package[6]);
 
+    for (int i =0; i < ARGUMENT_LENGTH; i++)
+    {
+        telecommand.arguments[i] = raw_package[i+8];
+    }
+    /*
     telecommand.arguments[0] = raw_package[8];
     telecommand.arguments[1] = raw_package[9];
     telecommand.arguments[2] = raw_package[10];
@@ -64,7 +69,7 @@ telecommand_t  decode_telecommand(uint8_t *raw_package) {
     telecommand.reserved[9] = raw_package[25];
     telecommand.reserved[10] = raw_package[26];
     telecommand.reserved[11] = raw_package[27];
-
+    */
 
     return telecommand;
 }

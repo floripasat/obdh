@@ -42,6 +42,8 @@
 #include "../rf4463/rf4463.h"
 #include "../rf4463/rf4463_registers.h"
 #include "../libs/ngham/ngham.h"
+#include "../interface/payload2.h"
+#include "payload2_interface_task.h"
 
 /*
  * PRIORITY =   5

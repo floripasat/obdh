@@ -79,14 +79,15 @@ typedef struct {
     int32_t packages_offset;/**< number of packages to offset from origin */
 } request_data_packet_t;
 
+#define ARGUMENT_LENGTH 84
+
 typedef struct {
     uint8_t ID[6];
     uint16_t request_action; /**< the action (send data, shutdown..) */
-    uint8_t arguments[8];
-    uint8_t reserved[12];
+    uint8_t arguments[ARGUMENT_LENGTH];
 } telecommand_t;
 
-#define PACKET_LENGTH   58  /**< according NGHAM packet sizes */
+#define PACKET_LENGTH   122  /**< according NGHAM packet sizes */
 
 typedef struct {
     uint16_t package_flags;
@@ -124,6 +125,29 @@ typedef struct {
     beacon_packet_t data;           /**< valid data */
     uint8_t crc_result;             /**< 8-bit crc value of the data */
 } ttc_packet_t;
+
+typedef struct {
+    uint8_t type;
+    union{
+        struct{
+            uint8_t segment[192];
+            uint8_t segment_number;
+        }ccsds_telemetry;
+        struct {
+            uint8_t status_segment[218];
+            uint16_t segment_number;
+        }bitstream_status_replay;
+    }data;
+} payload2_downlink_t;
+
+typedef struct {
+    uint8_t type;
+    union{
+        uint8_t bitstream_upload[84];
+        uint8_t ccsds_telecommand[82];
+        uint8_t cmd;
+    }data;
+} payload2_uplink_t;
 
 
 /**
@@ -167,6 +191,11 @@ typedef struct {
 #define REQUEST_CHARGE_RESET_TELECOMMAND    0x7263    /**< uplink command to request a battery charge reset - cr */
 #define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
 #define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
+#define REQUEST_CCSDS_TELECOMMAND           0x5854    /**< command to request telecommand to playloadx*/
+#define REQUEST_BITSTREAM_UPLOAD            0x5855    /**< command to request playloadx bitstream upload*/
+#define REQUEST_BITSTREAM_SWAP              0x4358    /**< command to request a swap version of payloadx bitstream*/
+#define REQUEST_BITSTREAM_STATUS            0x5853    /**< command to request the status of bitstream frames*/
+
 //! \} End of uplink_commands
 
 /**

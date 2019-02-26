@@ -34,6 +34,8 @@
 #include "../driver/uart.h"
 #endif
 
+//#define PAYLOAD_X
+
 #define ANTENNA_MUTEX_WAIT_TIME         ( 2000 / portTICK_RATE_MS )
 
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
@@ -49,6 +51,7 @@ void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
 void send_reset_charge_command(void);
 void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len);
+void send_payload2_data(payload2_downlink_t *answer);
 
 
 void communications_task( void *pvParameters ) {
@@ -59,6 +62,8 @@ void communications_task( void *pvParameters ) {
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
+    payload2_downlink_t read_pkt;
+    payload2_uplink_t write_pkt;
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
@@ -104,6 +109,26 @@ void communications_task( void *pvParameters ) {
                 case REQUEST_CHARGE_RESET_TELECOMMAND:
                     send_reset_charge_command();
                     break;
+#ifdef PAYLOAD_X
+                case REQUEST_CCSDS_TELECOMMAND:
+                    write_pkt.type = PAYLOAD2_CCSDS_TELECOMMAND;
+                    strncpy(write_pkt.data.ccsds_telecommand, received_telecommand.arguments, sizeof(write_pkt.data.ccsds_telecommand));
+                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                    break;
+                case REQUEST_BITSTREAM_UPLOAD:
+                    write_pkt.type = PAYLOAD2_BITSTREAM_UPLOAD;
+                    strncpy(write_pkt.data.bitstream_upload, received_telecommand.arguments, sizeof(write_pkt.data.bitstream_upload));
+                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                    break;
+                case REQUEST_BITSTREAM_SWAP:
+                    write_pkt.type = PAYLOAD2_BITSTREAM_SWAP;
+                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                    break;
+                case REQUEST_BITSTREAM_STATUS:
+                    write_pkt.type = PAYLOAD2_BITSTREAM_STATUS_REQUEST;
+                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                    break;
+#endif
                 default:
                     break;
             }
@@ -149,6 +174,13 @@ void communications_task( void *pvParameters ) {
         else {
             vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
         }
+#ifdef PAYLOAD_X
+        if(enable_repeater == ENABLE_REPEATER_TRANSMISSION){
+            if(xQueueReceive(payload2_downlink_queue, &read_pkt, 0) == pdPASS){
+                send_payload2_data(&read_pkt);
+            }
+        }
+#endif
     }
 
     vTaskDelete( NULL );
@@ -282,14 +314,14 @@ void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len){
     msg[6]= (uint8_t) ACTION_REPEAT_TELECOMMAND;
     msg[7]= (uint8_t) (ACTION_REPEAT_TELECOMMAND >> 8);
 
-    for(i = 0; i<8; i++){
+    for(i = 0; i<ARGUMENT_LENGTH; i++){
         msg[8 + i] = telecommand->arguments[i];
     }
-
+    /*
     for(i = 0; i<12; i++){
         msg[16 + i] = telecommand->reserved[i];
     }
-
+    */
     ngham_TxPktGen(&ngham_packet, msg, *data_len);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
@@ -352,4 +384,28 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
 
     /**< send to the store data task */
     xQueueOverwrite(main_radio_queue, telecommand_status);
+}
+
+void send_payload2_data(payload2_downlink_t *answer) {
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[266];
+    uint16_t ngham_pkt_str_len;
+
+
+    switch (answer->type)
+    {
+    case PAYLOAD2_BITSTREAM_STATUS_REPLAY:
+        ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.bitstream_status_replay));
+        break;
+    case PAYLOAD2_CCSDS_TELEMETRY:
+        ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.ccsds_telemetry));
+        break;
+    default:
+        return;
+    }
+
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
 }

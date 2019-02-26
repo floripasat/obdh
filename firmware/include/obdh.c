@@ -50,7 +50,11 @@ void create_tasks( void ) {
     status_payload2_queue      = xQueueCreate( 1, sizeof(uint8_t) );
     status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    eps_charge_queue        = xQueueCreate( 1, sizeof(uint8_t) );
+    eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
+#ifdef PAYLOAD_X
+    payload2_uplink_queue       = xQueueCreate( 5, sizeof(payload2_uplink_t));
+    payload2_downlink_queue      = xQueueCreate( 5, sizeof(payload2_downlink_t));
+#endif
 
     /**
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
@@ -65,12 +69,15 @@ void create_tasks( void ) {
      * stack size, sets the priority, passes parameters and get a handler
      */
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
-    xTaskCreate( communications_task, "Communications", 6 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
+    xTaskCreate( communications_task, "Communications", 7 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( store_data_task, "StoreData", 11 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
     xTaskCreate( ttc_interface_task, "TT&C", 4 * configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
+#ifdef PAYLOAD_X
+    xTaskCreate( payload2_interface_task, "Payload2",2 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD2_INTERFACE_TASK_PRIORITY, &payload2_interface_task_handle);
+#endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
 //    xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
 #ifdef _DEBUG
