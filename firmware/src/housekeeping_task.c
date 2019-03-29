@@ -80,12 +80,12 @@ void housekeeping_task( void *pvParameters ) {
         temperature = obdh_temperature_convert(temperature_raw);
         current = obdh_current_convert(current_raw);
 
-        satellite_data.msp_sensors[0] = internal_sensors_data[0];
-        satellite_data.msp_sensors[1] = internal_sensors_data[1];
-        satellite_data.msp_sensors[2] = internal_sensors_data[2];
-        satellite_data.msp_sensors[3] = internal_sensors_data[3];
-        satellite_data.msp_sensors[4] = internal_sensors_data[4];
-        satellite_data.msp_sensors[5] = internal_sensors_data[5];
+        satellite_data.obdh_misc[0] = internal_sensors_data[0];
+        satellite_data.obdh_misc[1] = internal_sensors_data[1];
+        satellite_data.obdh_misc[2] = internal_sensors_data[2];
+        satellite_data.obdh_misc[3] = internal_sensors_data[3];
+        satellite_data.obdh_misc[4] = internal_sensors_data[4];
+        satellite_data.obdh_misc[5] = internal_sensors_data[5];
 #endif
 
         /* Receive modules status
@@ -150,12 +150,18 @@ void housekeeping_task( void *pvParameters ) {
                       (system_time>>8  & 0x0000FF00) |
                       current_seconds;                    /**< seconds stored in the LSB                     */
 
-        xQueueSendToBack(system_status_queue, (void *)system_status, portMAX_DELAY);
+        xQueueSendToBack(obdh_status_queue, (void *)system_status, portMAX_DELAY);
 
-        xQueueSendToBack(system_time_queue, (void *)&system_time, portMAX_DELAY);
+        xQueueSendToBack(obdh_uptime_queue, (void *)&system_time, portMAX_DELAY);
 
-        xQueueSendToBack(internal_sensors_queue, (void *)internal_sensors_data, portMAX_DELAY);
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
+        xQueueSendToBack(obdh_misc_queue, (void *)internal_sensors_data, portMAX_DELAY);
+
+        if ( (last_wake_time + HOUSEKEEPING_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );

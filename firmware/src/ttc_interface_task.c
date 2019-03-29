@@ -77,8 +77,14 @@ void ttc_interface_task( void *pvParameters ) {
                 }
             }
         }
+
         /**< this task will be an aperiodic with 10s of max period */
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, TTC_INTERFACE_TASK_PERIOD_TICKS );
+        if ( (last_wake_time + TTC_INTERFACE_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, TTC_INTERFACE_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );

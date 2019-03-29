@@ -38,7 +38,9 @@
 #include "../include/msp_internal.h"
 #include "../util/link.h"
 #include "../interface/ttc.h"
+#include "../interface/eps.h"
 #include "../rf4463/rf4463.h"
+#include "../rf4463/rf4463_registers.h"
 #include "../libs/ngham/ngham.h"
 
 /*
@@ -53,6 +55,8 @@
 #define PERIODIC_DOWNLINK_INTERVAL_MS         60000
 #define PERIODIC_DOWNLINK_INTERVAL_TURNS      ( PERIODIC_DOWNLINK_INTERVAL_MS / COMMUNICATIONS_TASK_PERIOD_MS )
 
+#define ENABLE_REPEATER_TRANSMISSION          1
+#define DISABLE_REPEATER_TRANSMISSION         0
 /**
  * \var static xTaskHandle xCommunicationsTask
  * \brief variable which holds the task reference

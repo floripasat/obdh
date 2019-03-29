@@ -68,6 +68,7 @@
 #define FSP_CMD_SEND_DATA               2
 #define FSP_CMD_REQUEST_RF_MUTEX        3
 #define FSP_CMD_SHUTDOWN                4
+#define FSP_CMD_RESET_CHARGE            5
 
 // Ack answers
 #define FSP_ACK_RF_MUTEX_FREE           1

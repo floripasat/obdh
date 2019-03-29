@@ -34,7 +34,7 @@
 #include "../driver/uart.h"
 #endif
 
-#define ANTENNA_MUTEX_WAIT_TIME     (2000 / portTICK_RATE_MS)
+#define ANTENNA_MUTEX_WAIT_TIME         ( 2000 / portTICK_RATE_MS )
 
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 #define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
@@ -46,18 +46,23 @@ void send_requested_data(uint8_t *raw_package);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
+void update_last_telecommand_status(telecommand_t *last_telecommand);
+void send_reset_charge_command(void);
+void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len);
 
 
 void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t current_turn = 0, turns_to_wait;
+    uint8_t enable_repeater;
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
+    uint8_t data_len;
 
     PA_ENABLE();
     radio_status = rf4463_init();
@@ -69,22 +74,42 @@ void communications_task( void *pvParameters ) {
 
     while(1) {
 
+        operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
-        if(try_to_receive(data) > 7) {
+        data_len = try_to_receive(data);
+        if(data_len > 7) {
             received_telecommand = decode_telecommand(data);
 
-            if(received_telecommand.request_action == REQUEST_DATA_TELECOMMAND) {
-                send_requested_data(received_telecommand.arguments);
+            switch (received_telecommand.request_action) {
+                case REQUEST_PING_TELECOMMAND:
+                    if (operation_mode == NORMAL_OPERATION_MODE) {
+                        answer_ping(received_telecommand);
+                    }
+                    break;
+                case REQUEST_DATA_TELECOMMAND:
+                    if (operation_mode == NORMAL_OPERATION_MODE) {
+                        send_requested_data(received_telecommand.arguments);
+                    }
+                    break;
+                case REQUEST_REPEAT_TELECOMMAND:
+                    if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
+                        if (operation_mode == NORMAL_OPERATION_MODE) {
+                            radioamateur_repeater(&received_telecommand, &data_len);
+                        }
+                    }
+                    break;
+                case REQUEST_SHUTDOWN_TELECOMMAND:
+                    enter_in_shutdown();
+                    break;
+                case REQUEST_CHARGE_RESET_TELECOMMAND:
+                    send_reset_charge_command();
+                    break;
+                default:
+                    break;
             }
 
-            if(received_telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
-                enter_in_shutdown();
-            }
-
-            if(received_telecommand.request_action == REQUEST_PING_TELECOMMAND) {
-//                request_antenna_mutex();
-                answer_ping(received_telecommand);
-            }
+            /**< update the last telecommands, rssi and counter */
+            update_last_telecommand_status(&received_telecommand);
         }
 
         operation_mode = read_current_operation_mode();
@@ -96,15 +121,18 @@ void communications_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
             case ENERGY_L2_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+                enable_repeater = ENABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L3_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L4_MODE:
             default:
                 turns_to_wait = 0xFFFF;
+                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
             }
 
             if(++current_turn > turns_to_wait) {
@@ -114,7 +142,13 @@ void communications_task( void *pvParameters ) {
                 current_turn = 0;
             }
         }
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
+
+        if ( (last_wake_time + COMMUNICATIONS_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );
@@ -122,7 +156,7 @@ void communications_task( void *pvParameters ) {
 
 #ifdef _DEBUG_AS_LINK
 void send_periodic_data(void) {
-    uart_tx_bytes((char *)&satellite_data, sizeof(data_packet_t));  //send data via uart, for debug purpouse
+    uart_tx_bytes((char *)&satellite_data, sizeof(data_packet_t));  //send data via uart, for debug purpose
 }
 #else
 void send_periodic_data(void) {
@@ -130,7 +164,15 @@ void send_periodic_data(void) {
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, 220);
+
+   /*
+    *  This flag aware the GS to ignore the other flags, since the content
+    *  of the frame is the whole data, and may disagree with the indication
+    *  provided by the bit-flags.
+    */
+    satellite_data.package_flags |= WHOLE_ORBIT_DATA_FLAG;
+
+    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, sizeof(satellite_data));
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
@@ -182,24 +224,30 @@ void send_requested_data(uint8_t *raw_package) {
     request_data_packet_t rqt_packet;
     uint32_t read_position;
     uint16_t package_size = 0;
-    uint8_t to_send_package[266];
-    uint8_t operation_mode;
+    uint8_t to_send_package[220];
 
-    operation_mode = read_current_operation_mode();
-    if(operation_mode == NORMAL_OPERATION_MODE){
-        rqt_packet = decode_request_data_telecommand(raw_package);
+    rqt_packet = decode_request_data_telecommand(raw_package);
 
-        read_position = calculate_read_position(rqt_packet);
+    read_position = calculate_read_position(rqt_packet);
 
-        while(rqt_packet.packages_count-- > 0) {
-            package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
-            if(package_size > 0) {
-
-                request_antenna_mutex();
-                send_data(to_send_package, package_size);
-            }
+    if(rqt_packet.packages_count-- > 0)             /**< first packet to be sent -> send all fields of a frame */
+    {
+        package_size = get_packet(to_send_package, ALL_FLAGS, read_position++);
+        if(package_size > 0) {
+            request_antenna_mutex();
+            send_data(to_send_package, package_size);
         }
     }
+
+    while(rqt_packet.packages_count-- > 0) {
+        package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
+        if(package_size > 0) {
+            request_antenna_mutex();
+            send_data(to_send_package, package_size);
+        }
+    }
+
+    update_last_read_position(read_position);
 }
 
 void answer_ping(telecommand_t telecommand) {
@@ -220,6 +268,35 @@ void answer_ping(telecommand_t telecommand) {
     rf4463_rx_init();
 }
 
+void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len){
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t msg[28];
+    uint8_t i = 0;
+
+    for(i = 0; i<6; i++){
+        msg[i] = telecommand->ID[i];
+    }
+
+    msg[6]= (uint8_t) ACTION_REPEAT_TELECOMMAND;
+    msg[7]= (uint8_t) (ACTION_REPEAT_TELECOMMAND >> 8);
+
+    for(i = 0; i<8; i++){
+        msg[8 + i] = telecommand->arguments[i];
+    }
+
+    for(i = 0; i<12; i++){
+        msg[16 + i] = telecommand->reserved[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, msg, *data_len);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+}
+
 void enter_in_shutdown(void) {
     uint8_t ttc_command;
 
@@ -231,6 +308,12 @@ void enter_in_shutdown(void) {
     xSemaphoreGive(flash_semaphore);
 }
 
+void send_reset_charge_command(void) {
+    uint8_t eps_command;
+    eps_command = EPS_CHARGE_RESET_CMD;
+    xQueueOverwrite(eps_charge_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
+}
+
 void request_antenna_mutex(void) {
     uint8_t ttc_command;
     uint8_t ttc_response;
@@ -239,4 +322,34 @@ void request_antenna_mutex(void) {
     xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task     */
     xQueueReceive(tx_queue, &ttc_response,
                   ANTENNA_MUTEX_WAIT_TIME);     /**< wait 2 seconds or until be answered               */
+}
+
+/**
+ * \fn void update_last_telecommand_status(telecommand_t *last_telecommand)
+ * Updates the last telecommand stored, its signal strength indicator and counter
+ * \param last_telecommand Last telecommand received
+ */
+void update_last_telecommand_status( telecommand_t *last_telecommand ) {
+    uint8_t telecommand_status[19];
+    uint8_t radio_modem_status[5];
+    uint8_t latched_radio_signal_strengh;
+    uint8_t i = 0;
+
+    /**< get the radio signal strength indicator located in the last byte received */
+    rf4463_get_cmd(RF4463_CMD_GET_MODEM_STATUS, radio_modem_status, 5);
+    latched_radio_signal_strengh = radio_modem_status[4];
+
+    /**< wrap the data in a packet to be stored, via store data task */
+    for(i=0; i<6; i++) {
+        telecommand_status[i] = last_telecommand->ID[i];
+    }
+    telecommand_status[i++] = (uint8_t)last_telecommand->request_action;
+    telecommand_status[i++] = (uint8_t)(last_telecommand->request_action >> 8);
+    for(i=8; i<16; i++) {
+        telecommand_status[i] = last_telecommand->arguments[i-8];
+    }
+    telecommand_status[i++] = latched_radio_signal_strengh;
+
+    /**< send to the store data task */
+    xQueueOverwrite(main_radio_queue, telecommand_status);
 }

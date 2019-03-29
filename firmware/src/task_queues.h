@@ -53,19 +53,19 @@
 #define     FSP_SEMAPHORE_WAIT_TIME                 (200 / portTICK_PERIOD_MS)
 #define     FLASH_SEMAPHORE_WAIT_TIME               (portMAX_DELAY)
 
-volatile xQueueHandle system_status_queue;
+volatile xQueueHandle obdh_status_queue;
 volatile xQueueHandle imu_queue;
-volatile xQueueHandle internal_sensors_queue;
-volatile xQueueHandle system_time_queue;
+volatile xQueueHandle obdh_misc_queue;
+volatile xQueueHandle obdh_uptime_queue;
 volatile xQueueHandle solar_panels_queue;
-volatile xQueueHandle transceiver_queue;
+volatile xQueueHandle main_radio_queue;
 volatile xQueueHandle eps_queue;
 volatile xQueueHandle ttc_queue;
 volatile xQueueHandle tx_queue;
 volatile xQueueHandle payload1_queue;
 volatile xQueueHandle payload2_queue;
 
-
+volatile xQueueHandle eps_charge_queue;
 volatile xQueueHandle status_eps_queue, status_payload1_queue, status_payload2_queue, status_imu_queue, status_mem1_queue;
 //TODO: mem2, antenna status_queue
 

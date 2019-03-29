@@ -1,0 +1,1 @@
+"./flash.obj" "./i2c.obj" "./imu.obj" "./main.obj" "../lnk_msp430f6659.cmd" -llibmath.a -llibc.a 

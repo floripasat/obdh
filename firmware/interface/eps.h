@@ -36,20 +36,23 @@
 #include "../include/floripasat_def.h"
 #include "../util/crc.h"
 
-#define EPS_REQUEST_DATA_CMD    0x0F      //an arbitrary value was choosen
+#define EPS_REQUEST_DATA_CMD    0x0F      /**< An arbitrary value was chosen                                           */
+#define EPS_CHARGE_RESET_CMD    0xC1      /**< Warn the EPS to enter in reset battery charge mode (arbitrary value too) */
 
 #define EPS_TIMEOUT_ERROR       0x00
 #define EPS_OK                  0x01
 #define EPS_CRC_ERROR           0x02
+#define EPS_ACK                 0x03
+#define EPS_NACK                0x04
 
 /*
  *  EPS FRAME
  */
 typedef struct {
-    uint8_t msp430[26];
+    uint8_t eps_misc[26];
     uint8_t battery_monitor[21];
-    uint8_t ads1248[21];
-    uint8_t task_scheduler[1];
+    uint8_t temperatures[21];
+    uint8_t energy_level[1];
 } eps_package_t;
 
 #define EPS_PACKAGE_LENGTH  sizeof(eps_package_t) + 7
@@ -64,5 +67,13 @@ void eps_setup(void);
  * \return Success or fail
  */
 uint8_t eps_read(eps_package_t *package);
+
+/**
+ * \fn send_command_charge_reset
+ *
+ * \brief Send the charge reset command to EPS
+ * \return None
+ */
+void send_command_charge_reset(void);
 
 #endif /* INTERFACE_EPS_H_ */

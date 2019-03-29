@@ -82,7 +82,12 @@ void payload1_interface_task( void *pvParameters ) {
             }
         }
 
-        vTaskDelayUntil( (TickType_t *) &last_wake_time, PAYLOAD1_INTERFACE_TASK_PERIOD_TICKS );
+        if ( (last_wake_time + PAYLOAD1_INTERFACE_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+            last_wake_time = xTaskGetTickCount();
+        }
+        else {
+            vTaskDelayUntil( (TickType_t *) &last_wake_time, PAYLOAD1_INTERFACE_TASK_PERIOD_TICKS );
+        }
     }
 
     vTaskDelete( NULL );

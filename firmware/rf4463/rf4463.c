@@ -104,7 +104,7 @@ void rf4463_reg_config()
     uint8_t buf[2];
     
     // Frequency adjust (Tested manually)
-    buf[0] = 30;
+    buf[0] = RF4463_XO_TUNE_REG_VALUE;
     rf4463_set_properties(RF4463_PROPERTY_GLOBAL_XO_TUNE, buf, 1);
     
     // TX/RX shares 128 bytes FIFO

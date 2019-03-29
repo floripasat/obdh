@@ -127,7 +127,26 @@ void restore_time_counter(void) {
 }
 
 uint8_t read_current_state(void) {
-    return flash_read_single(CURRENT_STATE_ADDR_FLASH);
+    uint8_t current_state, operation_mode, energy_level;
+
+    current_state = flash_read_single(CURRENT_STATE_ADDR_FLASH);
+
+    operation_mode = current_state & OPERATION_MODE_MASK;
+    energy_level = current_state & ENERGY_LEVEL_MASK;
+
+    /**< use a default value in case of the memory holds a wrong one */
+    if ( ( operation_mode != NORMAL_OPERATION_MODE ) && ( operation_mode != SHUTDOWN_MODE ) ) {
+        operation_mode = NORMAL_OPERATION_MODE;
+    }
+    if ( ( energy_level != ENERGY_L1_MODE ) && ( energy_level != ENERGY_L2_MODE ) &&
+         ( energy_level != ENERGY_L3_MODE ) && ( energy_level != ENERGY_L4_MODE ) ) {
+        energy_level = ENERGY_L3_MODE;
+    }
+
+    current_state = operation_mode;
+    current_state |= energy_level;
+
+    return current_state;
 }
 
 void update_energy_level(uint8_t new_energy_level) {
