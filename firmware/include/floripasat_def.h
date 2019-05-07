@@ -93,7 +93,7 @@ typedef struct {
     //obdh
     uint8_t obdh_uptime             [4];
     uint8_t obdh_status             [6];
-    uint8_t imu                     [24];
+    uint8_t imu                     [12];
     uint8_t obdh_misc               [6];
     uint8_t solar_panels_sensors    [12];
     uint8_t main_radio              [19];
