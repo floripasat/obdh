@@ -145,7 +145,7 @@ typedef struct {
     union{
         uint8_t bitstream_upload[84];
         uint8_t ccsds_telecommand[82];
-        uint8_t cmd;
+        uint8_t status_argument[2];
     }data;
 } payload2_uplink_t;
 

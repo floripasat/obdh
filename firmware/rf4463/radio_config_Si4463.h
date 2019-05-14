@@ -21,7 +21,7 @@
 /*
 // Crys_freq(Hz): 30000000    Crys_tol(ppm): 10    IF_mode: 2    High_perf_Ch_Fil: 1    OSRtune: 0    Ch_Fil_Bw_AFC: 0    ANT_DIV: 0    PM_pattern: 0    
 // MOD_type: 3    Rsymb(sps): 2400    Fdev(Hz): 5000    RXBW(Hz): 150000    Manchester: 0    AFC_en: 0    Rsymb_error: 0.0    Chip-Version: 2    
-// RF Freq.(MHz): 437.9    API_TC: 29    fhst: 250000    inputBW: 0    BERT: 0    RAW_dout: 0    D_source: 0    Hi_pfm_div: 1    
+// RF Freq.(MHz): 436.1    API_TC: 29    fhst: 0    inputBW: 0    BERT: 0    RAW_dout: 0    D_source: 0    Hi_pfm_div: 1
 // 
 // # RX IF frequency is  -468750 Hz
 // # WB filter 1 (BW =  28.62 kHz);  NB-filter 1 (BW = 28.62 kHz)
@@ -33,13 +33,9 @@
 // CONFIGURATION PARAMETERS
 #define RADIO_CONFIGURATION_DATA_RADIO_XO_FREQ                     30000000L
 #define RADIO_CONFIGURATION_DATA_CHANNEL_NUMBER                    0x00
-#define RADIO_CONFIGURATION_DATA_RADIO_PACKET_LENGTH               0x40
+#define RADIO_CONFIGURATION_DATA_RADIO_PACKET_LENGTH               0x07
 #define RADIO_CONFIGURATION_DATA_RADIO_STATE_AFTER_POWER_UP        0x03
 #define RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET       0xF000
-#define RADIO_CONFIGURATION_DATA_CUSTOM_PAYLOAD					   {0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, \
-0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, \
-0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, 0xC5, \
-0xC5, 0xC5, 0xC5, 0xC5}
 
 
 // CONFIGURATION COMMANDS
@@ -54,7 +50,7 @@
 // Command:                  RF_GPIO_PIN_CFG
 // Description:              Configures the GPIO pins.
 */
-#define RF_GPIO_PIN_CFG 0x13, 0x5A, 0x63, 0x61, 0x60, 0x67, 0x4B, 0x00
+#define RF_GPIO_PIN_CFG 0x13, 0x00, 0x63, 0x61, 0x60, 0x67, 0x4B, 0x00
 
 /*
 // Set properties:           RF_GLOBAL_XO_TUNE_2
@@ -66,7 +62,7 @@
 //   GLOBAL_XO_TUNE - Configure the internal capacitor frequency tuning bank for the crystal oscillator.
 //   GLOBAL_CLK_CFG - Clock configuration options.
 */
-#define RF_GLOBAL_XO_TUNE_2 0x11, 0x00, 0x02, 0x00, 0x28, 0x00
+#define RF_GLOBAL_XO_TUNE_2 0x11, 0x00, 0x02, 0x00, 0x52, 0x00
 
 /*
 // Set properties:           RF_GLOBAL_CONFIG_1
@@ -80,27 +76,15 @@
 #define RF_GLOBAL_CONFIG_1 0x11, 0x00, 0x01, 0x03, 0x60
 
 /*
-// Set properties:           RF_INT_CTL_ENABLE_2
-// Number of properties:     2
-// Group ID:                 0x01
-// Start ID:                 0x00
-// Default values:           0x04, 0x00, 
-// Descriptions:
-//   INT_CTL_ENABLE - This property provides for global enabling of the three interrupt groups (Chip, Modem and Packet Handler) in order to generate HW interrupts at the NIRQ pin.
-//   INT_CTL_PH_ENABLE - Enable individual interrupt sources within the Packet Handler Interrupt Group to generate a HW interrupt on the NIRQ output pin.
-*/
-#define RF_INT_CTL_ENABLE_2 0x11, 0x01, 0x02, 0x00, 0x05, 0x20
-
-/*
-// Set properties:           RF_INT_CTL_CHIP_ENABLE_1
+// Set properties:           RF_INT_CTL_ENABLE_1
 // Number of properties:     1
 // Group ID:                 0x01
-// Start ID:                 0x03
-// Default values:           0x04, 
+// Start ID:                 0x00
+// Default values:           0x04,
 // Descriptions:
-//   INT_CTL_CHIP_ENABLE - Enable individual interrupt sources within the Chip Interrupt Group to generate a HW interrupt on the NIRQ output pin.
+//   INT_CTL_ENABLE - This property provides for global enabling of the three interrupt groups (Chip, Modem and Packet Handler) in order to generate HW interrupts at the NIRQ pin.
 */
-#define RF_INT_CTL_CHIP_ENABLE_1 0x11, 0x01, 0x01, 0x03, 0x04
+#define RF_INT_CTL_ENABLE_1 0x11, 0x01, 0x01, 0x00, 0x00
 
 /*
 // Set properties:           RF_FRR_CTL_A_MODE_4
@@ -114,7 +98,7 @@
 //   FRR_CTL_C_MODE - Fast Response Register C Configuration.
 //   FRR_CTL_D_MODE - Fast Response Register D Configuration.
 */
-#define RF_FRR_CTL_A_MODE_4 0x11, 0x02, 0x04, 0x00, 0x07, 0x01, 0x02, 0x03
+#define RF_FRR_CTL_A_MODE_4 0x11, 0x02, 0x04, 0x00, 0x01, 0x02, 0x03, 0x07
 
 /*
 // Set properties:           RF_PREAMBLE_TX_LENGTH_9
@@ -187,7 +171,7 @@
 //   PKT_FIELD_2_LENGTH_7_0 - Unsigned 13-bit Field 2 length value.
 //   PKT_FIELD_2_CONFIG - General data processing and packet configuration bits for Field 2.
 */
-#define RF_PKT_LEN_12 0x11, 0x12, 0x0C, 0x08, 0x00, 0x00, 0x00, 0x30, 0x30, 0x00, 0x40, 0x04, 0x00, 0x00, 0x00, 0x00
+#define RF_PKT_LEN_12 0x11, 0x12, 0x0C, 0x08, 0x00, 0x00, 0x00, 0x30, 0x30, 0x00, 0x32, 0x04, 0x00, 0x00, 0x00, 0x00
 
 /*
 // Set properties:           RF_PKT_FIELD_2_CRC_CONFIG_12
@@ -337,7 +321,7 @@
 //   MODEM_AFC_LIMITER_0 - Set the AFC limiter value.
 //   MODEM_AFC_MISC - Specifies miscellaneous AFC control bits.
 */
-#define RF_MODEM_AFC_GEAR_7 0x11, 0x20, 0x07, 0x2C, 0x04, 0x36, 0x80, 0x07, 0x17, 0x36, 0x80
+#define RF_MODEM_AFC_GEAR_7 0x11, 0x20, 0x07, 0x2C, 0x04, 0x36, 0x80, 0x07, 0x17, 0x2A, 0x80
 
 /*
 // Set properties:           RF_MODEM_AGC_CONTROL_1
@@ -370,11 +354,11 @@
 #define RF_MODEM_AGC_WINDOW_SIZE_9 0x11, 0x20, 0x09, 0x38, 0x11, 0x56, 0x56, 0x00, 0x1A, 0xFF, 0xFF, 0x00, 0x2A
 
 /*
-// Set properties:           RF_MODEM_OOK_CNT1_8
-// Number of properties:     8
+// Set properties:           RF_MODEM_OOK_CNT1_9
+// Number of properties:     9
 // Group ID:                 0x20
 // Start ID:                 0x42
-// Default values:           0xA4, 0x03, 0x56, 0x02, 0x00, 0xA3, 0x02, 0x80, 
+// Default values:           0xA4, 0x03, 0x56, 0x02, 0x00, 0xA3, 0x02, 0x80, 0xFF,
 // Descriptions:
 //   MODEM_OOK_CNT1 - OOK control.
 //   MODEM_OOK_MISC - Selects the detector(s) used for demodulation of an OOK signal, or for demodulation of a (G)FSK signal when using the asynchronous demodulator.
@@ -384,8 +368,20 @@
 //   MODEM_RAW_EYE_0 - 11 bit eye-open detector threshold.
 //   MODEM_ANT_DIV_MODE - Antenna diversity mode settings.
 //   MODEM_ANT_DIV_CONTROL - Specifies controls for the Antenna Diversity algorithm.
+//   MODEM_RSSI_THRESH - Configures the RSSI threshold.
 */
-#define RF_MODEM_OOK_CNT1_8 0x11, 0x20, 0x08, 0x42, 0xA4, 0x02, 0xD6, 0x83, 0x00, 0xAD, 0x01, 0x80
+#define RF_MODEM_OOK_CNT1_9 0x11, 0x20, 0x09, 0x42, 0xA4, 0x02, 0xD6, 0x83, 0x00, 0xAD, 0x01, 0x80, 0xFF
+
+/*
+// Set properties:           RF_MODEM_RSSI_CONTROL_1
+// Number of properties:     1
+// Group ID:                 0x20
+// Start ID:                 0x4C
+// Default values:           0x01,
+// Descriptions:
+//   MODEM_RSSI_CONTROL - Control of the averaging modes and latching time for reporting RSSI value(s).
+*/
+#define RF_MODEM_RSSI_CONTROL_1 0x11, 0x20, 0x01, 0x4C, 0x00
 
 /*
 // Set properties:           RF_MODEM_RSSI_COMP_1
@@ -544,7 +540,7 @@
 //   FREQ_CONTROL_W_SIZE - Set window gating period (in number of crystal reference clock cycles) for counting VCO frequency during calibration.
 //   FREQ_CONTROL_VCOCNT_RX_ADJ - Adjust target count for VCO calibration in RX mode.
 */
-#define RF_FREQ_CONTROL_INTE_8 0x11, 0x40, 0x08, 0x00, 0x39, 0x0B, 0x17, 0xE4, 0x44, 0x44, 0x20, 0xFE
+#define RF_FREQ_CONTROL_INTE_8 0x11, 0x40, 0x08, 0x00, 0x39, 0x09, 0x2C, 0x5F, 0x00, 0x00, 0x20, 0xFE
 
 
 // AUTOMATICALLY GENERATED CODE! 
@@ -557,8 +553,7 @@
         0x08, RF_GPIO_PIN_CFG, \
         0x06, RF_GLOBAL_XO_TUNE_2, \
         0x05, RF_GLOBAL_CONFIG_1, \
-        0x06, RF_INT_CTL_ENABLE_2, \
-        0x05, RF_INT_CTL_CHIP_ENABLE_1, \
+        0x05, RF_INT_CTL_ENABLE_1, \
         0x08, RF_FRR_CTL_A_MODE_4, \
         0x0D, RF_PREAMBLE_TX_LENGTH_9, \
         0x09, RF_SYNC_CONFIG_5, \
@@ -574,7 +569,8 @@
         0x0B, RF_MODEM_AFC_GEAR_7, \
         0x05, RF_MODEM_AGC_CONTROL_1, \
         0x0D, RF_MODEM_AGC_WINDOW_SIZE_9, \
-        0x0C, RF_MODEM_OOK_CNT1_8, \
+        0x0D, RF_MODEM_OOK_CNT1_9, \
+        0x05, RF_MODEM_RSSI_CONTROL_1, \
         0x05, RF_MODEM_RSSI_COMP_1, \
         0x05, RF_MODEM_CLKGEN_BAND_1, \
         0x10, RF_MODEM_CHFLT_RX1_CHFLT_COE13_7_0_12, \
@@ -596,7 +592,6 @@
 #define RADIO_CONFIGURATION_DATA_RADIO_PACKET_LENGTH_DEFAULT               0x10
 #define RADIO_CONFIGURATION_DATA_RADIO_STATE_AFTER_POWER_UP_DEFAULT        0x01
 #define RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET_DEFAULT       0x1000
-#define RADIO_CONFIGURATION_DATA_CUSTOM_PAYLOAD_DEFAULT					   {0x42, 0x55, 0x54, 0x54, 0x4F, 0x4E, 0x31} // BUTTON1 
 
 #define RADIO_CONFIGURATION_DATA_RADIO_PATCH_INCLUDED                      0x00
 #define RADIO_CONFIGURATION_DATA_RADIO_PATCH_SIZE                          0x00
@@ -626,17 +621,12 @@
 #define RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET  RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET_DEFAULT 
 #endif
 
-#ifndef RADIO_CONFIGURATION_DATA_CUSTOM_PAYLOAD
-#define RADIO_CONFIGURATION_DATA_CUSTOM_PAYLOAD         RADIO_CONFIGURATION_DATA_CUSTOM_PAYLOAD_DEFAULT 
-#endif
-
 #define RADIO_CONFIGURATION_DATA { \
                             Radio_Configuration_Data_Array,                            \
                             RADIO_CONFIGURATION_DATA_CHANNEL_NUMBER,                   \
                             RADIO_CONFIGURATION_DATA_RADIO_PACKET_LENGTH,              \
                             RADIO_CONFIGURATION_DATA_RADIO_STATE_AFTER_POWER_UP,       \
-                            RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET,       \
-                            RADIO_CONFIGURATION_DATA_CUSTOM_PAYLOAD                   \
+                            RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET       \
                             }
 
 #endif /* RADIO_CONFIG_H_ */

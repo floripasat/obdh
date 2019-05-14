@@ -129,13 +129,19 @@ uint8_t payload2_write(payload2_uplink_t *pkt) {
     FSPPacket fsp_packet;
     uint8_t payload2_status = PAYLOAD2_OK;
 
+
+    i2c_set_slave(PAYLOAD2_BASE_ADDRESS, PAYLOAD2_I2C_SLAVE_ADDRESS);  /**< set the slave address to be the EPS address */
+
+    i2c_set_mode(PAYLOAD2_BASE_ADDRESS, TRANSMIT_MODE);           /**< set to receive */
+
+
     fsp_init(FSP_ADR_OBDH);
     switch(pkt->type){
     case PAYLOAD2_CCSDS_TELECOMMAND:
-        pkt_lenght = sizeof(pkt->data.ccsds_telecommand);
+        pkt_lenght = sizeof(pkt->data.ccsds_telecommand) +1; // +1 because sende the package type
         break;
     case PAYLOAD2_BITSTREAM_UPLOAD:
-        pkt_lenght = sizeof(pkt->data.bitstream_upload);
+        pkt_lenght = sizeof(pkt->data.bitstream_upload) +1;
         break;
     case PAYLOAD2_BITSTREAM_SWAP:
     case PAYLOAD2_BITSTREAM_STATUS_REQUEST:
@@ -149,7 +155,7 @@ uint8_t payload2_write(payload2_uplink_t *pkt) {
     //fsp_gen_data_pkt((uint8_t*)&pkt->data, pkt_lenght, FSP_ADR_PAYLOAD2,FSP_PKT_WITHOUT_ACK, &fsp_packet);
     //fsp_encode(&fsp_packet, Buffer, &pkt_lenght);
 
-    if(i2c_send_burst(PAYLOAD2_BASE_ADDRESS, (uint8_t*) &pkt, pkt_lenght, START_STOP) == I2C_FAIL) {
+    if(i2c_send_burst(PAYLOAD2_BASE_ADDRESS, (uint8_t*) pkt, pkt_lenght, START_STOP) == I2C_FAIL) {
         payload2_status = PAYLOAD2_TIMEOUT_ERROR;
     }
 

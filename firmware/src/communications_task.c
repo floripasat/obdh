@@ -64,6 +64,7 @@ void communications_task( void *pvParameters ) {
     uint8_t operation_mode;
     payload2_downlink_t read_pkt;
     payload2_uplink_t write_pkt;
+    uint8_t i = 0;
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
@@ -82,6 +83,12 @@ void communications_task( void *pvParameters ) {
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
         data_len = try_to_receive(data);
+
+//        write_pkt.type = PAYLOAD2_BITSTREAM_UPLOAD;
+//        for(i = 0; i < sizeof(write_pkt.data.bitstream_upload); i++)
+//            write_pkt.data.bitstream_upload[i] = i;
+        xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+
         if(data_len > 7) {
             received_telecommand = decode_telecommand(data);
 
@@ -112,12 +119,12 @@ void communications_task( void *pvParameters ) {
 #ifdef PAYLOAD_X
                 case REQUEST_CCSDS_TELECOMMAND:
                     write_pkt.type = PAYLOAD2_CCSDS_TELECOMMAND;
-                    strncpy(write_pkt.data.ccsds_telecommand, received_telecommand.arguments, sizeof(write_pkt.data.ccsds_telecommand));
+                    memcpy(write_pkt.data.ccsds_telecommand, received_telecommand.arguments, sizeof(write_pkt.data.ccsds_telecommand));
                     xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
                 case REQUEST_BITSTREAM_UPLOAD:
                     write_pkt.type = PAYLOAD2_BITSTREAM_UPLOAD;
-                    strncpy(write_pkt.data.bitstream_upload, received_telecommand.arguments, sizeof(write_pkt.data.bitstream_upload));
+                    memcpy(write_pkt.data.bitstream_upload, received_telecommand.arguments, sizeof(write_pkt.data.bitstream_upload));
                     xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
                 case REQUEST_BITSTREAM_SWAP:
