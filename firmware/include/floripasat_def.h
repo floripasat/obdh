@@ -34,6 +34,10 @@
 
 #include <stdint.h>
 
+#define SATELLITE_CALLSIGN                      "PY0EFS"    /**< Satellite callsign. */
+
+#define FLORIPASAT_PACKET_DOWNLINK_TELEMETRY    0x10        /**< Downlink packet with telemetry data. */
+
 #define has_flag(x,y)   (x & y)
 
 /**

@@ -164,6 +164,19 @@ void send_periodic_data(void) {
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
+    uint8_t pkt_pl[220];
+
+    // Packet ID code
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_TELEMETRY;
+
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++)
+    {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
 
    /*
     *  This flag aware the GS to ignore the other flags, since the content
@@ -172,7 +185,10 @@ void send_periodic_data(void) {
     */
     satellite_data.package_flags |= WHOLE_ORBIT_DATA_FLAG;
 
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, sizeof(satellite_data));
+    // Packet Data
+    memcpy(pkt_pl+8, (uint8_t *)&satellite_data, sizeof(satellite_data));
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(satellite_data)+8);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
