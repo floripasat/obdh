@@ -77,32 +77,42 @@ void communications_task( void *pvParameters ) {
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
         data_len = try_to_receive(data);
-        if(data_len > 7) {
-            received_telecommand = decode_telecommand(data);
+        if (data_len >= 8) {
+            received_telecommand = decode_telecommand(data, data_len);
 
-            switch (received_telecommand.request_action) {
-                case REQUEST_PING_TELECOMMAND:
+            switch (received_telecommand.id) {
+                case FLORIPASAT_PACKET_UPLINK_PING_REQUEST:
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         answer_ping(received_telecommand);
                     }
                     break;
-                case REQUEST_DATA_TELECOMMAND:
+                case FLORIPASAT_PACKET_UPLINK_DATA_REQUEST:
                     if (operation_mode == NORMAL_OPERATION_MODE) {
-                        send_requested_data(received_telecommand.arguments);
+                        send_requested_data(received_telecommand.data);
                     }
                     break;
-                case REQUEST_REPEAT_TELECOMMAND:
+                case FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION:
+                    enter_in_shutdown();
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION:
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_CHARGE_RESET:
+                    send_reset_charge_command();
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
                     if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
                         if (operation_mode == NORMAL_OPERATION_MODE) {
                             radioamateur_repeater(&received_telecommand, &data_len);
                         }
                     }
                     break;
-                case REQUEST_SHUTDOWN_TELECOMMAND:
-                    enter_in_shutdown();
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST:
                     break;
-                case REQUEST_CHARGE_RESET_TELECOMMAND:
-                    send_reset_charge_command();
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP:
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD:
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE:
                     break;
                 default:
                     break;
@@ -270,14 +280,25 @@ void answer_ping(telecommand_t telecommand) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
-    uint8_t answer_msg[58] = PING_MSG;
-    uint8_t i;
+    uint8_t pkt_pl[16];
 
-    for(i = 0; i < 6; i++) {
-        answer_msg[sizeof(PING_MSG)-1 + i] = telecommand.ID[i];
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PING_ANSWER;
+
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
     }
 
-    ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Ping request callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+8] = telecommand.src_callsign[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 15);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
