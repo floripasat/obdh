@@ -34,9 +34,28 @@
 
 #include <stdint.h>
 
-#define SATELLITE_CALLSIGN                      "PY0EFS"    /**< Satellite callsign. */
+#define SATELLITE_CALLSIGN                                  "PY0EFS"    /**< Satellite callsign. */
 
-#define FLORIPASAT_PACKET_DOWNLINK_TELEMETRY    0x10        /**< Downlink packet with telemetry data. */
+// Downlink packets
+#define FLORIPASAT_PACKET_DOWNLINK_TELEMETRY                0x10        /**< Downlink packet with telemetry data. */
+#define FLORIPASAT_PACKET_DOWNLINK_PING_ANSWER              0x11        /**< Ping answer. */
+#define FLORIPASAT_PACKET_DOWNLINK_DATA_REQUEST_ANSWER      0x12        /**< Data request answer. */
+#define FLORIPASAT_PACKET_DOWNLINK_HIBERNATION_FEEDBACK     0x13        /**< Hibernation feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_CHARGE_RESET_FEEDBACK    0x14        /**< Charge reset feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST        0x15        /**< Message Broadcast. */
+#define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS         0x16        /**< Payload X status. */
+
+// Uplink packets
+#define FLORIPASAT_PACKET_UPLINK_PING_REQUEST               0x20        /**< Ping request. */
+#define FLORIPASAT_PACKET_UPLINK_DATA_REQUEST               0x21        /**< Data request. */
+#define FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION          0x22        /**< Enter hibernation. */
+#define FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION          0x23        /**< Leave hibernation. */
+#define FLORIPASAT_PACKET_UPLINK_CHARGE_RESET               0x24        /**< Charge reset. */
+#define FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE          0x25        /**< Broadcast message. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST   0x26        /**< Payload X status request. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP             0x27        /**< Payload X swap. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD      0x28        /**< Payload data upload. */
+#define FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE                0x29        /**< RUSH enable. */
 
 #define has_flag(x,y)   (x & y)
 
@@ -84,10 +103,10 @@ typedef struct {
 } request_data_packet_t;
 
 typedef struct {
-    uint8_t ID[6];
-    uint16_t request_action; /**< the action (send data, shutdown..) */
-    uint8_t arguments[8];
-    uint8_t reserved[12];
+    uint8_t id;                 /**< Packet ID code. */
+    uint8_t src_callsign[7];    /**< Source callsign. */
+    uint8_t data[220];          /**< Packet data. */
+    uint16_t data_len;          /**< Packet data length in bytes. */
 } telecommand_t;
 
 #define PACKET_LENGTH   58  /**< according NGHAM packet sizes */
