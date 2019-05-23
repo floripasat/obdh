@@ -48,7 +48,7 @@ void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
 void send_reset_charge_command(void);
-void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len);
+void radioamateur_repeater(telecommand_t *telecommand);
 
 
 void communications_task( void *pvParameters ) {
@@ -102,7 +102,7 @@ void communications_task( void *pvParameters ) {
                 case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
                     if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
                         if (operation_mode == NORMAL_OPERATION_MODE) {
-                            radioamateur_repeater(&received_telecommand, &data_len);
+                            radioamateur_repeater(&received_telecommand);
                         }
                     }
                     break;
@@ -305,29 +305,45 @@ void answer_ping(telecommand_t telecommand) {
     rf4463_rx_init();
 }
 
-void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len){
+void radioamateur_repeater(telecommand_t *telecommand) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
-    uint8_t msg[28];
-    uint8_t i = 0;
+    uint8_t pkt_pl[64];
 
-    for(i = 0; i<6; i++){
-        msg[i] = telecommand->ID[i];
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
     }
 
-    msg[6]= (uint8_t) ACTION_REPEAT_TELECOMMAND;
-    msg[7]= (uint8_t) (ACTION_REPEAT_TELECOMMAND >> 8);
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
 
-    for(i = 0; i<8; i++){
-        msg[8 + i] = telecommand->arguments[i];
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand->src_callsign[i];
     }
 
-    for(i = 0; i<12; i++){
-        msg[16 + i] = telecommand->reserved[i];
+    // Destination callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7+7] = telecommand->data[i];
     }
 
-    ngham_TxPktGen(&ngham_packet, msg, *data_len);
+    // Message
+    uint16_t msg_len = telecommand->data_len-7;
+    if (msg_len > 38)
+    {
+        msg_len = 38;
+    }
+
+    for(i=7; i<msg_len; i++) {
+        pkt_pl[i+1+7+7+7] = telecommand->data[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+7+msg_len);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
