@@ -1,7 +1,7 @@
 /*
  * communications_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -26,8 +26,11 @@
  * \brief Task that deals with the downlink and uplink communications
  *
  * \author Elder Tramontin
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
  */
+
+#include <stdbool.h>
 
 #include "communications_task.h"
 #ifdef _DEBUG_AS_LINK
@@ -39,17 +42,28 @@
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 #define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 
+/**
+ * \brief Telecommands keys types.
+ */
+typedef enum
+{
+    KEY_ENTER_HIBERNATION = 0,      /**< Enter hibernation type. */
+    KEY_LEAVE_HIBERNATION,          /**< Leave hibernation type. */
+    KEY_CHARGE_RESET,               /**< Charge reset type. */
+    KEY_ENABLE_RUSH                 /**< Enable RUSH type. */
+} keys_e;
+
 void send_periodic_data(void);
 void send_data(uint8_t *data, int16_t data_len);
 uint16_t try_to_receive(uint8_t *data);
 void send_requested_data(telecommand_t telecommand);
-void enter_in_shutdown(void);
+void enter_in_shutdown(telecommand_t telecommand);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
 void send_reset_charge_command(void);
 void radioamateur_repeater(telecommand_t telecommand);
-
+bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
 
 void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -92,7 +106,7 @@ void communications_task( void *pvParameters ) {
                     }
                     break;
                 case FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION:
-                    enter_in_shutdown();
+                    enter_in_shutdown(received_telecommand);
                     break;
                 case FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION:
                     break;
@@ -377,14 +391,56 @@ void radioamateur_repeater(telecommand_t telecommand) {
     rf4463_rx_init();
 }
 
-void enter_in_shutdown(void) {
-    uint8_t ttc_command;
+void enter_in_hibernation(telecommand_t telecommand) {
+    // Checking it the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len-2;
 
-    ttc_command = TTC_CMD_SHUTDOWN;
-    xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task      */
+    memcpy(key, telecommand.data+2, 8);
+
+    if (!verify_key(key, key_len, KEY_ENTER_HIBERNATION))
+    {
+        return;     // Invalid key!
+    }
+
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t pkt_pl[20];
+
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_HIBERNATION_FEEDBACK;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Hibernation duration
+    pkt_pl[1+7+7]   = telecommand.data[0];
+    pkt_pl[1+7+7+1] = telecommand.data[1];
+
+    // Transmitting feedback
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+2);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+
+    // Executing the enter hibernation command
+    uint8_t ttc_command = TTC_CMD_SHUTDOWN;
+    xQueueOverwrite(ttc_queue, &ttc_command);   // send shutdown command to beacon, via ttc task
     xSemaphoreTake(flash_semaphore,
-                   FLASH_SEMAPHORE_WAIT_TIME);  /**< protect the flash from mutual access               */
-    update_operation_mode(SHUTDOWN_MODE);       /**< update the current operation mode in the flash mem */
+                   FLASH_SEMAPHORE_WAIT_TIME);  // protect the flash from mutual access
+    update_operation_mode(SHUTDOWN_MODE);       // update the current operation mode in the flash mem
     xSemaphoreGive(flash_semaphore);
 }
 
@@ -432,4 +488,30 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
 
     /**< send to the store data task */
     xQueueOverwrite(main_radio_queue, telecommand_status);
+}
+
+bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
+{
+    uint8_t key_enter_hibernation[] = "69jCwUyK";
+
+    switch(type)
+    {
+        case KEY_ENTER_HIBERNATION:
+            if (memcmp(key, key_enter_hibernation, sizeof(key_enter_hibernation)-1) == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        case KEY_LEAVE_HIBERNATION:
+            return false;
+        case KEY_CHARGE_RESET:
+            return false;
+        case KEY_ENABLE_RUSH:
+            return false;
+        default:
+            return false;
+    }
 }
