@@ -42,13 +42,13 @@
 void send_periodic_data(void);
 void send_data(uint8_t *data, int16_t data_len);
 uint16_t try_to_receive(uint8_t *data);
-void send_requested_data(uint8_t *raw_package);
+void send_requested_data(telecommand_t telecommand);
 void enter_in_shutdown(void);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
 void send_reset_charge_command(void);
-void radioamateur_repeater(telecommand_t *telecommand);
+void radioamateur_repeater(telecommand_t telecommand);
 
 
 void communications_task( void *pvParameters ) {
@@ -88,7 +88,7 @@ void communications_task( void *pvParameters ) {
                     break;
                 case FLORIPASAT_PACKET_UPLINK_DATA_REQUEST:
                     if (operation_mode == NORMAL_OPERATION_MODE) {
-                        send_requested_data(received_telecommand.data);
+                        send_requested_data(received_telecommand);
                     }
                     break;
                 case FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION:
@@ -102,7 +102,7 @@ void communications_task( void *pvParameters ) {
                 case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
                     if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
                         if (operation_mode == NORMAL_OPERATION_MODE) {
-                            radioamateur_repeater(&received_telecommand);
+                            radioamateur_repeater(received_telecommand);
                         }
                     }
                     break;
@@ -246,30 +246,57 @@ uint16_t try_to_receive(uint8_t *data) {
     return data_len;
 }
 
-void send_requested_data(uint8_t *raw_package) {
+void send_requested_data(telecommand_t telecommand) {
     request_data_packet_t rqt_packet;
     uint32_t read_position;
     uint16_t package_size = 0;
     uint8_t to_send_package[220];
+    uint8_t pkt_pl[160];
 
-    rqt_packet = decode_request_data_telecommand(raw_package);
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_DATA_REQUEST_ANSWER;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Data
+    rqt_packet = decode_request_data_telecommand(telecommand.data);
 
     read_position = calculate_read_position(rqt_packet);
 
-    if(rqt_packet.packages_count-- > 0)             /**< first packet to be sent -> send all fields of a frame */
-    {
+    if (rqt_packet.packages_count-- > 0) {  // first packet to be sent -> send all fields of a frame
         package_size = get_packet(to_send_package, ALL_FLAGS, read_position++);
-        if(package_size > 0) {
+
+        for(i=0; i<package_size; i++) {
+            pkt_pl[i+1+7+7] = to_send_package[i];
+        }
+
+        if (package_size > 0) {
             request_antenna_mutex();
-            send_data(to_send_package, package_size);
+            send_data(pkt_pl, 1+7+7+package_size);
         }
     }
 
     while(rqt_packet.packages_count-- > 0) {
         package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
-        if(package_size > 0) {
+
+        for(i=0; i<package_size; i++) {
+            pkt_pl[i+1+7+7] = to_send_package[i];
+        }
+
+        if (package_size > 0) {
             request_antenna_mutex();
-            send_data(to_send_package, package_size);
+            send_data(pkt_pl, 1+7+7+package_size);
         }
     }
 
@@ -305,7 +332,7 @@ void answer_ping(telecommand_t telecommand) {
     rf4463_rx_init();
 }
 
-void radioamateur_repeater(telecommand_t *telecommand) {
+void radioamateur_repeater(telecommand_t telecommand) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
@@ -324,23 +351,23 @@ void radioamateur_repeater(telecommand_t *telecommand) {
 
     // Requester callsign
     for(i=0; i<7; i++) {
-        pkt_pl[i+1+7] = telecommand->src_callsign[i];
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
     }
 
     // Destination callsign
     for(i=0; i<7; i++) {
-        pkt_pl[i+1+7+7] = telecommand->data[i];
+        pkt_pl[i+1+7+7] = telecommand.data[i];
     }
 
     // Message
-    uint16_t msg_len = telecommand->data_len-7;
+    uint16_t msg_len = telecommand.data_len-7;
     if (msg_len > 38)
     {
         msg_len = 38;
     }
 
     for(i=7; i<msg_len; i++) {
-        pkt_pl[i+1+7+7+7] = telecommand->data[i];
+        pkt_pl[i+1+7+7+7] = telecommand.data[i];
     }
 
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+7+msg_len);
