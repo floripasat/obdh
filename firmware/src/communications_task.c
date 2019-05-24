@@ -21,16 +21,14 @@
  */
 
 /**
- * \file communications_task.c
- *
  * \brief Task that deals with the downlink and uplink communications
  *
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
- *
  */
 
 #include <stdbool.h>
+#include <string.h>
 
 #include "communications_task.h"
 #ifdef _DEBUG_AS_LINK
@@ -533,7 +531,7 @@ void request_antenna_mutex(void) {
  * \param last_telecommand Last telecommand received
  */
 void update_last_telecommand_status( telecommand_t *last_telecommand ) {
-    uint8_t telecommand_status[19];
+    uint8_t telecommand_status[220];
     uint8_t radio_modem_status[5];
     uint8_t latched_radio_signal_strengh;
     uint8_t i = 0;
@@ -543,15 +541,14 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
     latched_radio_signal_strengh = radio_modem_status[4];
 
     /**< wrap the data in a packet to be stored, via store data task */
-    for(i=0; i<6; i++) {
-        telecommand_status[i] = last_telecommand->ID[i];
+    telecommand_status[0] = last_telecommand->id;
+    for(i=0; i<7; i++) {
+        telecommand_status[i+1] = last_telecommand->src_callsign[i];
     }
-    telecommand_status[i++] = (uint8_t)last_telecommand->request_action;
-    telecommand_status[i++] = (uint8_t)(last_telecommand->request_action >> 8);
-    for(i=8; i<16; i++) {
-        telecommand_status[i] = last_telecommand->arguments[i-8];
+    for(i=0; i<last_telecommand->data_len; i++) {
+        telecommand_status[i+1+7] = last_telecommand->data[i];
     }
-    telecommand_status[i++] = latched_radio_signal_strengh;
+    telecommand_status[1+7+last_telecommand->data_len] = latched_radio_signal_strengh;
 
     /**< send to the store data task */
     xQueueOverwrite(main_radio_queue, telecommand_status);
