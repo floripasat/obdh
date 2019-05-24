@@ -449,6 +449,7 @@ void enter_in_hibernation(telecommand_t telecommand) {
     xSemaphoreTake(flash_semaphore,
                    FLASH_SEMAPHORE_WAIT_TIME);  // protect the flash from mutual access
     update_operation_mode(SHUTDOWN_MODE);       // update the current operation mode in the flash mem
+    set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
     xSemaphoreGive(flash_semaphore);
 }
 
