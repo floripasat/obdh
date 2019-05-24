@@ -1,7 +1,7 @@
 /*
  * floripasat_def.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,10 @@
  */
 
  /**
- * \file floripasat_def.h
- *
  * \brief Project definitions, structures and macros
  *
  * \author Elder Tramontin
- *
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
 
 #ifndef FLORIPASATDEF_H_
@@ -181,23 +179,6 @@ typedef struct {
 //! \} End of energy_levels
 
 /**
- * \defgroup uplink_commands
- * \brief valid commands to be sent from the earth segment
- * \{
- */
-#define REQUEST_DATA_TELECOMMAND            0x7764    /**< uplink command to request whole data orbit - dw */
-#define REQUEST_SHUTDOWN_TELECOMMAND        0x6473    /**< uplink command to request a 24 hours shutdown - sd */
-#define REQUEST_CHARGE_RESET_TELECOMMAND    0x7263    /**< uplink command to request a battery charge reset - cr */
-#define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
-#define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
-//! \} End of uplink_commands
-
-/**
- * \brief Downlink answer action for repeater telecommand
- */
-#define ACTION_REPEAT_TELECOMMAND           0x7262    /**< broadcast repeater answer - br */
-
-/**
  * \defgroup communications
  * \brief some team definition of values used in the communications
  * \{
@@ -226,9 +207,6 @@ typedef struct {
 //#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
 #define MINUTES_BEFORE_DEPLOY_ANTENNAS  45
-
-#define PING_MSG "Hello from FloripaSat, telecommand received from "
-
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"

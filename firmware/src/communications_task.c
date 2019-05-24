@@ -57,7 +57,8 @@ void send_periodic_data(void);
 void send_data(uint8_t *data, int16_t data_len);
 uint16_t try_to_receive(uint8_t *data);
 void send_requested_data(telecommand_t telecommand);
-void enter_in_shutdown(telecommand_t telecommand);
+void enter_in_hibernation(telecommand_t telecommand);
+void leave_hibernation(telecommand_t telecommand);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
@@ -99,19 +100,25 @@ void communications_task( void *pvParameters ) {
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         answer_ping(received_telecommand);
                     }
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_DATA_REQUEST:
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         send_requested_data(received_telecommand);
                     }
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION:
-                    enter_in_shutdown(received_telecommand);
+                    enter_in_hibernation(received_telecommand);
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION:
+                    leave_hibernation(received_telecommand);
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_CHARGE_RESET:
                     send_reset_charge_command(received_telecommand);
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
                     if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
@@ -119,6 +126,7 @@ void communications_task( void *pvParameters ) {
                             radioamateur_repeater(received_telecommand);
                         }
                     }
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST:
                     break;
@@ -441,6 +449,25 @@ void enter_in_hibernation(telecommand_t telecommand) {
     xSemaphoreTake(flash_semaphore,
                    FLASH_SEMAPHORE_WAIT_TIME);  // protect the flash from mutual access
     update_operation_mode(SHUTDOWN_MODE);       // update the current operation mode in the flash mem
+    xSemaphoreGive(flash_semaphore);
+}
+
+void leave_hibernation(telecommand_t telecommand)
+{
+    // Checking it the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len;
+
+    memcpy(key, telecommand.data, 8);
+
+    if (!verify_key(key, key_len, KEY_LEAVE_HIBERNATION))
+    {
+        return;     // Invalid key!
+    }
+
+    // Executing the leave hibernation command
+    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
+    update_operation_mode(NORMAL_OPERATION_MODE);                   // update the current operation mode in the flash mem
     xSemaphoreGive(flash_semaphore);
 }
 
