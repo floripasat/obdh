@@ -61,7 +61,7 @@ void enter_in_shutdown(telecommand_t telecommand);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
-void send_reset_charge_command(void);
+void send_reset_charge_command(telecommand_t telecommand);
 void radioamateur_repeater(telecommand_t telecommand);
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
 
@@ -111,7 +111,7 @@ void communications_task( void *pvParameters ) {
                 case FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION:
                     break;
                 case FLORIPASAT_PACKET_UPLINK_CHARGE_RESET:
-                    send_reset_charge_command();
+                    send_reset_charge_command(received_telecommand);
                     break;
                 case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
                     if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
@@ -444,7 +444,46 @@ void enter_in_hibernation(telecommand_t telecommand) {
     xSemaphoreGive(flash_semaphore);
 }
 
-void send_reset_charge_command(void) {
+void send_reset_charge_command(telecommand_t telecommand) {
+    // Checking if the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len;
+
+    memcpy(key, telecommand.data, 8);
+
+    if (!verify_key(key, key_len, KEY_CHARGE_RESET)) {
+        return;     // Invalid key!
+    }
+
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t pkt_pl[20];
+
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_CHARGE_RESET_FEEDBACK;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Transmitting feedback
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+
+    // Executing the charge reset command
     uint8_t eps_command;
     eps_command = EPS_CHARGE_RESET_CMD;
     xQueueOverwrite(eps_charge_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
@@ -493,6 +532,7 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
 {
     uint8_t key_enter_hibernation[] = "69jCwUyK";
+    uint8_t key_charge_reset[]      = "bVCd25Fh";
 
     switch(type)
     {
@@ -508,7 +548,14 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
         case KEY_LEAVE_HIBERNATION:
             return false;
         case KEY_CHARGE_RESET:
-            return false;
+            if (memcmp(key, key_charge_reset, sizeof(key_charge_reset)-1) == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         case KEY_ENABLE_RUSH:
             return false;
         default:
