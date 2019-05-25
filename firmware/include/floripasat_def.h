@@ -42,6 +42,7 @@
 #define FLORIPASAT_PACKET_DOWNLINK_CHARGE_RESET_FEEDBACK    0x14        /**< Charge reset feedback. */
 #define FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST        0x15        /**< Message Broadcast. */
 #define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS         0x16        /**< Payload X status. */
+#define FLORIPASAT_PACKET_DOWNLINK_RUSH_FEEDBACK            0x17        /**< RUSH enable feedback. */
 
 // Uplink packets
 #define FLORIPASAT_PACKET_UPLINK_PING_REQUEST               0x20        /**< Ping request. */

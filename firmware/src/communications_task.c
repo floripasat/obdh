@@ -51,6 +51,17 @@ typedef enum
     KEY_ENABLE_RUSH                 /**< Enable RUSH type. */
 } keys_e;
 
+/**
+ * \brief RUSH status.
+ */
+typedef enum
+{
+    RUSH_STATUS_READY = 0,          /**< Ready to execute an experiment. */
+    RUSH_STATUS_OUT_OF_RANGE,       /**< Out of range timeout. */
+    RUSH_STATUS_LOW_ENERGY,         /**< Not enough energy to execute an experiment. */
+    RUSH_STATUS_BUSY                /**< Already executing an experiment. */
+} rush_status_e;
+
 void send_periodic_data(void);
 void send_data(uint8_t *data, int16_t data_len);
 uint16_t try_to_receive(uint8_t *data);
@@ -62,6 +73,7 @@ void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
 void send_reset_charge_command(telecommand_t telecommand);
 void radioamateur_repeater(telecommand_t telecommand);
+void enable_rush(telecommand_t telecommand);
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
 
 void communications_task( void *pvParameters ) {
@@ -133,6 +145,8 @@ void communications_task( void *pvParameters ) {
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD:
                     break;
                 case FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE:
+                    enable_rush(received_telecommand);
+
                     break;
                 default:
                     break;
@@ -554,10 +568,63 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
     xQueueOverwrite(main_radio_queue, telecommand_status);
 }
 
+void enable_rush(telecommand_t telecommand)
+{
+    // Checking it the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len-1;
+
+    memcpy(key, telecommand.data+1, 8);
+
+    if (!verify_key(key, key_len, KEY_ENABLE_RUSH))
+    {
+        return;     // Invalid key!
+    }
+
+    uint8_t pkt_pl[20];
+
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_RUSH_FEEDBACK;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Status
+    pkt_pl[1+7+7] = RUSH_STATUS_READY;
+
+    // Timeout value
+    pkt_pl[1+7+7+1] = telecommand.data[0];
+
+    // Transmitting feedback
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+1+1);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+
+    // Executing the telecommand
+    // -->> RUSH routine here <<--
+}
+
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
 {
     uint8_t key_enter_hibernation[] = "69jCwUyK";
     uint8_t key_charge_reset[]      = "bVCd25Fh";
+    uint8_t key_enable_rush[]       = "peU9ZGH3";
 
     switch(type)
     {
@@ -582,7 +649,14 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
                 return false;
             }
         case KEY_ENABLE_RUSH:
-            return false;
+            if (memcmp(key, key_enable_rush, sizeof(key_enable_rush)-1) == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         default:
             return false;
     }
