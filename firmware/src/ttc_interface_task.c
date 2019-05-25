@@ -1,7 +1,7 @@
 /*
  * ttc_interface_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -55,7 +55,7 @@ void ttc_interface_task( void *pvParameters ) {
 
         if(xQueueReceive(ttc_queue, (void *) &cmd_to_send, 100) == pdPASS) {
 
-            if(cmd_to_send == TTC_CMD_SHUTDOWN) {               /**< if it is a shutdown cmd */
+            if (cmd_to_send == TTC_CMD_HIBERNATION) {           // if it is a shutdown cmd
                 send_shutdown();
 
                 vTaskSuspend(store_task_handle);                /**< stop the store task and, by consequence, the tasks that do readings */
@@ -97,7 +97,7 @@ void send_shutdown() {
     xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME);
 
     do {
-        send_command_packet(FSP_CMD_SHUTDOWN);      /**< send the shutdown command                              */
+        send_command_packet(FSP_CMD_HIBERNATION);   // send the shutdown command
         vTaskDelayMs(TIME_TO_PROCESS_CMD);          /**< wait 2 seconds until beacon process the received data  */
         ack = receive_packet(&received_data , 0);   /**< receive the ACK/NACK                                   */
     } while(ack != TTC_ACK);                        /**< repeat until receive ACK                               */

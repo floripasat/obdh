@@ -133,7 +133,7 @@ void housekeeping_task( void *pvParameters ) {
 
         system_time = read_time_counter();
 
-        if(current_mode  == SHUTDOWN_MODE) {
+        if (current_mode  == HIBERNATION_MODE) {
             time_state_last_change = read_time_state_changed();
             if( system_time - time_state_last_change >= get_hibernation_period_min() ) {
                 xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);/**< protect the flash from mutual access */

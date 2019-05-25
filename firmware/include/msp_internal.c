@@ -26,6 +26,7 @@
  * \author Mario Baldini
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
+
 #include "msp_internal.h"
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
@@ -133,7 +134,7 @@ uint8_t read_current_state(void) {
     energy_level = current_state & ENERGY_LEVEL_MASK;
 
     /**< use a default value in case of the memory holds a wrong one */
-    if ( ( operation_mode != NORMAL_OPERATION_MODE ) && ( operation_mode != SHUTDOWN_MODE ) ) {
+    if ( ( operation_mode != NORMAL_OPERATION_MODE ) && ( operation_mode != HIBERNATION_MODE ) ) {
         operation_mode = NORMAL_OPERATION_MODE;
     }
     if ( ( energy_level != ENERGY_L1_MODE ) && ( energy_level != ENERGY_L2_MODE ) &&

@@ -456,11 +456,11 @@ void enter_in_hibernation(telecommand_t telecommand) {
     rf4463_rx_init();
 
     // Executing the enter hibernation command
-    uint8_t ttc_command = TTC_CMD_SHUTDOWN;
+    uint8_t ttc_command = TTC_CMD_HIBERNATION;
     xQueueOverwrite(ttc_queue, &ttc_command);   // send shutdown command to beacon, via ttc task
     xSemaphoreTake(flash_semaphore,
                    FLASH_SEMAPHORE_WAIT_TIME);  // protect the flash from mutual access
-    update_operation_mode(SHUTDOWN_MODE);       // update the current operation mode in the flash mem
+    update_operation_mode(HIBERNATION_MODE);    // update the current operation mode in the flash mem
     set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
     xSemaphoreGive(flash_semaphore);
 }
@@ -629,34 +629,13 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
     switch(type)
     {
         case KEY_ENTER_HIBERNATION:
-            if (memcmp(key, key_enter_hibernation, sizeof(key_enter_hibernation)-1) == 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return memcmp(key, key_enter_hibernation, sizeof(key_enter_hibernation)-1) == 0 ? true : false;
         case KEY_LEAVE_HIBERNATION:
             return false;
         case KEY_CHARGE_RESET:
-            if (memcmp(key, key_charge_reset, sizeof(key_charge_reset)-1) == 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return memcmp(key, key_charge_reset, sizeof(key_charge_reset)-1) == 0 ? true : false;
         case KEY_ENABLE_RUSH:
-            if (memcmp(key, key_enable_rush, sizeof(key_enable_rush)-1) == 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return memcmp(key, key_enable_rush, sizeof(key_enable_rush)-1) == 0 ? true : false;
         default:
             return false;
     }

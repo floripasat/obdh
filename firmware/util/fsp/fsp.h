@@ -1,7 +1,7 @@
 /*
  * fsp.h
  * 
- * Copyright (C) 2017, Federal University of Santa Catarina.
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  * 
  * This file is part of FloripaSat-FSP.
  * 
@@ -21,8 +21,6 @@
  */
 
 /**
- * \file fsp.h
- * 
  * \brief FloripaSat Protocol library.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
@@ -67,7 +65,7 @@
 #define FSP_CMD_NOP                     1
 #define FSP_CMD_SEND_DATA               2
 #define FSP_CMD_REQUEST_RF_MUTEX        3
-#define FSP_CMD_SHUTDOWN                4
+#define FSP_CMD_HIBERNATION             4
 #define FSP_CMD_RESET_CHARGE            5
 
 // Ack answers
