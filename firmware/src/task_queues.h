@@ -63,6 +63,7 @@ volatile xQueueHandle eps_queue;
 volatile xQueueHandle ttc_queue;
 volatile xQueueHandle tx_queue;
 volatile xQueueHandle payload_rush_queue;
+volatile xQueueHandle command_to_payload_rush_queue;
 volatile xQueueHandle payload_brave_queue;
 
 volatile xQueueHandle eps_charge_queue;

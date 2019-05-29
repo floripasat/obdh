@@ -167,6 +167,7 @@ typedef struct {
 #define REQUEST_CHARGE_RESET_TELECOMMAND    0x7263    /**< uplink command to request a battery charge reset - cr */
 #define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
 #define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
+#define REQUEST_RUSH_ENABLE_TELECOMMAND     0x0666    /**< enable rush experiment command*/
 //! \} End of uplink_commands
 
 /**
@@ -206,6 +207,12 @@ typedef struct {
 
 #define PING_MSG "Hello from FloripaSat, telecommand received from "
 
+//RUSH telecommand replies
+#define RUSH_DISABLED_MSG "RUSH experiment disabled"
+#define RUSH_EN_OK_MSG "RUSH experiment enabled for : "
+#define RUSH_EN_OUT_OF_RANGE_MSG "Out of range, RUSH experiment enabled for : 10 minutes"
+#define RUSH_OUT_OF_BAT_MSG "RUSH experiment disabled: out of battery"
+#define RUSH_QUEUE_FULL_MSG "RUSH command queue full"
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"

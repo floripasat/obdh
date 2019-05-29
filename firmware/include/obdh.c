@@ -47,6 +47,7 @@ void create_tasks( void ) {
     payload_brave_queue        = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
     status_eps_queue           = xQueueCreate( 1, sizeof(uint8_t) );
     status_payload_rush_queue  = xQueueCreate( 1, sizeof(uint8_t) );
+    command_to_payload_rush_queue = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
     status_payload_brave_queue = xQueueCreate( 1, sizeof(uint8_t) );
     status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
