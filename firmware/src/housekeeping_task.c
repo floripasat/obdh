@@ -1,7 +1,7 @@
 /*
  * housekeeping_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,13 +21,11 @@
  */
 
  /**
- * \file housekeeping_task.c
- *
  * \brief Task that do the housekeeping: update time counter,
  * read the supply voltage and current and manage the operation modes
  *
  * \author Elder Tramontin
- *
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
 
 #include "../src/housekeeping_task.h"
@@ -135,9 +133,9 @@ void housekeeping_task( void *pvParameters ) {
 
         system_time = read_time_counter();
 
-        if(current_mode  == SHUTDOWN_MODE) {
+        if (current_mode  == HIBERNATION_MODE) {
             time_state_last_change = read_time_state_changed();
-            if( system_time - time_state_last_change >= (MINUTES_IN_A_DAY)  ) {
+            if( system_time - time_state_last_change >= get_hibernation_period_min() ) {
                 xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);/**< protect the flash from mutual access */
                 update_operation_mode(NORMAL_OPERATION_MODE);
                 xSemaphoreGive(flash_semaphore);

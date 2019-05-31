@@ -1,7 +1,7 @@
 /*
  * msp_internal.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,13 +21,12 @@
  */
 
  /**
- * \file msp_internal.c
- *
  * \brief Interface with internal components of the OBDH SoC
  *
  * \author Mario Baldini
- *
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
+
 #include "msp_internal.h"
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
@@ -135,7 +134,7 @@ uint8_t read_current_state(void) {
     energy_level = current_state & ENERGY_LEVEL_MASK;
 
     /**< use a default value in case of the memory holds a wrong one */
-    if ( ( operation_mode != NORMAL_OPERATION_MODE ) && ( operation_mode != SHUTDOWN_MODE ) ) {
+    if ( ( operation_mode != NORMAL_OPERATION_MODE ) && ( operation_mode != HIBERNATION_MODE ) ) {
         operation_mode = NORMAL_OPERATION_MODE;
     }
     if ( ( energy_level != ENERGY_L1_MODE ) && ( energy_level != ENERGY_L2_MODE ) &&
@@ -178,6 +177,14 @@ void update_operation_mode(uint8_t new_operation_mode) {
     flash_write_single(new_state, CURRENT_STATE_ADDR_FLASH);
 
     flash_write_long(read_time_counter(), TIME_STATE_CHANGED_ADDR_FLASH);
+}
+
+void set_hibernation_period_min(uint16_t min) {
+    flash_write_long((uint32_t)min, HIBERNATION_PERIOD_ADDR_FLASH);
+}
+
+uint16_t get_hibernation_period_min(void) {
+    return (uint16_t)flash_read_long(HIBERNATION_PERIOD_ADDR_FLASH);
 }
 
 void low_power_mode_sleep(void) {
