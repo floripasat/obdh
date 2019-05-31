@@ -1,7 +1,7 @@
 /*
  * fsp.c
  * 
- * Copyright (C) 2017, Federal University of Santa Catarina.
+ * Copyright (C) 2017-2019, Federal University of Santa Catarina.
  * 
  * This file is part of FloripaSat-FSP.
  * 
@@ -21,13 +21,11 @@
  */
 
 /**
- * \file fsp.c
- * 
  * \brief FloripaSat Protocol library implementation.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 1.0-dev
+ * \version 0.2.0
  * 
  * \date 06/11/2017
  * 
@@ -54,7 +52,7 @@ void fsp_reset()
     fsp_decode_pos = 0;
 }
 
-void fsp_gen_data_pkt(uint8_t *data, uint8_t data_len, uint8_t dst_adr, uint8_t ack, FSPPacket *fsp)
+void fsp_gen_data_pkt(uint8_t *data, uint8_t data_len, uint8_t dst_adr, uint8_t ack, fsp_packet_t *fsp)
 {
     if (ack == FSP_PKT_WITH_ACK)
     {
@@ -66,7 +64,7 @@ void fsp_gen_data_pkt(uint8_t *data, uint8_t data_len, uint8_t dst_adr, uint8_t 
     }
 }
 
-void fsp_gen_cmd_pkt(uint8_t cmd, uint8_t dst_adr, uint8_t ack, FSPPacket *fsp)
+void fsp_gen_cmd_pkt(uint8_t cmd, uint8_t dst_adr, uint8_t ack, fsp_packet_t *fsp)
 {
     if (ack == FSP_PKT_WITH_ACK)
     {
@@ -78,17 +76,17 @@ void fsp_gen_cmd_pkt(uint8_t cmd, uint8_t dst_adr, uint8_t ack, FSPPacket *fsp)
     }
 }
 
-void fsp_gen_ack_pkt(uint8_t dst_adr, FSPPacket *fsp)
+void fsp_gen_ack_pkt(uint8_t dst_adr, fsp_packet_t *fsp)
 {
     fsp_gen_pkt((void*)0, 0, dst_adr, FSP_PKT_TYPE_ACK, fsp);
 }
 
-void fsp_gen_nack_pkt(uint8_t dst_adr, FSPPacket *fsp)
+void fsp_gen_nack_pkt(uint8_t dst_adr, fsp_packet_t *fsp)
 {
     fsp_gen_pkt((void*)0, 0, dst_adr, FSP_PKT_TYPE_NACK, fsp);
 }
 
-void fsp_gen_pkt(uint8_t *payload, uint8_t payload_len, uint8_t dst_adr, uint8_t type, FSPPacket *fsp)
+void fsp_gen_pkt(uint8_t *payload, uint8_t payload_len, uint8_t dst_adr, uint8_t type, fsp_packet_t *fsp)
 {
     fsp->sod        = FSP_PKT_SOD;
     fsp->src_adr    = fsp_my_adr;
@@ -105,7 +103,7 @@ void fsp_gen_pkt(uint8_t *payload, uint8_t payload_len, uint8_t dst_adr, uint8_t
     fsp->crc16      = crc16_CCITT(FSP_CRC16_INITIAL_VALUE, &fsp->src_adr, fsp->length + 4);
 }
 
-void fsp_encode(FSPPacket *fsp, uint8_t *pkt, uint8_t *pkt_len)
+void fsp_encode(fsp_packet_t *fsp, uint8_t *pkt, uint8_t *pkt_len)
 {
     uint8_t i = 0;
     
@@ -127,7 +125,7 @@ void fsp_encode(FSPPacket *fsp, uint8_t *pkt, uint8_t *pkt_len)
     *pkt_len = i;
 }
 
-uint8_t fsp_decode(uint8_t byte, FSPPacket *fsp)
+uint8_t fsp_decode(uint8_t byte, fsp_packet_t *fsp)
 {
     switch(fsp_decode_pos)
     {

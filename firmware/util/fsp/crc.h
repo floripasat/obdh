@@ -1,7 +1,7 @@
 /*
  * crc.h
  * 
- * Copyright (C) 2017, Federal University of Santa Catarina
+ * Copyright (C) 2017-2019, Federal University of Santa Catarina
  * 
  * This file is part of FloripaSat-FSP.
  * 
@@ -21,13 +21,11 @@
  */
 
 /**
- * \file crc.h
- * 
  * \brief CRC functions.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 1.0-dev
+ * \version 0.2.0
  * 
  * \date 07/11/2017
  * 
@@ -41,8 +39,6 @@
 #include <stdint.h>
 
 /**
- * \fn crc16_CCITT
- * 
  * \brief Computes the CRC16-CCITT value of an array of data.
  * 
  * \param initial_value is the initial value to compute the crc16 value.

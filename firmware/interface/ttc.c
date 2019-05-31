@@ -1,7 +1,7 @@
 /*
  * ttc.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,9 @@
  */
 
  /**
- * \file ttc.c
- *
  * \brief Interface to deals with TT&C module
  *
  * \author Elder Tramontin
- *
  */
 
 #include "ttc.h"
@@ -109,7 +106,7 @@ beacon_packet_t ttc_copy_data(void){
 }
 
 void send_command_packet(uint8_t command) {
-    FSPPacket fsp_command;
+    fsp_packet_t fsp_command;
     uint8_t ttc_pkt_len;
     uint8_t ttc_pkt_cmd[FSP_PKT_MIN_LENGTH];
 
@@ -125,7 +122,7 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
     uint8_t fsp_status = 0;
     uint8_t ack_received = TTC_NACK;
     uint8_t i = 0;
-    FSPPacket fsp_packet;
+    fsp_packet_t fsp_packet;
 
     sspi_rx_multiple(response, FSP_PKT_MIN_LENGTH + payload_len);
 
@@ -152,7 +149,7 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
 }
 
 void send_data_packet(void) {
-    FSPPacket fsp_data;
+    fsp_packet_t fsp_data;
     beacon_packet_t ttc_packet;
     uint8_t ttc_pkt_data_len;
     uint8_t ttc_pkt_data[FSP_PKT_MAX_LENGTH];

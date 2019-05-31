@@ -1,7 +1,7 @@
 /*
  * crc16.c
  * 
- * Copyright (C) 2017, Federal University of Santa Catarina
+ * Copyright (C) 2017-2019, Federal University of Santa Catarina.
  * 
  * This file is part of FloripaSat-FSP.
  * 
@@ -21,13 +21,11 @@
  */
 
 /**
- * \file crc16.c
- * 
  * \brief CRC16 implementation.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 1.0-dev
+ * \version 0.2.0
  * 
  * \date 07/11/2017
  * 
