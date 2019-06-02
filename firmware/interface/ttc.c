@@ -27,6 +27,7 @@
  */
 
 #include "ttc.h"
+#include "../include/msp_internal.h"
 
 beacon_packet_t ttc_copy_data(void){
     beacon_packet_t beacon_packet;
@@ -108,10 +109,25 @@ beacon_packet_t ttc_copy_data(void){
 void send_command_packet(uint8_t command) {
     fsp_packet_t fsp_command;
     uint8_t ttc_pkt_len;
-    uint8_t ttc_pkt_cmd[FSP_PKT_MIN_LENGTH];
+    uint8_t ttc_pkt_cmd[FSP_PKT_MAX_LENGTH];
 
     fsp_init(FSP_ADR_OBDH);
-    fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
+
+    if (command == TTC_CMD_HIBERNATION)
+    {
+        uint8_t ttc_pkt_pl[3];
+
+        ttc_pkt_pl[0] = FSP_CMD_HIBERNATION;
+        ttc_pkt_pl[1] = (uint8_t)(get_hibernation_period_min() >> 8);
+        ttc_pkt_pl[2] = (uint8_t)(get_hibernation_period_min() & 0x00FF);
+
+        fsp_gen_pkt(ttc_pkt_pl, 3, FSP_ADR_TTC, FSP_PKT_TYPE_CMD_WITH_ACK, &fsp_command);
+    }
+    else
+    {
+        fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
+    }
+
     fsp_encode(&fsp_command, ttc_pkt_cmd, &ttc_pkt_len);
 
     sspi_tx_multiple((uint8_t*) ttc_pkt_cmd, ttc_pkt_len);       /**< send the bytes */

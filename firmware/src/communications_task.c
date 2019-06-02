@@ -458,6 +458,7 @@ void enter_in_hibernation(telecommand_t telecommand) {
     // Executing the enter hibernation command
     uint8_t ttc_command = TTC_CMD_HIBERNATION;
     xQueueOverwrite(ttc_queue, &ttc_command);   // send shutdown command to beacon, via ttc task
+
     xSemaphoreTake(flash_semaphore,
                    FLASH_SEMAPHORE_WAIT_TIME);  // protect the flash from mutual access
     update_operation_mode(HIBERNATION_MODE);    // update the current operation mode in the flash mem
