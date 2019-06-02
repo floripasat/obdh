@@ -1,7 +1,7 @@
 /*
  * ttc.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,15 +21,13 @@
  */
 
  /**
- * \file ttc.c
- *
  * \brief Interface to deals with TT&C module
  *
  * \author Elder Tramontin
- *
  */
 
 #include "ttc.h"
+#include "../include/msp_internal.h"
 
 beacon_packet_t ttc_copy_data(void){
     beacon_packet_t beacon_packet;
@@ -109,12 +107,27 @@ beacon_packet_t ttc_copy_data(void){
 }
 
 void send_command_packet(uint8_t command) {
-    FSPPacket fsp_command;
+    fsp_packet_t fsp_command;
     uint8_t ttc_pkt_len;
-    uint8_t ttc_pkt_cmd[FSP_PKT_MIN_LENGTH];
+    uint8_t ttc_pkt_cmd[FSP_PKT_MAX_LENGTH];
 
     fsp_init(FSP_ADR_OBDH);
-    fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
+
+    if (command == TTC_CMD_HIBERNATION)
+    {
+        uint8_t ttc_pkt_pl[3];
+
+        ttc_pkt_pl[0] = FSP_CMD_HIBERNATION;
+        ttc_pkt_pl[1] = (uint8_t)(get_hibernation_period_min() >> 8);
+        ttc_pkt_pl[2] = (uint8_t)(get_hibernation_period_min() & 0x00FF);
+
+        fsp_gen_pkt(ttc_pkt_pl, 3, FSP_ADR_TTC, FSP_PKT_TYPE_CMD_WITH_ACK, &fsp_command);
+    }
+    else
+    {
+        fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
+    }
+
     fsp_encode(&fsp_command, ttc_pkt_cmd, &ttc_pkt_len);
 
     sspi_tx_multiple((uint8_t*) ttc_pkt_cmd, ttc_pkt_len);       /**< send the bytes */
@@ -125,7 +138,7 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
     uint8_t fsp_status = 0;
     uint8_t ack_received = TTC_NACK;
     uint8_t i = 0;
-    FSPPacket fsp_packet;
+    fsp_packet_t fsp_packet;
 
     sspi_rx_multiple(response, FSP_PKT_MIN_LENGTH + payload_len);
 
@@ -152,7 +165,7 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
 }
 
 void send_data_packet(void) {
-    FSPPacket fsp_data;
+    fsp_packet_t fsp_data;
     beacon_packet_t ttc_packet;
     uint8_t ttc_pkt_data_len;
     uint8_t ttc_pkt_data[FSP_PKT_MAX_LENGTH];
