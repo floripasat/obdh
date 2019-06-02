@@ -400,8 +400,8 @@ void radioamateur_repeater(telecommand_t telecommand) {
         msg_len = 38;
     }
 
-    for(i=7; i<msg_len; i++) {
-        pkt_pl[i+1+7+7+7] = telecommand.data[i];
+    for(i=0; i<msg_len; i++) {
+        pkt_pl[i+1+7+7+7] = telecommand.data[i+7];
     }
 
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+7+msg_len);
