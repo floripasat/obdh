@@ -53,10 +53,10 @@ void payload_rush_interface_task( void *pvParameters ) {
     volatile uint8_t rush_fpga_enable = RUSH_FPGA_DISABLE;
 
     //stores a command received by the command_to_payload_rush_queue. The command is the amount
-    //of time (in minutes) to turns the RUSH on and to perfom an experiment.
+    //of time (in minutes) to turns the RUSH on and to perform an experiment.
     uint8_t command_received = 0;
     //stores the total duration of an experiment for timing purposes.
-    uint8_t experiment_duration = 0;
+    uint16_t experiment_duration = 0;
     //time counter of an already running experiment in seconds.
     uint16_t running_experiment_counter = 0;
 
@@ -107,8 +107,9 @@ void payload_rush_interface_task( void *pvParameters ) {
                         //if yes, finish the experiment
                         if (command_received == 0)
                         {
+                            xQueueReset(command_to_payload_rush_queue);
                             running_experiment_counter = 0;
-                            rush_fpga_enable == RUSH_FPGA_DISABLE;
+                            rush_fpga_enable = RUSH_FPGA_DISABLE;
                         }
                     }
 
@@ -126,13 +127,13 @@ void payload_rush_interface_task( void *pvParameters ) {
                             if (running_experiment_counter == 0)
                             {
                                 rush_power_state(PAYLOAD_FPGA, TURN_OFF);
-                                rush_fpga_enable == RUSH_FPGA_DISABLE;
+                                rush_fpga_enable = RUSH_FPGA_DISABLE;
                             }
                         }
                         else
                         {
                             rush_power_state(PAYLOAD_FPGA, TURN_OFF);
-                            rush_fpga_enable == RUSH_FPGA_DISABLE;
+                            rush_fpga_enable = RUSH_FPGA_DISABLE;
                             running_experiment_counter = 0;
                         }
                     }
@@ -156,7 +157,7 @@ void payload_rush_interface_task( void *pvParameters ) {
                         if ( rush_status != RUSH_POWER_OFF )/**< if mode is power_on, turn it off    */
                         {
                             rush_power_state(PAYLOAD_FPGA, TURN_OFF);
-                            rush_fpga_enable == RUSH_FPGA_DISABLE;
+                            rush_fpga_enable = RUSH_FPGA_DISABLE;
                             rush_power_state(PAYLOAD_BOARD, TURN_OFF);
                             rush_status = RUSH_POWER_OFF;
                         }
@@ -190,9 +191,11 @@ void payload_rush_interface_task( void *pvParameters ) {
             case ENERGY_L4_MODE:
             default:
                 if ( rush_status != RUSH_POWER_OFF ) {        /**< if mode is power_on, turn it off    */
-                    rush_status = RUSH_POWER_OFF;
+                    running_experiment_counter = 0;
                     rush_power_state(PAYLOAD_FPGA, TURN_OFF);
+                    rush_status = RUSH_POWER_OFF;
                     rush_power_state(PAYLOAD_BOARD, TURN_OFF);
+                    rush_fpga_enable = RUSH_FPGA_DISABLE;
                     xQueueReset(command_to_payload_rush_queue);
                 }
                 break;
