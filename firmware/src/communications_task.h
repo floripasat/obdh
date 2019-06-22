@@ -1,7 +1,7 @@
 /*
  * communications_task.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,9 @@
  */
 
 /**
- * \file communications_task.h
- *
  * \brief Task that deals with the downlink and uplink communications
  *
  * \author Elder Tramontin
- *
  */
 
 #ifndef SRC_COMMUNICATIONS_TASK_H_
@@ -55,18 +52,15 @@
 #define PERIODIC_DOWNLINK_INTERVAL_MS         60000
 #define PERIODIC_DOWNLINK_INTERVAL_TURNS      ( PERIODIC_DOWNLINK_INTERVAL_MS / COMMUNICATIONS_TASK_PERIOD_MS )
 
-#define ENABLE_REPEATER_TRANSMISSION          1
-#define DISABLE_REPEATER_TRANSMISSION         0
 /**
- * \var static xTaskHandle xCommunicationsTask
  * \brief variable which holds the task reference
  */
 static xTaskHandle communications_task_handle;
 
 /**
- * \fn void prvCommunicationsTask( void *pvParameters )
- * That task manage the uplink data
- * \param pvParameters Not used
+ * \brief That task manage the uplink data.
+ *
+ * \param pvParameters Not used.
  */
 void communications_task( void *pvParameters );
 

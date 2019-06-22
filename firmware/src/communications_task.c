@@ -1,7 +1,7 @@
 /*
  * communications_task.c
  *
- * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -80,7 +80,6 @@ void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t current_turn = 0, turns_to_wait;
-    uint8_t enable_repeater;
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
@@ -131,10 +130,8 @@ void communications_task( void *pvParameters ) {
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
-                    if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
-                        if (operation_mode == NORMAL_OPERATION_MODE) {
-                            radioamateur_repeater(received_telecommand);
-                        }
+                    if (operation_mode == NORMAL_OPERATION_MODE) {
+                        radioamateur_repeater(received_telecommand);
                     }
 
                     break;
@@ -165,18 +162,15 @@ void communications_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
             case ENERGY_L2_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
-                enable_repeater = ENABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L3_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
-                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L4_MODE:
             default:
                 turns_to_wait = 0xFFFF;
-                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
             }
 
             if(++current_turn > turns_to_wait) {
