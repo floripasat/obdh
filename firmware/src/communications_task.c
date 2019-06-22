@@ -204,6 +204,10 @@ void send_periodic_data(void) {
 }
 #else
 void send_periodic_data(void) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
@@ -241,6 +245,10 @@ void send_periodic_data(void) {
 #endif
 
 void send_data(uint8_t *data, int16_t data_len) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
@@ -281,6 +289,10 @@ uint16_t try_to_receive(uint8_t *data) {
 }
 
 void send_requested_data(telecommand_t telecommand) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     request_data_packet_t rqt_packet;
     uint32_t read_position;
     uint16_t package_size = 0;
@@ -338,6 +350,10 @@ void send_requested_data(telecommand_t telecommand) {
 }
 
 void answer_ping(telecommand_t telecommand) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
@@ -367,6 +383,10 @@ void answer_ping(telecommand_t telecommand) {
 }
 
 void radioamateur_repeater(telecommand_t telecommand) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
@@ -457,11 +477,10 @@ void enter_in_hibernation(telecommand_t telecommand) {
 
     // Executing the enter hibernation command
     uint8_t ttc_command = TTC_CMD_HIBERNATION;
-    xQueueOverwrite(ttc_queue, &ttc_command);   // send shutdown command to beacon, via ttc task
+    xQueueOverwrite(ttc_queue, &ttc_command);                       // send shutdown command to beacon, via ttc task
 
-    xSemaphoreTake(flash_semaphore,
-                   FLASH_SEMAPHORE_WAIT_TIME);  // protect the flash from mutual access
-    update_operation_mode(HIBERNATION_MODE);    // update the current operation mode in the flash mem
+    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
+    update_operation_mode(HIBERNATION_MODE);                        // update the current operation mode in the flash mem
     set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
     xSemaphoreGive(flash_semaphore);
 }
