@@ -143,12 +143,12 @@ data_packet_t read_and_pack_data( void ) {
         packet.package_flags |= TASK_SCHEDULER_FLAG;
     }
 
-    if(xQueueReceive(payload1_queue, (void *) packet.payload1, DATA_QUEUE_WAIT_TIME) == pdPASS) {
-        packet.package_flags |= PAYLOAD1_FLAG;
+    if(xQueueReceive(payload_rush_queue, (void *) packet.payload_rush, DATA_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= PAYLOAD_RUSH_FLAG;
     }
 
-    if(xQueueReceive(payload2_queue, (void *) packet.payload2, DATA_QUEUE_WAIT_TIME) == pdPASS) {
-        packet.package_flags |= PAYLOAD2_FLAG;
+    if(xQueueReceive(payload_brave_queue, (void *) packet.payload_brave, DATA_QUEUE_WAIT_TIME) == pdPASS) {
+        packet.package_flags |= PAYLOAD_BRAVE_FLAG;
     }
 
     satellite_data = packet;
@@ -200,8 +200,8 @@ uint16_t get_packet(uint8_t* to_send_packet,  uint16_t rqst_flags, uint32_t read
     pack_module_data(flags, BATTERY_MONITOR_FLAG,  p_data_packet->battery_monitor, sizeof(p_data_packet->battery_monitor), to_send_packet, &package_size);
     pack_module_data(flags, TEMPERATURES_FLAG,  p_data_packet->temperatures, sizeof(p_data_packet->temperatures), to_send_packet, &package_size);
     pack_module_data(flags, TASK_SCHEDULER_FLAG,  p_data_packet->energy_level, sizeof(p_data_packet->energy_level), to_send_packet, &package_size);
-    pack_module_data(flags, PAYLOAD1_FLAG,  p_data_packet->payload1, sizeof(p_data_packet->payload1), to_send_packet, &package_size);
-    pack_module_data(flags, PAYLOAD2_FLAG,  p_data_packet->payload2, sizeof(p_data_packet->payload2), to_send_packet, &package_size);
+    pack_module_data(flags, PAYLOAD_RUSH_FLAG,  p_data_packet->payload_rush, sizeof(p_data_packet->payload_rush), to_send_packet, &package_size);
+    pack_module_data(flags, PAYLOAD_BRAVE_FLAG,  p_data_packet->payload_brave, sizeof(p_data_packet->payload_brave), to_send_packet, &package_size);
 
     return package_size;
 }

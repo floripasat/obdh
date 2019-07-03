@@ -75,8 +75,8 @@
 #define  TEMPERATURES_FLAG          BIT8
 #define  TASK_SCHEDULER_FLAG        BIT9
 
-#define  PAYLOAD1_FLAG              BITA
-#define  PAYLOAD2_FLAG              BITB
+#define  PAYLOAD_RUSH_FLAG          BITA
+#define  PAYLOAD_BRAVE_FLAG         BITB
 
 /*
     *  This flag aware the GS to ignore the other flags, since the content
@@ -126,8 +126,8 @@ typedef struct {
     uint8_t temperatures            [21];
     uint8_t energy_level            [1];
     //payloads
-    uint8_t payload1                [40];
-    uint8_t payload2                [7];
+    uint8_t payload_rush            [64];
+    uint8_t payload_brave           [7];
 } data_packet_t;
 
 
@@ -208,6 +208,13 @@ typedef struct {
 //#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
 #define MINUTES_BEFORE_DEPLOY_ANTENNAS  45
+
+// RUSH telecommand replies
+#define RUSH_DISABLED_MSG           "RUSH experiment disabled"
+#define RUSH_EN_OK_MSG              "RUSH experiment enabled for : "
+#define RUSH_EN_OUT_OF_RANGE_MSG    "Out of range, RUSH experiment enabled for : 10 minutes"
+#define RUSH_OUT_OF_BAT_MSG         "RUSH experiment disabled: out of battery"
+#define RUSH_QUEUE_FULL_MSG         "RUSH command queue full"
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"
