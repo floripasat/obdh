@@ -543,6 +543,62 @@ void send_reset_charge_command(telecommand_t telecommand) {
     xQueueOverwrite(eps_charge_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
 }
 
+void answer_rush_enable_telecommand(telecommand_t telecommand) {
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t answer_msg[50] = RUSH_DISABLED_MSG;
+    uint8_t cmd;
+
+    cmd = telecommand.arguments[0];
+
+    if (read_current_energy_level() == ENERGY_L1_MODE)
+    {
+        if (cmd == 0)
+        {
+            xQueueReset(command_to_payload_rush_queue);
+            xQueueSendToFront(command_to_payload_rush_queue,&cmd,0);
+            //answer = RUSH_DISABLED_MSG
+        }
+        else if(cmd > 30)
+        {
+            cmd = 10;
+            if(xQueueSendToBack(command_to_payload_rush_queue,&cmd,0) == pdTRUE)
+            {
+                //answer = RUSH_EN_OUT_OF_RANGE_MSG;
+            }
+            else
+            {
+                //answer = RUSH_QUEUE_FULL_MSG;
+            }
+        }
+        else
+        {
+            if(xQueueSendToBack(command_to_payload_rush_queue,&cmd,0) == pdTRUE)
+            {
+                //answer = RUSH_EN_OK_MSG;
+                //answer[end + 1] = cmd/10 + 0x30;
+                //answer[end + 2] = cmd%10 + 0x30;
+            }
+            else
+            {
+                //answer = RUSH_QUEUE_FULL_MSG;
+            }
+        }
+
+    }
+    else
+    {
+        //answer = RUSH_OUT_OF_BAT_MSG;
+    }
+
+    ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+}
+
 void request_antenna_mutex(void) {
     uint8_t ttc_command;
     uint8_t ttc_response;
