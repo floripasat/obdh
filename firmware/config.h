@@ -32,6 +32,7 @@
 #define CONFIG_H_
 
 #define OBDH_RESET_MEMORY_ON_BOOT               0
+#define OBDH_EXECUTE_DEPLOYMENT_ROUTINE         1
 
 #endif // CONFIG_H_
 

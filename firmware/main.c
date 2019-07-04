@@ -39,10 +39,12 @@ int main(void) {
     return 0;
 #endif // OBDH_RESET_MEMORY_ON_BOOT
 
+#if OBDH_EXECUTE_DEPLOYMENT_ROUTINE == 1
     if(verify_deployment_status() == ANTENNAS_NOT_DEPLOYED){    /**< **** TODO: Verify the byte order in I2C (MSB or LSB first). */
         hibernate();                        /**< sleep for 45 minutes */
         antennas_deployment_routine();      /**< open the antennas */
     }
+#endif // OBDH_EXECUTE_DEPLOYMENT_ROUTINE
 
     create_tasks();
 
