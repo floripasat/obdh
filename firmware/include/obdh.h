@@ -1,7 +1,7 @@
 /*
  * obdh.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,9 @@
  */
 
  /**
- * \file obdh.h
- *
  * \brief Main functions of the OBDH module
  *
  * \author Elder Tramontin
- *
  */
 
 #ifndef INCLUDE_OBDH_H_
@@ -62,28 +59,31 @@
 #include "../rf4463/rf4463.h"
 
 /**
- * \fn create_tasks
- *
  * \brief Instantiation of the OS tasks
+ *
  * \return None
  */
-void create_tasks( void );
+void create_tasks(void);
 
 /**
- * \fn setup_hardware
- *
  * \brief Initialization of peripheral modules: internal WDT, external WDT, Clocks, I2C, SPI, UART, ADC.
+ *
  * \return None
  */
-void setup_hardware( void );
+void setup_hardware(void);
 
 /**
- * \fn hibernate
- *
  * \brief Put the MCU in a low power state during 45 minutes. Wake-up each seconds and count the elapsed time.
+ *
  * \return None
  */
 void hibernate(void);
 
-#endif
+/**
+ * \brief Reset the non-volatile memory.
+ *
+ * \return None.
+ */
+void reset_memory(void);
 
+#endif // INCLUDE_OBDH_H_
