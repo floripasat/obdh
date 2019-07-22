@@ -1,7 +1,7 @@
 /*
  * obdh.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,13 +21,11 @@
  */
 
  /**
- * \file obdh.c
- *
  * \brief Main functions of the OBDH module
  *
  * \author Elder Tramontin
- *
  */
+
 #include "obdh.h"
 
 void create_tasks( void ) {
@@ -177,6 +175,13 @@ void hibernate(void) {
     } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); /**< loop until reach 45 minutes */
 
     stop_timer_b();                     /**< stop counting time over the timer B */
+}
+
+void reset_memory(void) {
+    flash_erase(SEGD_ADDR);
+    flash_erase(SEGC_ADDR);
+    flash_erase(SEGB_ADDR);
+    flash_erase(SEGA_ADDR);
 }
 
 void vApplicationTickHook( void ) {
