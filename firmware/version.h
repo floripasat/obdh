@@ -1,45 +1,48 @@
 /*
- * config.h
- *
+ * version.h
+ * 
  * Copyright (C) 2019, Universidade Federal de Santa Catarina.
- *
+ * 
  * This file is part of FloripaSat-OBDH.
- *
+ * 
  * FloripaSat-OBDH is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * FloripaSat-OBDH is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
- * along with FloripaSat-OBDH.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * along with FloripaSat-OBDH. If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 
 /**
- * \brief General configuration definitions.
+ * \brief Version control.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
- *
+ * 
  * \version 0.2.1
  * 
- * \date 03/07/2019
- *
- * \defgroup config Configuration
+ * \date 08/02/2019
+ * 
+ * \defgroup version_control Version Control
+ * \{
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef VERSION_H_
+#define VERSION_H_
 
-#define OBDH_RESET_MEMORY_ON_BOOT               0
-#define OBDH_EXECUTE_DEPLOYMENT_ROUTINE         1
+#define FIRMWARE_VERSION        "0.2.1"
 
-#define OBDH_DEBUG_MESSAGES                     1
+#define FIRMWARE_STATUS         "Development"
 
-#endif // CONFIG_H_
+#define FIRMWARE_AUTHOR_NAME    "SpaceLab - UFSC"
+#define FIRMWARE_AUTHOR_EMAIL   "spacelab-ufsc@gmail.com"
 
-//! \} End of config group
+#endif // VERSION_H_
+
+//! \} End of version_control group
