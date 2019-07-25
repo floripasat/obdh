@@ -1,7 +1,7 @@
 /*
  * adc.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,38 +20,40 @@
  *
  */
 
- /**
- * \file adc.h
- *
+/**
  * \brief Functions of MSP430's ADC12 peripheral
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.2
+ *
+ * \defgroup adc ADC
+ * \ingroup drivers
  */
+
 #ifndef ADC_H_
 #define ADC_H_
 
 #include <stdint.h>
+
 #include "../hal/obdh_hal.h"
 
-#define AVCC 3.0            /**< reference voltage        */
+#define AVCC 3.0            /**< reference voltage */
 #define ADC_RANGE 4095.0    /**< ADC resolution (12 bits) */
 
 /**
- * \fn adc_setup
- *
  * \brief Configure the channels, sampling period, voltage reference and operation mode of the ADC peripheral.
  * \return None
  */
 void adc_setup(void);
 
 /**
- * \fn adc_read
- *
  * \brief Read a channel of the ADC.
  * \param channel is the channel to be read (0-15)
  * \return a 12-bit value, digital conversion of the analog voltage in the channel
  */
 uint16_t adc_read(uint8_t channel);
 
-#endif
+#endif // ADC_H_
+
+//! \} End of adc group

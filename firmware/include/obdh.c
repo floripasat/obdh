@@ -20,16 +20,22 @@
  *
  */
 
- /**
+/**
  * \brief Main functions of the OBDH module
  *
  * \author Elder Tramontin
+ *
+ * \version 0.2.2
+ *
+ * \addtogroup obdh
  */
+
+#include "../interface/debug/debug.h"
 
 #include "obdh.h"
 
 void create_tasks( void ) {
-    /**
+    /*
      * Create queues to communicate between tasks
      */
     obdh_status_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
@@ -49,9 +55,9 @@ void create_tasks( void ) {
     status_payload_brave_queue = xQueueCreate( 1, sizeof(uint8_t) );
     status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    eps_charge_queue        = xQueueCreate( 1, sizeof(uint8_t) );
+    eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
 
-    /**
+    /*
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
      */
     spi1_semaphore   = xSemaphoreCreateMutex();
@@ -59,7 +65,7 @@ void create_tasks( void ) {
     fsp_semaphore    = xSemaphoreCreateMutex();
     flash_semaphore  = xSemaphoreCreateMutex();
 
-    /**
+    /*
      * Create each task: links with a routine, allocates the requested task
      * stack size, sets the priority, passes parameters and get a handler
      */
@@ -72,81 +78,64 @@ void create_tasks( void ) {
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
     xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
-#ifdef _DEBUG
-    //xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
-#endif
 }
 
 void gpio_setup() {
     //TODO: set the configuration of every pins. //MAGNETORQUER   //SD
-    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            /**< Led pin setup */
+    debug_print_event_from_module(DEBUG_INFO, "GPIO", "Initializing status LED...\n\r");
+    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            // Led pin setup
 
-
-    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            /**< disable memory */
+    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            // disable memory
     BIT_SET(uSDCard_CE_DIR, uSDCard_CE_PIN);
 
     rf4463_gpio_init();
 }
 
-void setup_hardware( void ) {
-    uint8_t test_result;
-
+void setup_hardware(void) {
     taskDISABLE_INTERRUPTS();
 
     gpio_reset();
 
-    /**
-     *  Configure and reset the watchdog timers
-     */
+    // Configure and reset the watchdog timers
     wdti_setup(WATCHDOG, WD_16_SEC);
     wdte_setup();
     wdte_reset_counter();
 
-    test_result = clocks_setup();   /**< Setup clocks                                                       */
+    // Setup clocks
+    uint8_t test_result = clocks_setup();
 
-    uart0_setup(9600);              /**< Setup UART                                                         */
+    // Debug interface and boot messages
+    debug_init();
 
-    /*
-     * Print some booting messages
-     */
-    debug(BOOTING_MSG);
-    debug(UART_INFO_MSG);
-    if(test_result == TEST_SUCESS) {
-        debug(CLOCK_INFO_MSG);
+    if (test_result == TEST_SUCESS) {
+        debug_print_event_from_module(DEBUG_INFO, "System", "Clock configuration: Master = 16 MHz, Subsystem Master = 16 MHz, Auxiliary = 32768 kHz\n\r");
     }
     else {
-        debug(CLOCK_FAIL_MSG);
+        debug_print_event_from_module(DEBUG_ERROR, "System", "Error during clock configuration!\n\r");
     }
 
-    /*
-     * Setup I2C interfaces 0, 1 and 2
-     */
+    // Setup I2C interfaces 0, 1 and 2
     i2c_setup(0);
     i2c_setup(1);
     i2c_setup(2);
 
-    debug(I2C_INFO_MSG);            /**< Setup I2C                                                          */
-
-    /*
-     * Setup SPI interfaces 0 and 1
-     */
+    // Setup SPI interfaces 0 and 1
     spi_setup(0);
     spi_setup(1);
 
-    debug(SPI_INF_MSG);             /**< Setup SPI                                                          */
+    // Setup ADC
+    adc_setup();
 
-    adc_setup();                    /**< Setup ADC                                                          */
+    // Setup software SPI
+    sspi_setup();
 
-    debug(ADC_INFO_MSG);
+    // Setup all GPIO pins according each function
+    gpio_setup();
 
-    sspi_setup();                   /**< Setup software SPI                                                 */
+    update_reset_value();           // Read the previous value, increment it and store again
+    restore_time_counter();         // Read the time counter after a reset and restore it value to RAM
 
-    gpio_setup();                   /**< Setup all GPIO pins according each function                        */
-
-    update_reset_value();           /**< Read the previous value, increment it and store again              */
-    restore_time_counter();         /**< Read the time counter after a reset and restore it value to RAM    */
-
-    debug("\n --- Boot completed ---\n");
+    debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!\n\r");
 }
 
 void hibernate(void) {
@@ -263,4 +252,4 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName ) {
 }
 /*-----------------------------------------------------------*/
 
-
+//! \} End of obdh group

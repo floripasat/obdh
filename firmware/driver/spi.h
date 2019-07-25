@@ -1,7 +1,7 @@
 /*
  * spi.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,29 +20,28 @@
  *
  */
 
- /**
- * \file spi.h
- *
+/**
  * \brief This file manage the MSP430's registers of the SPI interfaces
  *
  * \author Arthur Semione
  *
+ * \version 0.2.2
+ *
+ * \defgroup spi SPI
+ * \ingroup drivers
  */
+
 #include <msp430.h>
 #include <stdint.h>
 #include "../hal/obdh_hal.h"
 
 /**
- * \fn spi_setup
- *
  * \brief Configure pins, clock source and other parameters of the SPI interfaces
  * \return None
  */
 void spi_setup(uint8_t interface);
 
 /**
- * \fn spi_tx
- *
  * \brief Send a byte over SPI
  * \param base_address is the MSP registers address of a SPI interface
  * \param data is the byte to be sent
@@ -51,8 +50,6 @@ void spi_setup(uint8_t interface);
 uint8_t spi_tx(uint16_t base_address, uint8_t data);
 
 /**
- * \fn spi_tx_multiple
- *
  * \brief Send 1 or more bytes over SPI
  * \param base_address is the MSP registers address of a SPI interface
  * \param data is a pointer to the first byte to be sent
@@ -62,8 +59,6 @@ uint8_t spi_tx(uint16_t base_address, uint8_t data);
 void spi_tx_multiple(uint16_t base_address, uint8_t *data,uint8_t data_bytes_length);
 
 /**
- * \fn spi_rx
- *
  * \brief Receive a byte over SPI
  * \param base_address is the MSP registers address of a SPI interface
  * \return the received byte
@@ -71,8 +66,6 @@ void spi_tx_multiple(uint16_t base_address, uint8_t *data,uint8_t data_bytes_len
 #define spi_rx(base_address) spi_tx(base_address, 0xFF)
 
 /**
- * \fn spi_rx
- *
  * \brief Receive 1 or more bytes over SPI
  * \param base_address is the MSP registers address of a SPI interface
  * \param data is a pointer to the first byte to be read
@@ -80,3 +73,5 @@ void spi_tx_multiple(uint16_t base_address, uint8_t *data,uint8_t data_bytes_len
  * \return None
  */
 void spi_rx_multiple(uint16_t base_address, uint8_t *data, uint8_t data_bytes_length);
+
+//! \} End of spi group

@@ -24,11 +24,15 @@
  * \brief Main functions of the OBDH module
  *
  * \author Elder Tramontin
+ *
+ * \version 0.2.2
+ *
+ * \defgroup obdh OBDH
+ * \ingroup include
  */
 
 #ifndef INCLUDE_OBDH_H_
 #define INCLUDE_OBDH_H_
-
 
 #include "../FreeRTOS/include/FreeRTOS.h"
 #include "../FreeRTOS/include/task.h"
@@ -87,3 +91,5 @@ void hibernate(void);
 void reset_memory(void);
 
 #endif // INCLUDE_OBDH_H_
+
+//! \} End of obdh group

@@ -25,6 +25,11 @@
  *
  * \author Mario Baldini
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ *
+ * \version 0.2.2
+ *
+ * \defgroup msp_internal MSP Internal
+ * \ingroup include
  */
 
 #ifndef INCLUDE_MSP_INTERNAL_H_
@@ -70,7 +75,6 @@ volatile float temperatureDegC;
 volatile float temperatureDegF;
 
 /**
- * \fn obdh_temperature_convert(uint16_t temp_raw)
  * That function converts the 12-bits temperature into a single precision
  * float value, in degree Celsius.
  * \param temperature_raw is the adc12 output value of temperature sensor
@@ -79,23 +83,20 @@ volatile float temperatureDegF;
 float obdh_temperature_convert(uint16_t temperature_raw);
 
 /**
- * \fn obdh_temperature_read(void)
- * Read the internal temperature sensor of MSP, over ADC12.
+ * \brief Read the internal temperature sensor of MSP, over ADC12.
  * \param None
  * \return temperature value, 12-bit formated, right-justified
  */
 uint16_t obdh_temperature_read(void);
 
 /**
- * \fn obdh_current_read(void)
- * Read the current sensing circuit, over ADC12.
+ * \brief Read the current sensing circuit, over ADC12.
  * \param None
  * \return current value, 12-bit formated, right-justified
  */
 uint16_t obdh_current_read(void);
 
 /**
- * \fn obdh_current_convert(uint16_t curr_raw)
  * That function converts the 12-bits current into a single precision
  * float value, in Amperes.
  * \param curr_raw is the adc12 output value of the current sensing circuit
@@ -104,15 +105,13 @@ uint16_t obdh_current_read(void);
 float obdh_current_convert(uint16_t curr_raw);
 
 /**
- * \fn obdh_voltage_read(void)
- * Read the supply voltage sensing circuit, over ADC12.
+ * \brief Read the supply voltage sensing circuit, over ADC12.
  * \param None
  * \return voltage value, 12-bit formated, right-justified
  */
 uint16_t obdh_voltage_read(void);
 
 /**
- * \fn obdh_voltage_convert(uint16_t volt_raw)
  * That function converts the 12-bits voltage into a single precision
  * float value, in Volts.
  * \param volt_raw is the adc12 output value of the voltage sensing circuit
@@ -121,23 +120,20 @@ uint16_t obdh_voltage_read(void);
 float obdh_voltage_convert(uint16_t volt_raw);
 
 /**
- * \fn read_fault_flags(void)
- * Read the oscillators fault flags
+ * \brief Read the oscillators fault flags
  * \param None
  * \return A byte with 4 lsb refers to XT2, XT1HF, XT1LF and DCO fault flags
  */
 uint8_t read_fault_flags(void);
 
 /**
- * \fn read_reset_value(void)
- * Read the reset counter and cause from the MSP flash memory (segment A)
+ * \brief Read the reset counter and cause from the MSP flash memory (segment A)
  * \param None
  * \return A 3-bytes reset counter (LSB,2SB,3SB) and a 1 byte reset cause(MSB)
  */
 uint32_t read_reset_value(void);
 
 /**
- * \fn update_reset_value(void)
  * Read the previous reset counter, increment it, read the last reset cause
  * and write the both in the flash memory
  * \param None
@@ -146,30 +142,28 @@ uint32_t read_reset_value(void);
 void update_reset_value(void);
 
 /**
- * \fn update_time_counter(void)
- * Read the previous time counter, increment it and rewrites in the flash memory
+ * \brief Read the previous time counter, increment it and rewrites in the flash memory
  * \param None
  * \return None
  */
 void update_time_counter(void);
 
 /**
- * \fn read_time_counter(void)
- * Read the time counter from the flash memory
+ * \brief Read the time counter from the flash memory
  * \param None
  * \return a 4-byte minutes counter
  */
 uint32_t read_time_counter(void);
+
 /**
- * \fn restore_time_counter(void)
- * Read the time counter from the flash and store this value in a variable
+ * \brief Read the time counter from the flash and store this value in a variable
  * \param None
  * \return None
  */
 void restore_time_counter(void);
+
 /**
- * \fn read_current_mode(void)
- * Read the current satellite operation mode from the MSP flash memory (segment C)
+ * \brief Read the current satellite operation mode from the MSP flash memory (segment C)
  * \param None
  * \return A byte where the upper nibble refers to the satellite current operation mode and the lower
  *  nibble refers to the satellite current energy level.
@@ -180,7 +174,6 @@ uint8_t read_current_state(void);
 #define read_current_energy_level() (read_current_state() & ENERGY_LEVEL_MASK)
 
 /**
- * \fn update_energy_level(uint8_t new_energy_level)
  * Read the previous state, maintain the operation mode, update the
  * energy level and rewrites in the flash memory.
  * \param new_energy_level is a energy level value (1-4). A Macro must be used.
@@ -189,16 +182,14 @@ uint8_t read_current_state(void);
 void update_energy_level(uint8_t new_energy_level);
 
 /**
- * \fn read_time_state_changed(void)
- * Read the time that the last change of the state occurred, stored into the Memory Segment C
+ * \brief Read the time that the last change of the state occurred, stored into the Memory Segment C
  * \param None
  * \return A unsigned 32-bit minutes counter
  */
 uint32_t read_time_state_changed(void);
 
 /**
- * \fn update_operation_mode(uint8_t new_operation_mode)
- * Read the previous state, maintain the energy level, update the
+ * \brief Read the previous state, maintain the energy level, update the
  * operation mode and rewrites in the flash memory
  * \param new_energy_level is a energy level value (1-4). A Macro must be used.
  * \return None
@@ -226,11 +217,12 @@ void set_hibernation_period_min(uint16_t min);
 uint16_t get_hibernation_period_min(void);
 
 /**
- * \fn low_power_mode_sleep(void)
- * Enter in Low Power Mode, disabling the MCLK and SMCLK until that a interrupt occurs.
+ * \brief Enter in Low Power Mode, disabling the MCLK and SMCLK until that a interrupt occurs.
  * \param None
  * \return None
  */
 void low_power_mode_sleep(void);
 
 #endif /* INCLUDE_MSP_INTERNAL_H_ */
+
+//! \} End of msp_internal group
