@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.2
+ * \version 0.2.6
  *
  * \addtogroup obdh
  */
@@ -82,7 +82,8 @@ void create_tasks( void ) {
 
 void gpio_setup() {
     //TODO: set the configuration of every pins. //MAGNETORQUER   //SD
-    debug_print_event_from_module(DEBUG_INFO, "GPIO", "Initializing status LED...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, "GPIO", "Initializing status LED...");
+    debug_new_line();
     BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            // Led pin setup
 
     BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            // disable memory
@@ -108,10 +109,12 @@ void setup_hardware(void) {
     debug_init();
 
     if (test_result == TEST_SUCESS) {
-        debug_print_event_from_module(DEBUG_INFO, "System", "Clock configuration: Master = 16 MHz, Subsystem Master = 16 MHz, Auxiliary = 32768 kHz\n\r");
+        debug_print_event_from_module(DEBUG_INFO, "System", "Clock configuration: Master = 16 MHz, Subsystem Master = 16 MHz, Auxiliary = 32768 kHz");
+        debug_new_line();
     }
     else {
-        debug_print_event_from_module(DEBUG_ERROR, "System", "Error during clock configuration!\n\r");
+        debug_print_event_from_module(DEBUG_ERROR, "System", "Error during clock configuration!");
+        debug_new_line();
     }
 
     // Setup I2C interfaces 0, 1 and 2
@@ -135,7 +138,8 @@ void setup_hardware(void) {
     update_reset_value();           // Read the previous value, increment it and store again
     restore_time_counter();         // Read the time counter after a reset and restore it value to RAM
 
-    debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!\n\r");
+    debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!");
+    debug_new_line();
 }
 
 void hibernate(void) {

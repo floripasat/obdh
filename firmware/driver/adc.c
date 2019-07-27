@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.2
+ * \version 0.2.6
  *
  * \addtogroup adc
  */
@@ -35,7 +35,8 @@
 #include "adc.h"
 
 void adc_setup(void) {
-    debug_print_event_from_module(DEBUG_INFO, "ADC", "Initializing interface (Vref+ = 3.0V, Vref = GND)...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, "ADC", "Initializing interface (Vref+ = 3.0V, Vref = GND)...");
+    debug_new_line();
 
     // Internal temperature reading setup
     REFCTL0 &= ~REFMSTR;                                        // Reset REFMSTR to hand over control to ADC12_A ref control registers

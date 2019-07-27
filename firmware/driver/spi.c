@@ -25,7 +25,7 @@
  *
  * \author Arthur Semione
  *
- * \version 0.2.2
+ * \version 0.2.6
  *
  * \addtogroup spi
  */
@@ -65,14 +65,16 @@ void spi_clock_setup(uint16_t base_address) {
 void spi_setup(uint8_t interface) {
     switch(interface) {
         case 0:
-            debug_print_event_from_module(DEBUG_INFO, "SPI", "Initializing interface 0 (8 MHz)...\n\r");
+            debug_print_event_from_module(DEBUG_INFO, "SPI", "Initializing interface 0 (8 MHz)...");
+            debug_new_line();
 
             BIT_SET(SPI0_SEL, SPI0_CLK_PIN | SPI0_MOSI_PIN | SPI0_MISO_PIN);
             spi_clock_setup(USCI_A0_BASE);
             port_mapping_uca0();
             break;
         case 1:
-            debug_print_event_from_module(DEBUG_INFO, "SPI", "Initializing interface 1 (8 MHz)...\n\r");
+            debug_print_event_from_module(DEBUG_INFO, "SPI", "Initializing interface 1 (8 MHz)...");
+            debug_new_line();
 
             BIT_SET(SPI1_SEL, SPI1_CLK_PIN | SPI1_MOSI_PIN | SPI1_MISO_PIN);
             spi_clock_setup(USCI_A1_BASE);
@@ -80,7 +82,8 @@ void spi_setup(uint8_t interface) {
             BIT_SET(SPI1_MISO_OUT, SPI1_MISO_PIN);
             break;
         default:
-            debug_print_event_from_module(DEBUG_ERROR, "SPI", "Error initializing interface! Unknown interface number!\n\r");
+            debug_print_event_from_module(DEBUG_ERROR, "SPI", "Error initializing interface! Unknown interface number!");
+            debug_new_line();
     }
 }
 

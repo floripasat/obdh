@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.2
+ * \version 0.2.6
  *
  * \addtogroup sspi
  */
@@ -41,7 +41,8 @@
 #define TIME_TO_STEADY_OUTPUT   160                                     /**< cycles until the data is stable to be read */
 
 void sspi_setup(void) {
-    debug_print_event_from_module(DEBUG_INFO, "SSPI", "Initializing interface...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, "SSPI", "Initializing interface...");
+    debug_new_line();
 
     BIT_CLEAR(TTC_CLK_OUT, TTC_CLK_PIN);                // slave clock = 0
     BIT_CLEAR(TTC_MOSI_OUT, TTC_MOSI_PIN);              // MOSI = 0

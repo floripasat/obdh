@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.1
+ * \version 0.2.6
  * 
  * \date 23/09/2016
  * 
@@ -38,6 +38,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /**
  * \brief Event types.
@@ -63,6 +66,11 @@ typedef enum
     DEBUG_COLOR_CYAN,           /**< Color cyan. */
     DEBUG_COLOR_WHITE           /**< Color white. */
 } debug_colors_e;
+
+/**
+ * \brief Debug interface mutex.
+ */
+extern SemaphoreHandle_t xDebugSemaphore;
 
 /**
  * \brief Initialization of the debug mode.
@@ -141,6 +149,13 @@ void debug_print_event_from_module(uint8_t type, const char *module, const char 
  * \return None.
  */
 void debug_print_msg(const char *msg);
+
+/**
+ * \brief Goes to the next line.
+ *
+ * \return None.
+ */
+void debug_new_line();
 
 /**
  * \brief Prints a integer digit over the debug UART.
@@ -244,6 +259,27 @@ bool debug_uart_init();
  * \return None.
  */
 void debug_uart_write_byte(uint8_t byte);
+
+/**
+ * \brief Creates a mutex to use the debug interface.
+ *
+ * \return TRUE/FALSE if successful or not.
+ */
+bool debug_mutex_create();
+
+/**
+ * \brief Holds the resource (debug interface).
+ *
+ * \return TRUE/FALSE if successful or not.
+ */
+bool debug_mutex_take();
+
+/**
+ * \brief Frees the resource (debug interface).
+ *
+ * \return TRUE/FALSE if successful or not.
+ */
+bool debug_mutex_give();
 
 #endif // DEBUG_H_
 

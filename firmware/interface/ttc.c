@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.3
+ * \version 0.2.6
  *
  * \addtogroup ttc
  */
@@ -120,7 +120,8 @@ void send_command_packet(uint8_t command) {
     {
         debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending the hibernation command (");
         debug_print_dec(get_hibernation_period_min());
-        debug_print_msg(" min)...\n\r");
+        debug_print_msg(" min)...");
+        debug_new_line();
 
         uint8_t ttc_pkt_pl[3];
 
@@ -134,7 +135,8 @@ void send_command_packet(uint8_t command) {
     {
         debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending a command with code ");
         debug_print_hex(command);
-        debug_print_msg("...\n\r");
+        debug_print_msg("...");
+        debug_new_line();
 
         fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
     }
@@ -176,7 +178,8 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
 }
 
 void send_data_packet(void) {
-    debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending a data packet...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending a data packet...");
+    debug_new_line();
 
     fsp_packet_t fsp_data;
     beacon_packet_t ttc_packet;

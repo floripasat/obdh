@@ -26,7 +26,7 @@
  * \author Mario Baldini
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.4
+ * \version 0.2.6
  *
  * \addtogroup eps
  */
@@ -36,12 +36,14 @@
 #include "../util/fsp/fsp.h"
 
 void eps_setup(void) {
-    debug_print_event_from_module(DEBUG_INFO, EPS_INTERFACE_MODULE_NAME, "Initializing interface...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, EPS_INTERFACE_MODULE_NAME, "Initializing interface...");
+    debug_new_line();
 }
 
 
 uint8_t eps_read(eps_package_t *package) {
-    debug_print_event_from_module(DEBUG_INFO, EPS_INTERFACE_MODULE_NAME, "Reading data...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, EPS_INTERFACE_MODULE_NAME, "Reading data...");
+    debug_new_line();
 
     uint8_t data[FSP_PKT_MAX_LENGTH];
     uint8_t cmd[10];
@@ -88,7 +90,8 @@ uint8_t eps_read(eps_package_t *package) {
 }
 
 void send_command_charge_reset(void) {
-    debug_print_event_from_module(DEBUG_INFO, EPS_INTERFACE_MODULE_NAME, "Sending charge reset command...\n\r");
+    debug_print_event_from_module(DEBUG_INFO, EPS_INTERFACE_MODULE_NAME, "Sending charge reset command...");
+    debug_new_line();
 
     fsp_packet_t fsp_packet;
     uint8_t eps_pkt_len;

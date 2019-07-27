@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.2
+ * \version 0.2.6
  *
  * \addtogroup i2c
  */
@@ -69,7 +69,8 @@ void i2c_pin_reset(volatile unsigned char* PREN, volatile unsigned char* PDIR, v
 void i2c_setup(uint8_t interface) {
     switch(interface) {
         case 0:
-            debug_print_event_from_module(DEBUG_INFO, "I2C", "Initializing interface 0 (100 kHz)...\n\r");
+            debug_print_event_from_module(DEBUG_INFO, "I2C", "Initializing interface 0 (100 kHz)...");
+            debug_new_line();
 
             i2c_pin_reset(&I2C0_REN, &I2C0_DIR, &I2C0_OUT, I2C0_SCL);
             BIT_SET(I2C0_SEL, I2C0_SDA | I2C0_SCL);
@@ -79,7 +80,8 @@ void i2c_setup(uint8_t interface) {
             i2c_set_mode(USCI_B0_BASE, TRANSMIT_MODE);
             break;
         case 1:
-            debug_print_event_from_module(DEBUG_INFO, "I2C", "Initializing interface 1 (100 kHz)...\n\r");
+            debug_print_event_from_module(DEBUG_INFO, "I2C", "Initializing interface 1 (100 kHz)...");
+            debug_new_line();
 
             i2c_pin_reset(&I2C1_REN, &I2C1_DIR, &I2C1_OUT, I2C1_SCL);
             BIT_SET(I2C1_SEL, I2C1_SDA | I2C1_SCL);
@@ -88,7 +90,8 @@ void i2c_setup(uint8_t interface) {
             i2c_set_mode(USCI_B1_BASE, TRANSMIT_MODE);
             break;
         case 2:
-            debug_print_event_from_module(DEBUG_INFO, "I2C", "Initializing interface 2 (100 kHz)...\n\r");
+            debug_print_event_from_module(DEBUG_INFO, "I2C", "Initializing interface 2 (100 kHz)...");
+            debug_new_line();
 
             i2c_pin_reset(&I2C2_REN, &I2C2_DIR, &I2C2_OUT, I2C2_SCL);
             BIT_SET(I2C2_SEL, I2C2_SDA | I2C2_SCL);
@@ -97,7 +100,8 @@ void i2c_setup(uint8_t interface) {
             i2c_set_mode(USCI_B2_BASE, TRANSMIT_MODE);
             break;
         default:
-            debug_print_event_from_module(DEBUG_ERROR, "I2C", "Error initializing interface! Unknown interface number!\n\r");
+            debug_print_event_from_module(DEBUG_ERROR, "I2C", "Error initializing interface! Unknown interface number!");
+            debug_new_line();
     }
 }
 

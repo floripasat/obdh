@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.1
+ * \version 0.2.6
  * 
  * \date 23/09/2016
  * 
@@ -47,28 +47,34 @@ bool debug_init()
 #if OBDH_DEBUG_MESSAGES == 1
     if (debug_uart_init())
     {
-        debug_print_msg("\n\r");
+        debug_new_line();
 
         debug_print_license_msg();
 
         debug_print_splash_screen();
 
-        debug_print_msg("=================================================================\n\r");
+        debug_print_msg("==========================================================================");
+        debug_new_line();
         debug_print_msg("Version:\t");
         debug_print_firmware_version();
-        debug_print_msg("\n\r");
+        debug_new_line();
 
         debug_print_msg("Status:\t\t");
         debug_print_msg(FIRMWARE_STATUS);
-        debug_print_msg("\n\r");
+        debug_new_line();
 
         debug_print_msg("Author:\t\t");
         debug_print_msg(FIRMWARE_AUTHOR_NAME);
         debug_print_msg(" <");
         debug_print_msg(FIRMWARE_AUTHOR_EMAIL);
-        debug_print_msg(">\n\r");
-        debug_print_msg("=================================================================\n\r");
-        debug_print_msg("\n\n\r");
+        debug_print_msg(">");
+        debug_new_line();
+        debug_print_msg("==========================================================================");
+        debug_new_line();
+        debug_new_line();
+        debug_new_line();
+
+        debug_mutex_create();
 
         return true;
     }
@@ -121,6 +127,8 @@ void debug_reset_color()
 
 void debug_print_event(uint8_t type, const char *event)
 {
+    debug_mutex_take();
+
     debug_print_system_time();
     debug_print_msg(" ");
 
@@ -143,6 +151,8 @@ void debug_print_event(uint8_t type, const char *event)
 
 void debug_print_event_from_module(uint8_t type, const char *module, const char *event)
 {
+    debug_mutex_take();
+
     debug_print_system_time();
 
     debug_set_color(DEBUG_MODULE_NAME_COLOR);
@@ -173,14 +183,16 @@ void debug_print_msg(const char *msg)
     uint8_t i = 0;
     while(msg[i] != '\0')
     {
-        if (msg[i] == '\n')
-        {
-            debug_reset_color();
-        }
-
         debug_print_byte(msg[i]);
         i++;
     }
+}
+
+void debug_new_line()
+{
+    debug_reset_color();
+    debug_print_msg("\n\r");
+    debug_mutex_give();
 }
 
 void debug_print_digit(uint8_t digit)
@@ -271,31 +283,53 @@ void debug_print_system_time()
 
 void debug_print_license_msg()
 {
-    debug_print_msg("FloripaSat-OBDH Copyright (C) 2017-2019, Universidade Federal de Santa Catarina;\n\r");
-    debug_print_msg("This program comes with ABSOLUTELY NO WARRANTY.\n\r");
-    debug_print_msg("This is free software, and you are welcome to redistribute it\n\r");
-    debug_print_msg("under certain conditions.\n\n\r");
-    debug_print_msg("Source code: https://github.com/floripasat/obdh\n\r");
-    debug_print_msg("Documentation: https://github.com/floripasat/obdh/wiki\n\r");
+    debug_print_msg("FloripaSat-OBDH Copyright (C) 2017-2019, Universidade Federal de Santa Catarina;");
+    debug_new_line();
+    debug_print_msg("This program comes with ABSOLUTELY NO WARRANTY.");
+    debug_new_line();
+    debug_print_msg("This is free software, and you are welcome to redistribute it");
+    debug_new_line();
+    debug_print_msg("under certain conditions.");
+    debug_new_line();
+    debug_new_line();
+    debug_print_msg("Source code: https://github.com/floripasat/obdh");
+    debug_new_line();
+    debug_print_msg("Documentation: https://github.com/floripasat/obdh/wiki");
+    debug_new_line();
 }
 
 void debug_print_splash_screen()
 {
-    debug_print_msg("                                                                          \n\r");
-    debug_print_msg("                                                                          \n\r");
-    debug_print_msg("..........................................................................\n\r");
-    debug_print_msg("..........................................................................\n\r");
-    debug_print_msg("..........                                                      ..........\n\r");
-    debug_print_msg("..........  _____ ____        _         ___  ____  ____  _   _  ..........\n\r");
-    debug_print_msg(".......... |  ___/ ___|  __ _| |_      / _ \\| __ )|  _ \\| | | | ..........\n\r");
-    debug_print_msg(".......... | |_  \\___ \\ / _` | __|____| | | |  _ \\| | | | |_| | ..........\n\r");
-    debug_print_msg(".......... |  _|  ___) | (_| | ||_____| |_| | |_) | |_| |  _  | ..........\n\r");
-    debug_print_msg(".......... |_|   |____/ \\__,_|\\__|     \\___/|____/|____/|_| |_| ..........\n\r");
-    debug_print_msg("..........                                                      ..........\n\r");
-    debug_print_msg("..........................................................................\n\r");
-    debug_print_msg("..........................................................................\n\r");
-    debug_print_msg("                                                                          \n\r");
-    debug_print_msg("                                                                          \n\r");
+    debug_print_msg("                                                                          ");
+    debug_new_line();
+    debug_print_msg("                                                                          ");
+    debug_new_line();
+    debug_print_msg("..........................................................................");
+    debug_new_line();
+    debug_print_msg("..........................................................................");
+    debug_new_line();
+    debug_print_msg("..........                                                      ..........");
+    debug_new_line();
+    debug_print_msg("..........  _____ ____        _         ___  ____  ____  _   _  ..........");
+    debug_new_line();
+    debug_print_msg(".......... |  ___/ ___|  __ _| |_      / _ \\| __ )|  _ \\| | | | ..........");
+    debug_new_line();
+    debug_print_msg(".......... | |_  \\___ \\ / _` | __|____| | | |  _ \\| | | | |_| | ..........");
+    debug_new_line();
+    debug_print_msg(".......... |  _|  ___) | (_| | ||_____| |_| | |_) | |_| |  _  | ..........");
+    debug_new_line();
+    debug_print_msg(".......... |_|   |____/ \\__,_|\\__|     \\___/|____/|____/|_| |_| ..........");
+    debug_new_line();
+    debug_print_msg("..........                                                      ..........");
+    debug_new_line();
+    debug_print_msg("..........................................................................");
+    debug_new_line();
+    debug_print_msg("..........................................................................");
+    debug_new_line();
+    debug_print_msg("                                                                          ");
+    debug_new_line();
+    debug_print_msg("                                                                          ");
+    debug_new_line();
 }
 
 void debug_print_firmware_version()

@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.1
+ * \version 0.2.6
  * 
  * \date 22/02/2019
  * 
@@ -40,6 +40,9 @@
 #include "../../config.h"
 
 #include "debug.h"
+
+// Mutex config.
+#define DEBUG_MUTEX_WAIT_TIME_MS        100
 
 // Debug messages colors
 #define DEBUG_SYSTEM_TIME_COLOR         DEBUG_COLOR_GREEN

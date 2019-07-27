@@ -26,7 +26,7 @@
  * \author Mario Baldini
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.2
+ * \version 0.2.6
  *
  * \addtogroup msp_internal
  */
@@ -97,7 +97,7 @@ void update_reset_value(void) {
     debug_print_dec(previous_value);
     debug_print_msg(", new reset value = ");
     debug_print_dec(new_value);
-    debug_print_msg("\n\r");
+    debug_new_line();
 
     flash_erase(RESET_ADDR_FLASH);                                                                  // erase the memory to be able to write
     flash_write_long(new_value, RESET_ADDR_FLASH);                                                  // store reset cause and counter
@@ -134,7 +134,8 @@ void restore_time_counter(void) {
 
     debug_print_event_from_module(DEBUG_INFO, "System", "Restored time counter: ");
     debug_print_dec(minutes_counter);
-    debug_print_msg(" min\n\r");
+    debug_print_msg(" min");
+    debug_new_line();
 }
 
 uint8_t read_current_state(void) {
