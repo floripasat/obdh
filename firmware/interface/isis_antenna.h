@@ -1,7 +1,7 @@
 /*
  * isis_antenna.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,14 @@
  */
 
  /**
- * \file isis_antenna.h
- *
  * \brief This file deals with the ISIS antenna module
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.7
+ *
+ * \defgroup isis_antenna ISIS Antenna
+ * \{
  */
 
 #ifndef INCLUDE_ISIS_ANTENNA_H_
@@ -34,16 +36,18 @@
 
 #include <stdint.h>
 
-//MSB
+#define ISIS_ANTENNA_MODULE_NAME    "ISIS Antenna"
+
+// MSB
 #define ANTENNA_1_STATUS    BITF
 #define ANTENNA_1_TIMEOUT   BITE
 #define ANTENNA_1_BURNING   BITD
-//NULL BIT
+// NULL BIT
 #define ANTENNA_2_STATUS    BITB
 #define ANTENNA_2_TIMEOUT   BITA
 #define ANTENNA_2_BURNING   BIT9
 #define IGNORING_SWITCHES   BIT8
-//LSB
+// LSB
 #define ANTENNA_3_STATUS    BIT7
 #define ANTENNA_3_TIMEOUT   BIT6
 #define ANTENNA_3_BURNING   BIT5
@@ -55,15 +59,15 @@
 
 #define ANTENNAS_STATUS_MASK    0x8888
 
-//antenna status
+// antenna status
 #define ANTENNA_NOT_DEPLOYED    1       /**< Value if antennas are not deployed yet */
 #define ANTENNA_DEPLOYED        0       /**< Value if antennas are deployed         */
 
-//antenna stop cause
+// antenna stop cause
 #define TIMEOUT_CAUSE           1       /**< Value if deployment system stops because timeout                   */
 #define OTHER_CAUSE             0       /**< Value if deployment system stops because other reason than timeout */
 
-//antenna burn system
+// antenna burn system
 #define BURN_ACTIVE             1       /**< Value if the referring antenna burn system is active */
 #define BURN_INACTIVE           0       /**< Value if the referring antenna burn system is off    */
 
@@ -81,3 +85,5 @@ void start_independet_deploy(uint8_t antenna, uint8_t seconds, uint8_t override)
 uint16_t read_deployment_status(void);
 
 #endif /* INCLUDE_ISIS_ANTENNA_H_ */
+
+//! \} End of isis_antenna group

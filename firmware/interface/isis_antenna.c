@@ -1,7 +1,7 @@
 /*
  * isis_antenna.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,15 +21,19 @@
  */
 
  /**
- * \file isis_antenna.c
- *
  * \brief This file deals with the ISIS antenna module
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.7
+ *
+ * \addtogroup isis_antenna
+ * \{
  */
+
 #include "isis_antenna.h"
 #include "../driver/i2c.h"
+#include "debug/debug.h"
 
 // Commands
 #define RESET                       0xAA
@@ -58,8 +62,9 @@
 
 #define DELAY_100_MS                1600000
 
-
 void disarm_antenna(void) {
+    debug_print_event_from_module(DEBUG_INFO, ISIS_ANTENNA_MODULE_NAME, "Disarming the antenna...");
+    debug_new_line();
 
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
     i2c_send(ANTENNA_BASE_ADDRESS, DISARM, START_STOP);
@@ -68,6 +73,8 @@ void disarm_antenna(void) {
 }
 
 void arm_antenna(void) {
+    debug_print_event_from_module(DEBUG_INFO, ISIS_ANTENNA_MODULE_NAME, "Arming the antenna...");
+    debug_new_line();
 
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
     i2c_send(ANTENNA_BASE_ADDRESS, ARM, START_STOP);
@@ -76,6 +83,9 @@ void arm_antenna(void) {
 }
 
 void start_sequential_deploy(uint8_t seconds) {
+    debug_print_event_from_module(DEBUG_INFO, ISIS_ANTENNA_MODULE_NAME, "Executing sequential deployment...");
+    debug_new_line();
+
     uint8_t command[2];
 
     command[0] = DEPLOY_SEQUENCIAL;
@@ -88,46 +98,69 @@ void start_sequential_deploy(uint8_t seconds) {
 }
 
 void start_independet_deploy(uint8_t antenna, uint8_t seconds, uint8_t override) {
+    debug_print_event_from_module(DEBUG_INFO, ISIS_ANTENNA_MODULE_NAME, "Executing independent deployment of antenna ");
+
     uint8_t command[2];
 
     command[1] = seconds;
 
-    if(override == 1) {
-        switch(antenna){
-        case ANTENNA_1:
-            command[0] = DEPLOY_ANT_1_OVERRIDE;
-            break;
-        case ANTENNA_2:
-            command[0] = DEPLOY_ANT_2_OVERRIDE;
-            break;
-        case ANTENNA_3:
-            command[0] = DEPLOY_ANT_3_OVERRIDE;
-            break;
-        case ANTENNA_4:
-            command[0] = DEPLOY_ANT_4_OVERRIDE;
-            break;
-        default:
-            command[0] = DISARM;
+    if (override == 1) {
+        switch(antenna) {
+            case ANTENNA_1:
+                debug_print_msg("1 with override (");
+
+                command[0] = DEPLOY_ANT_1_OVERRIDE;
+                break;
+            case ANTENNA_2:
+                debug_print_msg("2 with override (");
+
+                command[0] = DEPLOY_ANT_2_OVERRIDE;
+                break;
+            case ANTENNA_3:
+                debug_print_msg("3 with override (");
+
+                command[0] = DEPLOY_ANT_3_OVERRIDE;
+                break;
+            case ANTENNA_4:
+                debug_print_msg("4 with override (");
+
+                command[0] = DEPLOY_ANT_4_OVERRIDE;
+                break;
+            default:
+                command[0] = DISARM;
         }
     }
     else {
-        switch(antenna){
-        case ANTENNA_1:
-            command[0] = DEPLOY_ANT_1;
-            break;
-        case ANTENNA_2:
-            command[0] = DEPLOY_ANT_2;
-            break;
-        case ANTENNA_3:
-            command[0] = DEPLOY_ANT_3;
-            break;
-        case ANTENNA_4:
-            command[0] = DEPLOY_ANT_4;
-            break;
-        default:
-            command[0] = DISARM;
+        switch(antenna) {
+            case ANTENNA_1:
+                debug_print_msg("1 without override (");
+
+                command[0] = DEPLOY_ANT_1;
+                break;
+            case ANTENNA_2:
+                debug_print_msg("2 without override (");
+
+                command[0] = DEPLOY_ANT_2;
+                break;
+            case ANTENNA_3:
+                debug_print_msg("3 without override (");
+
+                command[0] = DEPLOY_ANT_3;
+                break;
+            case ANTENNA_4:
+                debug_print_msg("4 without override (");
+
+                command[0] = DEPLOY_ANT_4;
+                break;
+            default:
+                command[0] = DISARM;
         }
     }
+
+    debug_print_dec(seconds);
+    debug_print_msg(" seconds)");
+
+    debug_new_line();
 
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
     i2c_send_burst(ANTENNA_BASE_ADDRESS, command, 2, START_STOP);
@@ -138,8 +171,6 @@ void start_independet_deploy(uint8_t antenna, uint8_t seconds, uint8_t override)
 extern void delay_s(uint16_t seconds);
 
 /**
- * \fn read_deployment_status
- *
  * \brief Send a command through I2C to read the deploy switches to know if the antennas were deployed
  * \return the 16-bit antenna status, where:
  * MSB:
@@ -161,8 +192,8 @@ extern void delay_s(uint16_t seconds);
  *  ANTENNA_4_BURNING   BIT1
  *  ARMED               BIT0
  */
-uint16_t read_deployment_status(void){
-    uint16_t status = ANTENNAS_STATUS_MASK;               /**< initial state (all not deployed and disarmed */
+uint16_t read_deployment_status(void) {
+    uint16_t status = ANTENNAS_STATUS_MASK;               // initial state (all not deployed and disarmed
 
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
     i2c_send(ANTENNA_BASE_ADDRESS, REPORT_DEPLOY_STATUS, START_STOP);
@@ -170,10 +201,13 @@ uint16_t read_deployment_status(void){
     delay_s(1);
 
     i2c_set_mode(ANTENNA_BASE_ADDRESS, RECEIVE_MODE);
-    if( i2c_receive_burst(ANTENNA_BASE_ADDRESS, (uint8_t *) &status, 2, START_STOP) == I2C_FAIL){
-        status = ANTENNAS_STATUS_MASK;                    /**< initial state (all not deployed and disarmed */
+    if (i2c_receive_burst(ANTENNA_BASE_ADDRESS, (uint8_t *) &status, 2, START_STOP) == I2C_FAIL) {
+        status = ANTENNAS_STATUS_MASK;                    // initial state (all not deployed and disarmed
     }
+
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
 
     return status;
 }
+
+//! \} End of isis_antenna group
