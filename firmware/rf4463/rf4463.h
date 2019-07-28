@@ -1,40 +1,37 @@
 /*
  * rf4463.h
  * 
- * Copyright (C) 2017, Federal University of Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  * 
- * This file is part of FloripaSat-Beacon.
+ * This file is part of FloripaSat-OBDH.
  * 
- * FloripaSat-Beacon is free software: you can redistribute it and/or modify
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * FloripaSat-Beacon is distributed in the hope that it will be useful,
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with FloripaSat-Beacon. If not, see <http://www.gnu.org/licenses/>.
+ * along with FloripaSat-OBDH. If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 
 /**
- * \file rf4463.h
- * 
  * \brief NiceRF RF4463 driver.
  * 
  * This library suits for RF4463PRO and RF4463F30 in FIFO mode.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 1.0-dev
+ * \version 0.2.8
  * 
  * \date 01/06/2017
  * 
  * \defgroup rf4463 RF4463
- * \ingroup drivers
  * \{
  */
 
@@ -45,8 +42,6 @@
 #include <stdbool.h>
 
 /**
- * \fn rf4463_init
- * 
  * \brief RF4463 initialization.
  * 
  * Initializes the RF4463 module with the configuration parameters from
@@ -60,8 +55,6 @@
 uint8_t rf4463_init();
 
 /**
- * \fn rf4463_gpio_init
- * 
  * \brief RF4463F30 GPIO initialization.
  * 
  * \return None
@@ -69,8 +62,6 @@ uint8_t rf4463_init();
 void rf4463_gpio_init();
 
 /**
- * \fn rf4463_reg_config
- * 
  * \brief Configures the registers of the RF4463 device.
  * 
  * All the configuration parameters are defined in the "rf4463_reg_config.h" file.
@@ -80,8 +71,6 @@ void rf4463_gpio_init();
 void rf4463_reg_config();
 
 /**
- * \fn rf4463_power_on_reset
- * 
  * \brief Power on reset procedure of the RF4463 module.
  * 
  * \return None
@@ -89,8 +78,6 @@ void rf4463_reg_config();
 void rf4463_power_on_reset();
 
 /**
- * \fn rf4463_tx_packet
- * 
  * \brief Transmit a packet through RF.
  * 
  * \param data is the data with the packet to send.
@@ -104,8 +91,6 @@ void rf4463_power_on_reset();
 bool rf4463_tx_packet(uint8_t *data, uint8_t len);
 
 /**
- * \fn rf4463_tx_long_packet
- * 
  * \brief Transmit a long packet (> FIFO buffer, or 64 bytes) through RF.
  * 
  * Reference: AN633, Figure 62.
@@ -118,8 +103,6 @@ bool rf4463_tx_packet(uint8_t *data, uint8_t len);
 bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len);
 
 /**
- * \fn rf4463_rx_packet
- * 
  * \brief 
  * 
  * \param rx_buf
@@ -131,8 +114,6 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len);
 uint8_t rf4463_rx_packet(uint8_t *rx_buf, uint8_t read_len);
 
 /**
- * \fn rf4463_rx_init
- * 
  * \brief 
  * 
  * \return It can return:
@@ -143,8 +124,6 @@ uint8_t rf4463_rx_packet(uint8_t *rx_buf, uint8_t read_len);
 bool rf4463_rx_init();
 
 /**
- * \fn rf4463_check_device
- * 
  * \brief Checks if the device is working.
  * 
  * \return It can return:
@@ -155,8 +134,6 @@ bool rf4463_rx_init();
 bool rf4463_check_device();
 
 /**
- * \fn rf4463_check_cts
- * 
  * \brief 
  * 
  * \return It can return:
@@ -167,8 +144,6 @@ bool rf4463_check_device();
 bool rf4463_check_cts();
 
 /**
- * \fn rf4463_set_tx_power
- * 
  * \brief 
  * 
  * \param pwr
@@ -181,8 +156,6 @@ bool rf4463_check_cts();
 bool rf4463_set_tx_power(uint8_t pwr);
 
 /**
- * \fn rf4463_set_properties
- * 
  * \brief 
  * 
  * \param start_property
@@ -197,8 +170,6 @@ bool rf4463_set_tx_power(uint8_t pwr);
 bool rf4463_set_properties(uint16_t start_property, uint8_t *para_buf, uint8_t length);
 
 /**
- * \fn rf4463_get_properties
- * 
  * \brief 
  * 
  * \return It can return:
@@ -209,8 +180,6 @@ bool rf4463_set_properties(uint16_t start_property, uint8_t *para_buf, uint8_t l
 bool rf4463_get_properties(uint16_t start_property, uint8_t length, uint8_t *para_buf);
 
 /**
- * \fn rf4463_set_config
- * 
  * \brief 
  * 
  * \param 
@@ -221,8 +190,6 @@ bool rf4463_get_properties(uint16_t start_property, uint8_t length, uint8_t *par
 void rf4463_set_config(const uint8_t *parameters, uint16_t para_len);
 
 /**
- * \fn rf4463_set_preamble_len
- * 
  * \brief 
  * 
  * \param len
@@ -235,8 +202,6 @@ void rf4463_set_config(const uint8_t *parameters, uint16_t para_len);
 bool rf4463_set_preamble_len(uint8_t len);
 
 /**
- * \fn rf4463_set_sync_word
- * 
  * \brief 
  * 
  * \param sync_word
@@ -250,8 +215,6 @@ bool rf4463_set_preamble_len(uint8_t len);
 bool rf4463_set_sync_word(uint8_t *sync_word, uint8_t len);
 
 /**
- * \fn rf4463_set_gpio_mode
- * 
  * \brief 
  * 
  * \param gpio0_mode
@@ -265,8 +228,6 @@ bool rf4463_set_sync_word(uint8_t *sync_word, uint8_t len);
 bool rf4463_set_gpio_mode(uint8_t gpio0_mode, uint8_t gpio1_mode);
 
 /**
- * \fn rf4463_set_cmd
- * 
  * \brief 
  * 
  * \param cmd
@@ -281,8 +242,6 @@ bool rf4463_set_gpio_mode(uint8_t gpio0_mode, uint8_t gpio1_mode);
 bool rf4463_set_cmd(uint8_t cmd, uint8_t *para_buf, uint8_t len);
 
 /**
- * \fn rf4463_get_cmd
- * 
  * \brief Reads a command.
  * 
  * \param cmd is the command to read.
@@ -297,8 +256,6 @@ bool rf4463_set_cmd(uint8_t cmd, uint8_t *para_buf, uint8_t len);
 bool rf4463_get_cmd(uint8_t cmd, uint8_t *para_buf, uint8_t length);
 
 /**
- * \fn rf4463_set_tx_interrupt
- * 
  * \brief 
  * 
  * \return It can return:
@@ -309,8 +266,6 @@ bool rf4463_get_cmd(uint8_t cmd, uint8_t *para_buf, uint8_t length);
 bool rf4463_set_tx_interrupt();
 
 /**
- * \fn rf4463_set_rx_interrupt
- * 
  * \brief 
  * 
  * \return It can return:
@@ -321,8 +276,6 @@ bool rf4463_set_tx_interrupt();
 bool rf4463_set_rx_interrupt();
 
 /**
- * \fn rf4463_clear_interrupts
- * 
  * \brief 
  * 
  * \return It can return:
@@ -333,8 +286,6 @@ bool rf4463_set_rx_interrupt();
 bool rf4463_clear_interrupts();
 
 /**
- * \fn rf4463_write_tx_fifo
- * 
  * \brief 
  * 
  * \param data
@@ -345,8 +296,6 @@ bool rf4463_clear_interrupts();
 void rf4463_write_tx_fifo(uint8_t *data, uint8_t len);
 
 /**
- * \fn rf4463_read_rx_fifo
- * 
  * \brief 
  * 
  * \param data
@@ -358,8 +307,6 @@ void rf4463_write_tx_fifo(uint8_t *data, uint8_t len);
 uint8_t rf4463_read_rx_fifo(uint8_t *data, uint8_t read_len);
 
 /**
- * \fn rf4463_fifo_reset
- * 
  * \brief 
  * 
  * \return None
@@ -367,8 +314,6 @@ uint8_t rf4463_read_rx_fifo(uint8_t *data, uint8_t read_len);
 void rf4463_fifo_reset();
 
 /**
- * \fn rf4463_enter_tx_mode
- * 
  * \brief 
  * 
  * \return None
@@ -376,8 +321,6 @@ void rf4463_fifo_reset();
 void rf4463_enter_tx_mode();
 
 /**
- * \fn rf4463_enter_rx_mode
- * 
  * \brief 
  * 
  * \return None
@@ -385,8 +328,6 @@ void rf4463_enter_tx_mode();
 void rf4463_enter_rx_mode();
 
 /**
- * \fn rf4463_enter_standby_mode
- * 
  * \brief 
  * 
  * return It can return:
@@ -397,8 +338,6 @@ void rf4463_enter_rx_mode();
 bool rf4463_enter_standby_mode();
 
 /**
- * \fn rf4463_wait_nIRQ
- * 
  * \brief Inquire interrupt.
  * 
  * \return It can return:
@@ -409,8 +348,6 @@ bool rf4463_enter_standby_mode();
 bool rf4463_wait_nIRQ();
 
 /**
- * \fn rf4463_wait_gpio1()
- * 
  * \brief Checks GPIO1 interruption.
  * 
  * \return It can return:
