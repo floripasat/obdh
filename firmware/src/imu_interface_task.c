@@ -1,7 +1,7 @@
 /*
  * imu_interface_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,18 +20,25 @@
  *
  */
 
- /**
- * \file imu_interface_task.c
- *
+/**
  * \brief Task that deals with the IMUs
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.9
+ *
+ * \addtogroup imu_interface_task
+ * \{
  */
+
+#include "../interface/debug/debug.h"
 
 #include "imu_interface_task.h"
 
-void imu_interface_task( void *pvParameters ) {
+void imu_interface_task(void *pvParameters) {
+    debug_print_event_from_module(DEBUG_INFO, "Tasks", "Initializing IMU task...");
+    debug_new_line();
+
     uint8_t imu_data_temp[14];
     uint8_t imu_data[24];
     uint8_t module_test;
@@ -46,10 +53,13 @@ void imu_interface_task( void *pvParameters ) {
     volatile float temperature;
 #endif
 
-    module_test = imu_setup();      /**< Setup IMU pins and verify the communication */
+    module_test = imu_setup();                          // Setup IMU pins and verify the communication
 
     if (module_test == IMU_NOT_WORKING)
     {
+        debug_print_event_from_module(DEBUG_ERROR, "IMU Task", "Main IMU not working!");
+        debug_new_line();
+
         //TODO:  use another IMU
     }
     last_wake_time = xTaskGetTickCount();
@@ -71,44 +81,43 @@ void imu_interface_task( void *pvParameters ) {
         gyroscope_absolute_module = sqrtf(gyroscope_z * gyroscope_z + gyroscope_y * gyroscope_y + gyroscope_x * gyroscope_x);
 #endif
 
-        /*
-         * Use 8-bit IMU and save 2 samples/packet (sampling rate = 2Hz)
-         */
-        if(turn == 0) {                                 /**< first sampling     */
+        // Use 8-bit IMU and save 2 samples/packet (sampling rate = 2Hz)
+        if (turn == 0) {                                // first sampling
             for(i = 0; i < 6; i++) {
-                imu_data[i] = imu_data_temp[i];         /**< accelerometer data */
+                imu_data[i] = imu_data_temp[i];         // accelerometer data
             }
             for(i = 6; i < 12; i++) {
-                imu_data[i] = imu_data_temp[i+2];       /**< gyroscope data     */
+                imu_data[i] = imu_data_temp[i+2];       // gyroscope data
             }
 
             turn = 1;
         }
-        else {                                          /**< second sampling    */
+        else {                                          // second sampling
             for(i = 0; i < 6; i++) {
-                imu_data[i+12] = imu_data_temp[i];      /**< accelerometer data */
+                imu_data[i+12] = imu_data_temp[i];      // accelerometer data
             }
             for(i = 6; i < 12; i++) {
-                imu_data[i+12] = imu_data_temp[i+2];    /**< gyroscope data     */
+                imu_data[i+12] = imu_data_temp[i+2];    // gyroscope data
             }
 
             xQueueOverwrite(status_imu_queue, &imu_status);
 
-            if(imu_status == IMU_WORKING) {
+            if (imu_status == IMU_WORKING) {
                 xQueueSendToBack(imu_queue, imu_data, portMAX_DELAY);
             }
 
             turn = 0;
         }
 
-        if ( (last_wake_time + IMU_INTERFACE_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+        if ((last_wake_time + IMU_INTERFACE_TASK_PERIOD_TICKS) < xTaskGetTickCount()) {
             last_wake_time = xTaskGetTickCount();
         }
         else {
-            vTaskDelayUntil( (TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS );
+            vTaskDelayUntil((TickType_t *) &last_wake_time, IMU_INTERFACE_TASK_PERIOD_TICKS);
         }
     }
 
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
 }
 
+//! \} End of imu_interface_task group

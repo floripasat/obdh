@@ -1,7 +1,7 @@
 /*
  * payload_rush.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,13 +20,16 @@
  *
  */
 
- /**
- * \file payload_rush.h
- *
+/**
  * \brief Interface to deals with the payload
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.9
+ *
+ * \defgroup payload_rush Payload RUSH
+ * \ingroup interface
+ * \{
  */
 
 #ifndef PAYLOAD_RUSH_INTERFACE_H_
@@ -35,6 +38,7 @@
 #include "../include/floripasat_def.h"
 #include "../driver/i2c.h"
 
+#define RUSH_MODULE_NAME    "RUSH"
 
 #define RUSH_COMM_ERROR     0x00    /**< value when communication with payload is in error */
 #define RUSH_POWER_ON       0x01    /**< value when communication with payload is "alive"  */
@@ -82,47 +86,41 @@
 #define TEMPERATURE_LOW_LIMIT       40        /**< in degrees */
 #define RUSH_DATA_LENGTH            32
 
-extern void rush_delay_ms( uint16_t time_ms );
+extern void rush_delay_ms(uint16_t time_ms);
 
 /**
- * \fn rush_setup
- *
  * \brief Initialize and configure the payload
  * \return None
  */
-void rush_setup( void );
+void rush_setup(void);
 
 /**
- * \fn rush_power_state
- *
  * \brief Turn on/off the payload board or fpga
  * \param selector chose between the board or fpga
  * \param new_power_state turn on or off
  * \return None
  */
-void rush_power_state( uint8_t selector, uint8_t new_power_state );
+void rush_power_state(uint8_t selector, uint8_t new_power_state);
 
 /**
- * \fn rush_read
- *
  * \brief Read a packet of data from payload
  * \param data is a pointer where will be stored the read data
  * \param address is the payload address from the data will be read
  * \param bytes is the length, in bytes, of the read data
  * \return if the read was successful or failed
  */
-uint8_t rush_read( uint8_t* data, uint32_t address, uint16_t bytes );
+uint8_t rush_read(uint8_t* data, uint32_t address, uint16_t bytes);
 
 /**
- * \fn rush_write
- *
  * \brief Write a packet of data from payload
  * \param data is a pointer of the data to be written
  * \param address is the payload address where the data will be write
  * \param bytes is the length, in bytes, of the data to write
  * \return if the write was successful or failed
  */
-uint8_t rush_write( uint8_t* data, uint32_t address, uint16_t bytes );
+uint8_t rush_write(uint8_t* data, uint32_t address, uint16_t bytes);
 
 
 #endif /* PAYLOAD_RUSH_INTERFACE_H_ */
+
+//! \} End of payload_rush group
