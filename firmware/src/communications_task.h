@@ -24,6 +24,12 @@
  * \brief Task that deals with the downlink and uplink communications
  *
  * \author Elder Tramontin
+ *
+ * \version 0.2.11
+ *
+ * \defgroup communications_task Communications
+ * \ingroup tasks
+ * \{
  */
 
 #ifndef SRC_COMMUNICATIONS_TASK_H_
@@ -65,3 +71,5 @@ static xTaskHandle communications_task_handle;
 void communications_task( void *pvParameters );
 
 #endif /* SRC_COMMUNICATIONS_TASK_H_ */
+
+//! \} End of communication_tasks group

@@ -25,10 +25,17 @@
  *
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ *
+ * \version 0.2.11
+ *
+ * \addtogroup communication_task
+ * \{
  */
 
 #include <stdbool.h>
 #include <string.h>
+
+#include "../interface/debug/debug.h"
 
 #include "communications_task.h"
 #ifdef _DEBUG_AS_LINK
@@ -37,8 +44,8 @@
 
 #define ANTENNA_MUTEX_WAIT_TIME         ( 2000 / portTICK_RATE_MS )
 
-#define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
-#define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
+#define PA_ENABLE()                     BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
+#define PA_DISABLE()                    BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 
 /**
  * \brief Telecommands keys types.
@@ -76,7 +83,10 @@ void radioamateur_repeater(telecommand_t telecommand);
 void enable_rush(telecommand_t telecommand);
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
 
-void communications_task( void *pvParameters ) {
+void communications_task(void *pvParameters) {
+    debug_print_event_from_module(DEBUG_INFO, "Tasks", "Initializing communication task...");
+    debug_new_line();
+
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t current_turn = 0, turns_to_wait;
@@ -90,106 +100,138 @@ void communications_task( void *pvParameters ) {
 
     PA_ENABLE();
     radio_status = rf4463_init();
-    if(radio_status == 1) {
+    if (radio_status == 1) {
         rf4463_enter_standby_mode();
         ngham_Init();
-        rf4463_rx_init();                   /**< start in receive mode */
+        rf4463_rx_init();   // start in receive mode
     }
 
     while(1) {
-
         operation_mode = read_current_operation_mode();
-        /**< verify if some telecommand was received on radio */
+        // verify if some telecommand was received on radio
         data_len = try_to_receive(data);
         if (data_len >= 8) {
             received_telecommand = decode_telecommand(data, data_len);
 
-            switch (received_telecommand.id) {
+            switch(received_telecommand.id) {
                 case FLORIPASAT_PACKET_UPLINK_PING_REQUEST:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Ping request\" telecommand received!");
+                    debug_new_line();
+
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         answer_ping(received_telecommand);
                     }
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_DATA_REQUEST:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Data request\" telecommand received!");
+                    debug_new_line();
+
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         send_requested_data(received_telecommand);
                     }
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Enter hibernation\" telecommand received!");
+                    debug_new_line();
+
                     enter_in_hibernation(received_telecommand);
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Leave hibernation\" telecommand received!");
+                    debug_new_line();
+
                     leave_hibernation(received_telecommand);
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_CHARGE_RESET:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Charge reset\" telecommand received!");
+                    debug_new_line();
+
                     send_reset_charge_command(received_telecommand);
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Broadcast message\" telecommand received!");
+                    debug_new_line();
+
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         radioamateur_repeater(received_telecommand);
                     }
 
                     break;
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Payload-X status request\" telecommand received!");
+                    debug_new_line();
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Payload-X swap\" telecommand received!");
+                    debug_new_line();
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"Payload-X Image\" packet received!");
+                    debug_new_line();
+
                     break;
                 case FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE:
+                    debug_print_event_from_module(DEBUG_INFO, "Tasks", "New \"RUSH enable\" telecommand received!");
+                    debug_new_line();
+
                     enable_rush(received_telecommand);
 
                     break;
                 default:
+                    debug_print_event_from_module(DEBUG_WARNING, "Tasks", "Unknown telecommand received! Nothing to do!");
+                    debug_new_line();
+
                     break;
             }
 
-            /**< update the last telecommands, rssi and counter */
+            // update the last telecommands, rssi and counter
             update_last_telecommand_status(&received_telecommand);
         }
 
         operation_mode = read_current_operation_mode();
-        if(operation_mode == NORMAL_OPERATION_MODE){
+        if (operation_mode == NORMAL_OPERATION_MODE) {
 
             energy_level = read_current_energy_level();
 
-            switch (energy_level) {
-            case ENERGY_L1_MODE:
-            case ENERGY_L2_MODE:
-                turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
-                break;
+            switch(energy_level) {
+                case ENERGY_L1_MODE:
+                case ENERGY_L2_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+                    break;
 
-            case ENERGY_L3_MODE:
-                turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
-                break;
+                case ENERGY_L3_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+                    break;
 
-            case ENERGY_L4_MODE:
-            default:
-                turns_to_wait = 0xFFFF;
+                case ENERGY_L4_MODE:
+                default:
+                    turns_to_wait = 0xFFFF;
             }
 
-            if(++current_turn > turns_to_wait) {
+            if (++current_turn > turns_to_wait) {
                 request_antenna_mutex();
-                send_periodic_data();               /**< send the last readings of each data of the packet */
+                send_periodic_data();       // send the last readings of each data of the packet
 
                 current_turn = 0;
             }
         }
 
-        if ( (last_wake_time + COMMUNICATIONS_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+        if ((last_wake_time + COMMUNICATIONS_TASK_PERIOD_TICKS) < xTaskGetTickCount()) {
             last_wake_time = xTaskGetTickCount();
         }
         else {
-            vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
+            vTaskDelayUntil((TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS);
         }
     }
 
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
 }
 
 #ifdef _DEBUG_AS_LINK
@@ -263,7 +305,7 @@ uint16_t try_to_receive(uint8_t *data) {
     uint16_t data_len = 0;
     uint8_t ngham_status = 0;
 
-    if(rf4463_wait_nIRQ()) {            // verify if PACKET_RX interrupt was happened
+    if (rf4463_wait_nIRQ()) {            // verify if PACKET_RX interrupt was happened
 //        rf4463_clear_interrupts();
         rx_len = rf4463_rx_packet(rx_buf, PACKET_LENGTH);  // read rx data
         rf4463_clear_interrupts();
@@ -273,12 +315,13 @@ uint16_t try_to_receive(uint8_t *data) {
             ngham_status = ngham_Decode(rx_buf[i++], data, &data_len);
         } while(ngham_status == PKT_CONDITION_PREFAIL && i < PACKET_LENGTH && i < rx_len);
 
-        if(ngham_status != PKT_CONDITION_OK) {
+        if (ngham_status != PKT_CONDITION_OK) {
             data_len = 0;
         }
 
         rf4463_rx_init();    // wait for packet from tx
     }
+
     return data_len;
 }
 
@@ -540,7 +583,7 @@ void send_reset_charge_command(telecommand_t telecommand) {
     // Executing the charge reset command
     uint8_t eps_command;
     eps_command = EPS_CHARGE_RESET_CMD;
-    xQueueOverwrite(eps_charge_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
+    xQueueOverwrite(eps_charge_queue, &eps_command);   // send reset charge command to eps, via eps task
 }
 
 void request_antenna_mutex(void) {
@@ -548,37 +591,37 @@ void request_antenna_mutex(void) {
     uint8_t ttc_response;
 
     ttc_command = TTC_CMD_TX_MUTEX_REQUEST;
-    xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task     */
-    xQueueReceive(tx_queue, &ttc_response,
-                  ANTENNA_MUTEX_WAIT_TIME);     /**< wait 2 seconds or until be answered               */
+    xQueueOverwrite(ttc_queue, &ttc_command);                           // send shutdown command to beacon, via ttc task
+    xQueueReceive(tx_queue, &ttc_response, ANTENNA_MUTEX_WAIT_TIME);     // wait 2 seconds or until be answered
 }
 
 /**
- * \fn void update_last_telecommand_status(telecommand_t *last_telecommand)
  * Updates the last telecommand stored, its signal strength indicator and counter
  * \param last_telecommand Last telecommand received
  */
-void update_last_telecommand_status( telecommand_t *last_telecommand ) {
+void update_last_telecommand_status(telecommand_t *last_telecommand) {
     uint8_t telecommand_status[220];
     uint8_t radio_modem_status[5];
     uint8_t latched_radio_signal_strengh;
     uint8_t i = 0;
 
-    /**< get the radio signal strength indicator located in the last byte received */
+    // get the radio signal strength indicator located in the last byte received
     rf4463_get_cmd(RF4463_CMD_GET_MODEM_STATUS, radio_modem_status, 5);
     latched_radio_signal_strengh = radio_modem_status[4];
 
-    /**< wrap the data in a packet to be stored, via store data task */
+    // wrap the data in a packet to be stored, via store data task
     telecommand_status[0] = last_telecommand->id;
     for(i=0; i<7; i++) {
         telecommand_status[i+1] = last_telecommand->src_callsign[i];
     }
+
     for(i=0; i<last_telecommand->data_len; i++) {
         telecommand_status[i+1+7] = last_telecommand->data[i];
     }
+
     telecommand_status[1+7+last_telecommand->data_len] = latched_radio_signal_strengh;
 
-    /**< send to the store data task */
+    // send to the store data task
     xQueueOverwrite(main_radio_queue, telecommand_status);
 }
 
@@ -694,3 +737,5 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
             return false;
     }
 }
+
+//! \} End of communication_task group
