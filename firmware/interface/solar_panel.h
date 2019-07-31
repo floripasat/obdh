@@ -1,7 +1,7 @@
 /*
  * solar_panel.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,13 +20,16 @@
  *
  */
 
- /**
- * \file solar_panel.h
- *
+/**
  * \brief Interface to deals with Solar Panel board modules
  *
  * \author Andre Mattos
  *
+ * \version 0.2.10
+ *
+ * \defgroup solar_panel Solar Panel
+ * \ingroup interface
+ * \{
  */
 
 #include <msp430.h>
@@ -34,24 +37,25 @@
 #include "../hal/obdh_hal.h"
 #include "../driver/spi.h"
 
-#define SOLAR_PANEL_X   0
-#define SOLAR_PANEL_Y   1
-#define SOLAR_PANEL_Z   2
+#define SOLAR_PANEL_MODULE_NAME     "Solar Panel"
+
+#define SOLAR_PANEL_X               0
+#define SOLAR_PANEL_Y               1
+#define SOLAR_PANEL_Z               2
 
 /**
- * \fn solar_panel_setup
- *
  * \brief Configure the IO pins to deals with the solar panel modules
+ *
  * \return None
  */
-void solar_panel_setup (void);
+void solar_panel_setup(void);
 
 /**
- * \fn solar_panel_read_temperature
- *
  * \brief Read the temperature of a solar panel module
  * \param panel_selection is the chosen module to be read. SOLAR_PANEL_X,
  * SOLAR_PANEL_Y and SOLAR_PANEL_Z macros can be used.
  * \return None
  */
 int16_t solar_panel_read_temperature (uint8_t panel_selection);
+
+//! \} End of solar_panel group
