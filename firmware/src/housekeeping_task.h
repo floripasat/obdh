@@ -25,6 +25,12 @@
  * read the supply voltage and current and manage the operation modes
  *
  * \author Elder Tramontin
+ *
+ * \version 0.2.13
+ *
+ * \defgroup housekeeping_task Housekeeping
+ * \ingroup tasks
+ * \{
  */
 
 #ifndef SRC_HOUSEKEEPING_TASK_H_
@@ -45,13 +51,11 @@
 #define PERIODIC_RESET_TIME 43200   /**< 12 hours * 60 minutes * 60 seconds = 43200 minutes */
 
 /**
- * \var static xTaskHandle housekeeping_task_handle
  * \brief variable which holds the task reference, to allow it handling
  */
 static xTaskHandle housekeeping_task_handle;
 
 /**
- * \fn housekeeping_task( void *pvParameters )
  * That task check the MSP status, fault flags, reset counter and reads the
  * MSP internal temperature sensor, supply voltage and current consumption
  * \param pvParameters Not used
@@ -60,3 +64,5 @@ static xTaskHandle housekeeping_task_handle;
 void housekeeping_task( void *pvParameters );
 
 #endif /* SRC_HOUSEKEEPING_TASK_H_ */
+
+//! \} End of housekeeping_task group

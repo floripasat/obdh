@@ -26,12 +26,21 @@
  *
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ *
+ * \version 0.2.13
+ *
+ * \addtogroup housekeeping_task
+ * \{
  */
+
+#include "../interface/debug/debug.h"
 
 #include "../src/housekeeping_task.h"
 
+void housekeeping_task(void *pvParameters) {
+    debug_print_event_from_module(DEBUG_INFO, "Tasks", "Initializing housekeeping task...");
+    debug_new_line();
 
-void housekeeping_task( void *pvParameters ) {
     TickType_t last_wake_time;
     uint16_t temperature_raw, voltage_raw, current_raw;
 #ifdef _DEBUG
@@ -50,19 +59,24 @@ void housekeeping_task( void *pvParameters ) {
     last_wake_time = xTaskGetTickCount();
 
     while(1) {
-        /* Periodic reset */
+        // Periodic reset
         current_time = xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ;
         if (current_time >= PERIODIC_RESET_TIME) {
+            debug_print_event_from_module(DEBUG_INFO, "Housekeeping task", "Executing periodic reset (");
+            debug_print_dec(PERIODIC_RESET_TIME);
+            debug_print_msg(" min)...");
+            debug_new_line();
+
             system_reboot();
         }
 
-        /* read internal temperature */
+        // read internal temperature
         temperature_raw = obdh_temperature_read();
 
-        /* read supply voltage */
+        // read supply voltage
         voltage_raw = obdh_voltage_read();
 
-        /* read supply current */
+        // read supply current
         current_raw = obdh_current_read();
 
         internal_sensors_data[0] = temperature_raw>>8 & 0xFF;
@@ -73,7 +87,6 @@ void housekeeping_task( void *pvParameters ) {
         internal_sensors_data[5] = current_raw & 0xFF;
 
 #ifdef _DEBUG
-
         voltage = obdh_voltage_convert(voltage_raw);
         temperature = obdh_temperature_convert(temperature_raw);
         current = obdh_current_convert(current_raw);
@@ -86,47 +99,48 @@ void housekeeping_task( void *pvParameters ) {
         satellite_data.obdh_misc[5] = internal_sensors_data[5];
 #endif
 
-        /* Receive modules status
+        /*
+         * Receive modules status
          * Read reset counter
          * Read fault flags
-         * */
+         */
 
         status_flags = 0;
         temp_status_flags = 0;
-        if(xQueuePeek(status_eps_queue, &temp_status_flags, 0) == pdPASS) {
-            status_flags |= temp_status_flags<<0;
+        if (xQueuePeek(status_eps_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags << 0;
         }
-        if(xQueuePeek(status_payload_rush_queue, &temp_status_flags, 0) == pdPASS) {
-            status_flags |= temp_status_flags<<1;
+        if (xQueuePeek(status_payload_rush_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags << 1;
         }
-        if(xQueuePeek(status_payload_brave_queue, &temp_status_flags, 0) == pdPASS) {
-            status_flags |= temp_status_flags<<2;
+        if (xQueuePeek(status_payload_brave_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags << 2;
         }
-        if(xQueuePeek(status_mem1_queue, &temp_status_flags, 0) == pdPASS) {
-            status_flags |= temp_status_flags<<3;
+        if (xQueuePeek(status_mem1_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags << 3;
         }
-        if(xQueuePeek(status_imu_queue, &temp_status_flags, 0) == pdPASS) {
-            status_flags |= temp_status_flags<<4;
+        if (xQueuePeek(status_imu_queue, &temp_status_flags, 0) == pdPASS) {
+            status_flags |= temp_status_flags << 4;
         }
 
         reset_value = read_reset_value();
-        system_status[0] = reset_value>>16  & 0xFF;
-        system_status[1] = reset_value>>8   & 0xFF;
-        system_status[2] = reset_value      & 0xFF;
-        system_status[3] = reset_value>>24  & 0xFF;     /**< reset cause        */
-        system_status[4] = read_fault_flags();          /**< clock fault flags  */
+        system_status[0] = reset_value >> 16  & 0xFF;
+        system_status[1] = reset_value >> 8   & 0xFF;
+        system_status[2] = reset_value        & 0xFF;
+        system_status[3] = reset_value >> 24  & 0xFF;       // reset cause
+        system_status[4] = read_fault_flags();              // clock fault flags
         system_status[5] = status_flags;
 
         current_mode = read_current_operation_mode();
-        current_seconds =  (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60; /**< add the seconds to the lower byte  */
+        current_seconds = (xTaskGetTickCount() / (uint32_t) configTICK_RATE_HZ) % 60;   // add the seconds to the lower byte
 
-        if( current_seconds == 0 && flag_updated_time == 0) {/**< if 1 minute has passed     */
-            xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME); /**< protect the flash from mutual access */
-            update_time_counter();                           /**< update the minutes counter */
+        if (current_seconds == 0 && flag_updated_time == 0) {           // if 1 minute has passed
+            xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME); // protect the flash from mutual access
+            update_time_counter();                                      // update the minutes counter
             xSemaphoreGive(flash_semaphore);
             flag_updated_time = 1;
         }
-        /**< to prevent counting twice the same minute (if the task period was less than 1s */
+        // to prevent counting twice the same minute (if the task period was less than 1s
         else {
             flag_updated_time = 0;
         }
@@ -135,18 +149,18 @@ void housekeeping_task( void *pvParameters ) {
 
         if (current_mode  == HIBERNATION_MODE) {
             time_state_last_change = read_time_state_changed();
-            if( system_time - time_state_last_change >= get_hibernation_period_min() ) {
-                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);/**< protect the flash from mutual access */
+            if (system_time - time_state_last_change >= get_hibernation_period_min()) {
+                xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME); // protect the flash from mutual access
                 update_operation_mode(NORMAL_OPERATION_MODE);
                 xSemaphoreGive(flash_semaphore);
             }
         }
 
-                                                          /**< shift minutes to the 24 most significant bits */
-        system_time = (system_time<<24 & 0xFF000000) |    /**< to agree with the big-endian format           */
-                      (system_time<<8  & 0x00FF0000) |
-                      (system_time>>8  & 0x0000FF00) |
-                      current_seconds;                    /**< seconds stored in the LSB                     */
+        // shift minutes to the 24 most significant bits to agree with the big-endian format
+        system_time = (system_time << 24 & 0xFF000000) |
+                      (system_time << 8  & 0x00FF0000) |
+                      (system_time >> 8  & 0x0000FF00) |
+                      current_seconds;                      // seconds stored in the LSB
 
         xQueueSendToBack(obdh_status_queue, (void *)system_status, portMAX_DELAY);
 
@@ -154,14 +168,15 @@ void housekeeping_task( void *pvParameters ) {
 
         xQueueSendToBack(obdh_misc_queue, (void *)internal_sensors_data, portMAX_DELAY);
 
-        if ( (last_wake_time + HOUSEKEEPING_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
+        if ((last_wake_time + HOUSEKEEPING_TASK_PERIOD_TICKS) < xTaskGetTickCount()) {
             last_wake_time = xTaskGetTickCount();
         }
         else {
-            vTaskDelayUntil( (TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS );
+            vTaskDelayUntil((TickType_t *) &last_wake_time, HOUSEKEEPING_TASK_PERIOD_TICKS);
         }
     }
 
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
 }
 
+//! \} End of housekeeping_task group
