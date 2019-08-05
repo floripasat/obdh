@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.1
+ * \version 0.2.14
  * 
  * \date 22/02/2019
  * 
@@ -41,7 +41,7 @@
 
 bool debug_uart_init()
 {
-    uart0_setup(115200);
+    uart0_setup(DEBUG_UART_BAUDRATE_BPS);
 
     return true;
 }

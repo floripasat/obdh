@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.6
+ * \version 0.2.14
  * 
  * \date 22/02/2019
  * 
@@ -40,6 +40,9 @@
 #include "../../config.h"
 
 #include "debug.h"
+
+// UART
+#define DEBUG_UART_BAUDRATE_BPS         115200
 
 // Mutex config.
 #define DEBUG_MUTEX_WAIT_TIME_MS        100
