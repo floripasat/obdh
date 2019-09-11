@@ -83,15 +83,19 @@ uint8_t payload2_read(payload2_downlink_t *pkt) {
    {
    case PAYLOAD2_BITSTREAM_STATUS_REPLAY:
        if(i2c_receive_burst(PAYLOAD2_BASE_ADDRESS,(uint8_t*) &pkt->data, sizeof(pkt->data.bitstream_status_replay), NO_START) == I2C_FAIL)
-          {
-              payload2_status = PAYLOAD2_TIMEOUT_ERROR;
-          }
+       {
+           payload2_status = PAYLOAD2_TIMEOUT_ERROR;
+       }
        break;
    case PAYLOAD2_CCSDS_TELEMETRY:
-       if(i2c_receive_burst(PAYLOAD2_BASE_ADDRESS, (uint8_t*) &pkt->data, sizeof(pkt->data.ccsds_telemetry), NO_START) == I2C_FAIL)
-          {
-              payload2_status = PAYLOAD2_TIMEOUT_ERROR;
-          }
+
+       if(i2c_receive_burst(PAYLOAD2_BASE_ADDRESS, (uint8_t*) &pkt->data, 120, NO_START | NO_STOP) == I2C_FAIL)
+       {
+           payload2_status = PAYLOAD2_TIMEOUT_ERROR;
+       }else if(i2c_receive_burst(PAYLOAD2_BASE_ADDRESS, ((uint8_t*) &pkt->data) + 120, sizeof(pkt->data.ccsds_telemetry) - 120, NO_START) == I2C_FAIL)
+       {
+           payload2_status = PAYLOAD2_TIMEOUT_ERROR;
+       }
        break;
    case PAYLOAD2_NO_PENDING_DATA:
    default:

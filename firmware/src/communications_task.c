@@ -84,9 +84,9 @@ void communications_task( void *pvParameters ) {
         /**< verify if some telecommand was received on radio */
         data_len = try_to_receive(data);
 
-//        write_pkt.type = PAYLOAD2_BITSTREAM_UPLOAD;
-//        for(i = 0; i < sizeof(write_pkt.data.bitstream_upload); i++)
-//            write_pkt.data.bitstream_upload[i] = i;
+        write_pkt.type = PAYLOAD2_CCSDS_TELECOMMAND;
+        for(i = 0; i < sizeof(write_pkt.data.bitstream_upload); i++)
+            write_pkt.data.bitstream_upload[i] = i;
         xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
 
         if(data_len > 7) {

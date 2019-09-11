@@ -64,7 +64,7 @@ void payload2_interface_task( void *pvParameters ) {
                 break;
         }
 
-        if(payload2_status == PAYLOAD2_POWER_ON) {
+//        if(payload2_status == PAYLOAD2_POWER_ON) {
             if(xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME) == pdPASS) {    /**< try to get the mutex */
                 if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    /**< try to get the mutex */
                     if(xQueueReceive(payload2_uplink_queue, &write_pkt, 0) == pdPASS) {
@@ -94,7 +94,7 @@ void payload2_interface_task( void *pvParameters ) {
                         payload2_status = 0;
                     }
 
-                    xQueueOverwrite(status_payload2_queue, &payload2_status);                         /**< send status (OK or NOK)  */
+//                    xQueueOverwrite(status_payload2_queue, &payload2_status);                         /**< send status (OK or NOK)  */
 
                     if(payload2_status == PAYLOAD2_OK) {
                         xQueueSendToBack(payload2_downlink_queue, &read_pkt, portMAX_DELAY);          /**< send data through queue  */
@@ -104,7 +104,7 @@ void payload2_interface_task( void *pvParameters ) {
 
                 xSemaphoreGive(fsp_semaphore);              //release the mutex
             }
-        }
+//        }
 
         if ( (last_wake_time + PAYLOAD2_INTERFACE_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
             last_wake_time = xTaskGetTickCount();

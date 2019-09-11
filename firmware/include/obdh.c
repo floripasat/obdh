@@ -76,7 +76,7 @@ void create_tasks( void ) {
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 #ifdef PAYLOAD_X
-    xTaskCreate( payload2_interface_task, "Payload2",2 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD2_INTERFACE_TASK_PRIORITY, &payload2_interface_task_handle);
+    xTaskCreate( payload2_interface_task, "Payload2",3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD2_INTERFACE_TASK_PRIORITY, &payload2_interface_task_handle);
 #endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
 //    xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
