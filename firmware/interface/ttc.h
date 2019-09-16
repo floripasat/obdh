@@ -21,9 +21,15 @@
  */
 
  /**
- * \brief Interface to deals with TT&C module
+ * \brief Interface to deals with TTC module.
  *
  * \author Elder Tramontin
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ *
+ * \version 0.2.3
+ *
+ * \defgroup ttc TTC
+ * \ingroup interface
  */
 
 #ifndef INTERFACE_TTC_H_
@@ -34,23 +40,22 @@
 #include "../util/sspi.h"
 #include "../util/fsp/fsp.h"
 
-/*
- * Commands
- */
+#define TTC_INTERFACE_MODULE_NAME   "TTC Interface"
+
+// Commands
 #define TTC_CMD_HIBERNATION         0x11        /**< Warn the TTC to enter in hibernation mode */
 #define TTC_CMD_TX_MUTEX_REQUEST    0x22        /**< Request the use of downlink */
 
 #define TTC_ACK                     FSP_PKT_WITH_ACK
 #define TTC_NACK                    FSP_PKT_WITHOUT_ACK
+
 /**
- * \fn send_data_packet
  * \brief Encode and send the data packet with the fsp
  * \return None
  */
 void send_data_packet(void);
 
 /**
- * \fn send_data_packet
  * \brief Encode and send the command packet with the fsp
  * \param command
  * \return None
@@ -58,15 +63,18 @@ void send_data_packet(void);
 void send_command_packet(uint8_t command);
 
 /**
- * \fn ttc_copy_data
  * \brief Store the data to be sent through beacon in a packet
  * \return the beacon data packet
  */
 beacon_packet_t ttc_copy_data(void);
 
-
+/**
+ * \brief .
+ *
+ * \return .
+ */
 uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len);
 
-
-
 #endif /* INTERFACE_TTC_H_ */
+
+//! \} End of ttc group

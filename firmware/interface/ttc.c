@@ -21,24 +21,30 @@
  */
 
  /**
- * \brief Interface to deals with TT&C module
+ * \brief Interface to deals with TTC module
  *
  * \author Elder Tramontin
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ *
+ * \version 0.2.6
+ *
+ * \addtogroup ttc
  */
 
 #include "ttc.h"
+#include "debug/debug.h"
 #include "../include/msp_internal.h"
 
-beacon_packet_t ttc_copy_data(void){
+beacon_packet_t ttc_copy_data(void) {
     beacon_packet_t beacon_packet;
 
-    /**< V_batteries */
+    // V_batteries
     beacon_packet.batteries[0]  = satellite_data.battery_monitor[4];
     beacon_packet.batteries[1]  = satellite_data.battery_monitor[5];
     beacon_packet.batteries[2]  = satellite_data.battery_monitor[6];
     beacon_packet.batteries[3]  = satellite_data.battery_monitor[7];
 
-    /**< T_Batteries */
+    // T_Batteries
     beacon_packet.batteries[4] = satellite_data.temperatures[3];
     beacon_packet.batteries[5] = satellite_data.temperatures[4];
     beacon_packet.batteries[6] = satellite_data.temperatures[5];
@@ -46,11 +52,11 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.batteries[8] = satellite_data.temperatures[7];
     beacon_packet.batteries[9] = satellite_data.temperatures[8];
 
-    /**< Q_Batteries */
+    // Q_Batteries
     beacon_packet.batteries[10] = satellite_data.battery_monitor[10];
     beacon_packet.batteries[11] = satellite_data.battery_monitor[11];
 
-    /**< I_SolarPanels */
+    // I_SolarPanels
     beacon_packet.solar_panels[0]  = satellite_data.solar_panels[0];
     beacon_packet.solar_panels[1]  = satellite_data.solar_panels[1];
     beacon_packet.solar_panels[2]  = satellite_data.solar_panels[2];
@@ -64,7 +70,7 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.solar_panels[10] = satellite_data.solar_panels[10];
     beacon_packet.solar_panels[11] = satellite_data.solar_panels[11];
 
-    /**< V_SolarPanels */
+    // V_SolarPanels
     beacon_packet.solar_panels[12] = satellite_data.solar_panels[12];
     beacon_packet.solar_panels[13] = satellite_data.solar_panels[13];
     beacon_packet.solar_panels[14] = satellite_data.solar_panels[14];
@@ -72,9 +78,7 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.solar_panels[16] = satellite_data.solar_panels[16];
     beacon_packet.solar_panels[17] = satellite_data.solar_panels[17];
 
-
-
-    /**< IMU */
+    // IMU
     beacon_packet.imu[0] = satellite_data.imu[0];
     beacon_packet.imu[1] = satellite_data.imu[1];
     beacon_packet.imu[2] = satellite_data.imu[2];
@@ -88,18 +92,17 @@ beacon_packet_t ttc_copy_data(void){
     beacon_packet.imu[10] = satellite_data.imu[10];
     beacon_packet.imu[11] = satellite_data.imu[11];
 
-    /**< System time */
+    // System time
     beacon_packet.obdh_uptime[0] = satellite_data.obdh_uptime[0];
     beacon_packet.obdh_uptime[1] = satellite_data.obdh_uptime[1];
     beacon_packet.obdh_uptime[2] = satellite_data.obdh_uptime[2];
     beacon_packet.obdh_uptime[3] = satellite_data.obdh_uptime[3];
 
-    /**< FSat status */
+    // FSat status
     beacon_packet.satellite_status[0] = satellite_data.energy_level[0];
     beacon_packet.satellite_status[1] = satellite_data.obdh_status[5];
 
-
-    /**< Reset counter */
+    // Reset counter
     beacon_packet.reset_counter[0] = satellite_data.obdh_status[1];
     beacon_packet.reset_counter[1] = satellite_data.obdh_status[2];
 
@@ -115,6 +118,11 @@ void send_command_packet(uint8_t command) {
 
     if (command == TTC_CMD_HIBERNATION)
     {
+        debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending the hibernation command (");
+        debug_print_dec(get_hibernation_period_min());
+        debug_print_msg(" min)...");
+        debug_new_line();
+
         uint8_t ttc_pkt_pl[3];
 
         ttc_pkt_pl[0] = FSP_CMD_HIBERNATION;
@@ -125,12 +133,17 @@ void send_command_packet(uint8_t command) {
     }
     else
     {
+        debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending a command with code ");
+        debug_print_hex(command);
+        debug_print_msg("...");
+        debug_new_line();
+
         fsp_gen_cmd_pkt(command, FSP_ADR_TTC, FSP_PKT_WITH_ACK, &fsp_command);
     }
 
     fsp_encode(&fsp_command, ttc_pkt_cmd, &ttc_pkt_len);
 
-    sspi_tx_multiple((uint8_t*) ttc_pkt_cmd, ttc_pkt_len);       /**< send the bytes */
+    sspi_tx_multiple((uint8_t*) ttc_pkt_cmd, ttc_pkt_len);       // send the bytes
 }
 
 uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
@@ -143,11 +156,12 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
     sspi_rx_multiple(response, FSP_PKT_MIN_LENGTH + payload_len);
 
     fsp_reset();
+
     do {
         fsp_status = fsp_decode(response[i++], &fsp_packet);
     } while(fsp_status == FSP_PKT_NOT_READY);
 
-    if(fsp_status == FSP_PKT_READY) {
+    if (fsp_status == FSP_PKT_READY) {
         if(fsp_packet.type == FSP_PKT_TYPE_ACK) {
             ack_received = TTC_ACK;
 
@@ -155,16 +169,18 @@ uint8_t receive_packet(uint8_t* received_packet, uint8_t payload_len) {
                 received_packet[i] = fsp_packet.payload[i];
             }
         }
-        if(fsp_packet.type == FSP_PKT_TYPE_NACK) {
+        if (fsp_packet.type == FSP_PKT_TYPE_NACK) {
             ack_received = TTC_NACK;
         }
     }
 
     return ack_received;
-
 }
 
 void send_data_packet(void) {
+    debug_print_event_from_module(DEBUG_INFO, TTC_INTERFACE_MODULE_NAME, "Sending a data packet...");
+    debug_new_line();
+
     fsp_packet_t fsp_data;
     beacon_packet_t ttc_packet;
     uint8_t ttc_pkt_data_len;
@@ -177,6 +193,7 @@ void send_data_packet(void) {
     fsp_gen_data_pkt((uint8_t *)&ttc_packet , ttc_packet_len, FSP_ADR_TTC, FSP_PKT_WITHOUT_ACK, &fsp_data);
     fsp_encode(&fsp_data, ttc_pkt_data, &ttc_pkt_data_len);
 
-    sspi_tx_multiple((uint8_t*) ttc_pkt_data, ttc_pkt_data_len);       /**< send the data via SPI */
+    sspi_tx_multiple((uint8_t*) ttc_pkt_data, ttc_pkt_data_len);       // send the data via SPI
 }
 
+//! \} End of ttc group

@@ -1,7 +1,7 @@
 /*
  * solar_panel.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,18 +20,24 @@
  *
  */
 
- /**
- * \file solar_panel.c
- *
+/**
  * \brief Interface to deals with Solar Panel board modules
  *
  * \author Andre Mattos
  *
+ * \version 0.2.10
+ *
+ * \addtogroup solar_panel
+ * \{
  */
+
+#include "debug/debug.h"
 
 #include "solar_panel.h"
 
 void solar_panel_setup(void) {
+    debug_print_event_from_module(DEBUG_INFO, SOLAR_PANEL_MODULE_NAME, "Initializing...");
+    debug_new_line();
 
     BIT_SET(TEMP_X_CSn_OUT, TEMP_X_CSn_PIN);
     BIT_SET(TEMP_Y_CSn_OUT, TEMP_Y_CSn_PIN);
@@ -48,14 +54,13 @@ void solar_panel_setup(void) {
 }
 
 int16_t solar_panel_read_temperature(uint8_t panel_selection) {
-
     int16_t temperature_raw;
 
     BIT_CLEAR(SPI1_MISO_OUT, SPI1_MISO_PIN);
 
     spi_rx(SOLAR_PANEL_BASE_ADDRESS); //dummy read to flush spi bus
 
-    switch(panel_selection){
+    switch(panel_selection) {
         case SOLAR_PANEL_X:
             BIT_CLEAR(TEMP_X_CSn_OUT, TEMP_X_CSn_PIN);
             break;
@@ -73,7 +78,7 @@ int16_t solar_panel_read_temperature(uint8_t panel_selection) {
 
     temperature_raw = (temperature_raw & 0xFFFF) / 32;
 
-    switch(panel_selection){
+    switch(panel_selection) {
         case SOLAR_PANEL_X:
             BIT_SET(TEMP_X_CSn_OUT, TEMP_X_CSn_PIN);
             break;
@@ -89,3 +94,5 @@ int16_t solar_panel_read_temperature(uint8_t panel_selection) {
 
     return temperature_raw;
 }
+
+//! \} End of solar_panel group

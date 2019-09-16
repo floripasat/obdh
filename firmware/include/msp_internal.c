@@ -25,72 +25,82 @@
  *
  * \author Mario Baldini
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
+ *
+ * \version 0.2.6
+ *
+ * \addtogroup msp_internal
  */
+
+#include "../interface/debug/debug.h"
 
 #include "msp_internal.h"
 
 const float CURR_COEF = (AVCC / (ADC_RANGE * RL_VALUE * CURRENT_GAIN * RSENSE_VALUE));
 uint32_t minutes_counter = 0;
 
-float obdh_temperature_convert(uint16_t temperature_raw){
+float obdh_temperature_convert(uint16_t temperature_raw) {
 	float temperature = (float)(((long)temperature_raw * 2 - CALADC12_15V_30C) * (85 - 30)) /
-            (CALADC12_15V_85C - CALADC12_15V_30C) + 30.0f;  /**< based on datasheet */
+                        (CALADC12_15V_85C - CALADC12_15V_30C) + 30.0f;  // based on datasheet
 	return temperature;
 }
 
-uint16_t obdh_temperature_read(void){
+uint16_t obdh_temperature_read(void) {
     uint16_t temp_raw;
     temp_raw = adc_read(INTERNAL_TEMP_SENSOR_ADC_CH);
 
     return temp_raw;
 }
 
-float obdh_current_convert(uint16_t curr_raw){
+float obdh_current_convert(uint16_t curr_raw) {
     volatile float curr;
     curr = ((float)curr_raw) * CURR_COEF;
 
     return curr;
 }
 
-uint16_t obdh_current_read(void){
+uint16_t obdh_current_read(void) {
     uint16_t curr_raw;
     curr_raw = adc_read(OBDH_CURRENT_ADC_CH);
 
     return curr_raw;
 }
 
-float obdh_voltage_convert(uint16_t volt_raw){
+float obdh_voltage_convert(uint16_t volt_raw) {
     float volt = volt_raw * AVCC * VOLTAGE_DIVISOR / ADC_RANGE;
     return volt;
 }
 
-uint16_t obdh_voltage_read(void){
+uint16_t obdh_voltage_read(void) {
     uint16_t volt_raw;
     volt_raw = adc_read(VCC_3V3_ADC_CH);
 
     return volt_raw;
 }
 
-uint8_t read_fault_flags(void){
-    return (UCSCTL7 & 0x0F); //XT2OFFG | XT1HFOFFG | XT1LFOFFG | DCOFFG
+uint8_t read_fault_flags(void) {
+    return (UCSCTL7 & 0x0F); // XT2OFFG | XT1HFOFFG | XT1LFOFFG | DCOFFG
 }
 
 uint32_t read_reset_value(void) {
     return flash_read_long(RESET_ADDR_FLASH);
 }
 
-uint8_t read_reset_cause(void){
+uint8_t read_reset_cause(void) {
     return (SYSRSTIV & 0xFF);
 }
 
-void update_reset_value(void){
-    uint32_t previous_value;
-    uint32_t new_value;
+void update_reset_value(void) {
+    uint32_t previous_value = read_reset_value() & 0xFFFFFF;                                        // retrieve the last reset counter value
+    uint32_t new_value = ((uint32_t)read_reset_cause()) << 24 | ((previous_value + 1) & 0xFFFFFF);  // join reset cause with reset counter value incremented
 
-    previous_value = read_reset_value() & 0xFFFFFF;                                     /**< retrieve the last reset counter value                  */
-    new_value = ((uint32_t)read_reset_cause())<<24 | ((previous_value + 1) & 0xFFFFFF); /**< join reset cause with reset counter value incremented  */
-    flash_erase(RESET_ADDR_FLASH);                                                      /**< erase the memory to be able to write                   */
-    flash_write_long(new_value, RESET_ADDR_FLASH);                                      /**< store reset cause and counter                          */
+    debug_print_event_from_module(DEBUG_INFO, "System", "Previous reset value = ");
+    debug_print_dec(previous_value);
+    debug_print_msg(", new reset value = ");
+    debug_print_dec(new_value);
+    debug_new_line();
+
+    flash_erase(RESET_ADDR_FLASH);                                                                  // erase the memory to be able to write
+    flash_write_long(new_value, RESET_ADDR_FLASH);                                                  // store reset cause and counter
 }
 
 uint32_t read_time_counter(void) {
@@ -98,10 +108,9 @@ uint32_t read_time_counter(void) {
 }
 
 void update_time_counter(void) {
-
     uint32_t addr;
 
-    addr = ++minutes_counter % 32;                                      /**< store as a circular vector */
+    addr = ++minutes_counter % 32;          // store as a circular vector
 
     if (addr == 0) {
         flash_erase(TIME_COUNTER_ADDR_FLASH);
@@ -110,19 +119,23 @@ void update_time_counter(void) {
 }
 
 void restore_time_counter(void) {
-
     uint32_t *addr_check;
     uint32_t zero = 0;
-    addr_check = (uint32_t*) (END_TIME_COUNTER_ADDR_FLASH);
+    addr_check = (uint32_t*)(END_TIME_COUNTER_ADDR_FLASH);
 
-    while( *addr_check == 0xFFFFFFFF) {                                 /**< retrieve of the circular vector */
+    while(*addr_check == 0xFFFFFFFF) {      // retrieve of the circular vector
         addr_check--;
-        if( addr_check < TIME_COUNTER_ADDR_FLASH) {
+        if (addr_check < TIME_COUNTER_ADDR_FLASH) {
             addr_check = &zero;
             break;
         }
     }
     minutes_counter = *addr_check;
+
+    debug_print_event_from_module(DEBUG_INFO, "System", "Restored time counter: ");
+    debug_print_dec(minutes_counter);
+    debug_print_msg(" min");
+    debug_new_line();
 }
 
 uint8_t read_current_state(void) {
@@ -133,7 +146,7 @@ uint8_t read_current_state(void) {
     operation_mode = current_state & OPERATION_MODE_MASK;
     energy_level = current_state & ENERGY_LEVEL_MASK;
 
-    /**< use a default value in case of the memory holds a wrong one */
+    // use a default value in case of the memory holds a wrong one
     if ( ( operation_mode != NORMAL_OPERATION_MODE ) && ( operation_mode != HIBERNATION_MODE ) ) {
         operation_mode = NORMAL_OPERATION_MODE;
     }
@@ -190,3 +203,5 @@ uint16_t get_hibernation_period_min(void) {
 void low_power_mode_sleep(void) {
     __bis_SR_register(LPM1_bits | GIE);       // Enter LPM1, enable interrupts
 }
+
+//! \} End of msp_internal group

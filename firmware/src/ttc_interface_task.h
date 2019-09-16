@@ -1,7 +1,7 @@
 /*
  * ttc_interface_task.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -20,13 +20,16 @@
  *
  */
 
- /**
- * \file ttc_interface_task.h
- *
+/**
  * \brief Task that deal with the TTC interface
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.12
+ *
+ * \defgroup ttc_interface_task TTC Task
+ * \ingroup tasks
+ * \{
  */
 
 #ifndef SRC_TTC_INTERFACE_TASK_H_
@@ -42,22 +45,22 @@
  * PRIORITY =   5
  * FREQUENCY =  0.2Hz
  */
-
 #define TTC_INTERFACE_TASK_PRIORITY         5
 #define TTC_INTERFACE_TASK_PERIOD_MS        5000
 #define TTC_INTERFACE_TASK_PERIOD_TICKS     ( TTC_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 //#define TTC_QUEUE_WAIT_TIME                 ( 10 / portTICK_PERIOD_MS )
+
 /**
- * \var static xTaskHandle xTtcInterfaceTask
  * \brief variable which holds the task reference
  */
 static xTaskHandle ttc_interface_task_handle;
 
 /**
- * \fn void ttc_interfaceTask( void *pvParameters )
  * The task witch do communication with the TTC_INTERFACE module
  * \param pvParameters Not used
  */
-void ttc_interface_task( void *pvParameters );
+void ttc_interface_task(void *pvParameters);
 
 #endif /* SRC_TTC_INTERFACE_TASK_H_ */
+
+//! \} End of ttc_interface_task group

@@ -1,7 +1,7 @@
 /*
  * imu.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,15 @@
  */
 
  /**
- * \file imu.h
- *
  * \brief This file deals with the IMU module
  *
  * \author Mario Baldini
  *
+ * \version 0.2.7
+ *
+ * \defgroup imu IMU
+ * \ingroup interface
+ * \{
  */
 
 #ifndef INTERFACE_IMU_H_
@@ -36,6 +39,8 @@
 #include "../hal/obdh_hal.h"
 #include "../include/floripasat_def.h"
 #include "../util/misc.h"
+
+#define IMU_MODULE_NAME            "MPU9250"
 
 #define MPU9150_SELF_TEST_X        0x0D   /**< Read/Write */
 #define MPU9150_SELF_TEST_Y        0x0E   /**< Read/Write */
@@ -129,12 +134,12 @@
 #define MPU9150_WHO_AM_I           0x75   /**< Read       */
 
 //MPU9150 Compass
-#define MPU9150_CMPS_XOUT_L        0x4A   /**< Read       */
-#define MPU9150_CMPS_XOUT_H        0x4B   /**< Read       */
-#define MPU9150_CMPS_YOUT_L        0x4C   /**< Read       */
-#define MPU9150_CMPS_YOUT_H        0x4D   /**< Read       */
-#define MPU9150_CMPS_ZOUT_L        0x4E   /**< Read       */
-#define MPU9150_CMPS_ZOUT_H        0x4F   /**< Read       */
+#define MPU9150_CMPS_XOUT_L        0x4A   /**< Read */
+#define MPU9150_CMPS_XOUT_H        0x4B   /**< Read */
+#define MPU9150_CMPS_YOUT_L        0x4C   /**< Read */
+#define MPU9150_CMPS_YOUT_H        0x4D   /**< Read */
+#define MPU9150_CMPS_ZOUT_L        0x4E   /**< Read */
+#define MPU9150_CMPS_ZOUT_H        0x4F   /**< Read */
 
 
 #define IMU_ACC_RANGE       16.0          /**< Accelerometer resolution */
@@ -148,8 +153,6 @@
 #define IMU_WHO_AM_I_VALUE  0x71          /**< Default factory value    */
 
 /**
- * \fn imu_setup
- *
  * \brief Power on the IMU, configure the resolution of accelerometer and
  * gyroscope and verify if the communication is working.
  * \return if communication with IMU is working or not
@@ -157,21 +160,17 @@
 uint8_t imu_setup(void);
 
 /**
- * \fn imu_read
- *
  * \brief Read the 3-axis accelerometer and 3-axis gyroscope, each one with 12-bit resolution.
  * \return if communication with IMU is working or not
  */
 uint8_t imu_read(uint8_t *p_imu_data, uint8_t imu_select);
 
 
-/**
- * Macros to convert raw value into understandable values
- */
+// Macros to convert raw value into understandable values
 #define imu_acc_raw_to_g(H, L)       (float)  (((H << 8 | L) * IMU_ACC_RANGE) / 32768.0)
 #define imu_gyr_raw_to_dps(H, L)     (float)  (((H << 8 | L) * IMU_GYR_RANGE) / 32768.0)
 #define imu_temp_raw_to_degrees(H, L)(float) ((((H << 8 | L) - ROOM_TEMP_OFFSET) / IMU_TEMP_RANGE) + 21)
 
-
-
 #endif /* INTERFACE_IMU_H_ */
+
+//! \} End of imu group

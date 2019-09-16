@@ -1,7 +1,7 @@
 /*
  * eps_interface_task.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,15 @@
  */
 
  /**
- * \file eps_interface_task.h
- *
  * \brief Task that deals with the EPS interface
  *
  * \author Elder Tramontin
  *
+ * \version 0.2.13
+ *
+ * \defgroup eps_interface EPS Interface
+ * \ingroup tasks
+ * \{
  */
 
 #ifndef SRC_EPS_INTERFACE_TASK_H_
@@ -44,21 +47,21 @@
  * FREQUENCY =  1Hz
  */
 
-#define EPS_INTERFACE_TASK_PRIORITY          5
+#define EPS_INTERFACE_TASK_PRIORITY          4
 #define EPS_INTERFACE_TASK_PERIOD_MS         1000
 #define EPS_INTERFACE_TASK_PERIOD_TICKS      ( EPS_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**
- * \var static xTaskHandle xEpsInterfaceTask
- * \brief variable which holds the task reference
+ * \brief variable which holds the task reference.
  */
 static xTaskHandle eps_interface_task_handle;
 
 /**
- * \fn void epsInterfaceInterfaceTask( void *pvParameters )
- * The task witch do communication with the EPS_INTERFACE module
+ * \brief The task witch do communication with the EPS_INTERFACE module.
  * \param pvParameters Not used
  */
 void eps_interface_task( void *pvParameters );
 
 #endif /* SRC_EPS_INTERFACE_TASK_H_ */
+
+//! \} End of eps_interface group
