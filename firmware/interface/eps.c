@@ -1,7 +1,7 @@
 /*
  * eps.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,9 @@
  */
 
  /**
- * \file eps.c
- *
  * \brief This file deals with the EPS module
  *
  * \author Mario Baldini
- *
  */
 
 #include "eps.h"
@@ -43,7 +40,7 @@ uint8_t eps_read(eps_package_t *package) {
     uint8_t pkt_len;
     uint8_t *received_data = (uint8_t *)package;            /**< copy the address and work as a byte vector */
     uint8_t eps_status = EPS_OK;
-    FSPPacket fsp_packet;
+    fsp_packet_t fsp_packet;
     uint8_t fsp_status = 0;
     uint8_t i = 0;
 
@@ -87,7 +84,7 @@ uint8_t eps_read(eps_package_t *package) {
 }
 
 void send_command_charge_reset(void) {
-    FSPPacket fsp_packet;
+    fsp_packet_t fsp_packet;
     uint8_t eps_pkt_len;
     uint8_t eps_pkt_cmd[8];
     uint8_t eps_status = EPS_OK;

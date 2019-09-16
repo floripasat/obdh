@@ -62,11 +62,12 @@ volatile xQueueHandle main_radio_queue;
 volatile xQueueHandle eps_queue;
 volatile xQueueHandle ttc_queue;
 volatile xQueueHandle tx_queue;
-volatile xQueueHandle payload1_queue;
-volatile xQueueHandle payload2_queue;
+volatile xQueueHandle payload_rush_queue;
+volatile xQueueHandle command_to_payload_rush_queue;
+volatile xQueueHandle payload_brave_queue;
 
 volatile xQueueHandle eps_charge_queue;
-volatile xQueueHandle status_eps_queue, status_payload1_queue, status_payload2_queue, status_imu_queue, status_mem1_queue;
+volatile xQueueHandle status_eps_queue, status_payload_rush_queue, status_payload2_queue, status_imu_queue, status_mem1_queue;
 volatile xQueueHandle payload2_uplink_queue, payload2_downlink_queue;
 //TODO: mem2, antenna status_queue
 

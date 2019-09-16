@@ -1,7 +1,7 @@
 /*
  * debug_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,9 @@
  */
 
 /**
- * \file debug_task.c
- *
  * \brief Task that deals with the debug interface
  *
  * \author Elder Tramontin
- *
  */
 
 #include "debug_task.h"
@@ -74,9 +71,9 @@ void debug_task( void *pvParameters ) {
             xQueueOverwrite(ttc_queue, &ttc_command);
         }
 
-        if(telecommand.request_action == REQUEST_SHUTDOWN_TELECOMMAND) {
-            ttc_command = TTC_CMD_SHUTDOWN;
-            update_operation_mode(SHUTDOWN_MODE);
+        if (telecommand.request_action == REQUEST_HIBERNATION_TELECOMMAND) {
+            ttc_command = TTC_CMD_HIBERNATION;
+            update_operation_mode(HIBERNATION_MODE);
             xQueueOverwrite(ttc_queue, &ttc_command);
         }
 

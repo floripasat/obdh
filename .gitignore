@@ -40,3 +40,6 @@
 
 # Doc files
 /doc/
+
+# Others
+*.swp

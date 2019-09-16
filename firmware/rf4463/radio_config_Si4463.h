@@ -21,7 +21,7 @@
 /*
 // Crys_freq(Hz): 30000000    Crys_tol(ppm): 10    IF_mode: 2    High_perf_Ch_Fil: 1    OSRtune: 0    Ch_Fil_Bw_AFC: 0    ANT_DIV: 0    PM_pattern: 0    
 // MOD_type: 3    Rsymb(sps): 2400    Fdev(Hz): 5000    RXBW(Hz): 150000    Manchester: 0    AFC_en: 0    Rsymb_error: 0.0    Chip-Version: 2    
-// RF Freq.(MHz): 436.1    API_TC: 29    fhst: 0    inputBW: 0    BERT: 0    RAW_dout: 0    D_source: 0    Hi_pfm_div: 1
+// RF Freq.(MHz): 436.1    API_TC: 29    fhst: 0    inputBW: 0    BERT: 0    RAW_dout: 0    D_source: 0    Hi_pfm_div: 1    
 // 
 // # RX IF frequency is  -468750 Hz
 // # WB filter 1 (BW =  28.62 kHz);  NB-filter 1 (BW = 28.62 kHz)
@@ -80,7 +80,7 @@
 // Number of properties:     1
 // Group ID:                 0x01
 // Start ID:                 0x00
-// Default values:           0x04,
+// Default values:           0x04, 
 // Descriptions:
 //   INT_CTL_ENABLE - This property provides for global enabling of the three interrupt groups (Chip, Modem and Packet Handler) in order to generate HW interrupts at the NIRQ pin.
 */
@@ -358,7 +358,7 @@
 // Number of properties:     9
 // Group ID:                 0x20
 // Start ID:                 0x42
-// Default values:           0xA4, 0x03, 0x56, 0x02, 0x00, 0xA3, 0x02, 0x80, 0xFF,
+// Default values:           0xA4, 0x03, 0x56, 0x02, 0x00, 0xA3, 0x02, 0x80, 0xFF, 
 // Descriptions:
 //   MODEM_OOK_CNT1 - OOK control.
 //   MODEM_OOK_MISC - Selects the detector(s) used for demodulation of an OOK signal, or for demodulation of a (G)FSK signal when using the asynchronous demodulator.
@@ -377,7 +377,7 @@
 // Number of properties:     1
 // Group ID:                 0x20
 // Start ID:                 0x4C
-// Default values:           0x01,
+// Default values:           0x01, 
 // Descriptions:
 //   MODEM_RSSI_CONTROL - Control of the averaging modes and latching time for reporting RSSI value(s).
 */
