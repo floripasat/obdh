@@ -27,7 +27,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.8
+ * \version 0.2.18
  * 
  * \date 01/06/2017
  * 
@@ -40,6 +40,16 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+/**
+ * \brief RF4463 modes.
+ */
+typedef enum
+{
+    RF4463_MODE_STANDBY=0,      /**< Standby mode. */
+    RF4463_MODE_TX,             /**< TX mode. */
+    RF4463_MODE_RX              /**< RX mode. */
+} rf4463_modes_e;
 
 /**
  * \brief RF4463 initialization.

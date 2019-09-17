@@ -27,7 +27,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.2.8
+ * \version 0.2.18
  * 
  * \date 01/06/2017
  * 
@@ -45,6 +45,8 @@
 #include "radio_config_Si4463.h"
 
 const uint8_t RF4463_CONFIGURATION_DATA[] = RADIO_CONFIGURATION_DATA_ARRAY;
+
+uint8_t rf4463_mode = 0xFF;
 
 uint8_t rf4463_init()
 {
@@ -603,6 +605,11 @@ void rf4463_fifo_reset()
 
 void rf4463_enter_tx_mode()
 {
+    if (rf4463_mode == RF4463_MODE_TX)
+    {
+        return;
+    }
+
     debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Entering TX mode...");
     debug_new_line();
 
@@ -614,10 +621,17 @@ void rf4463_enter_tx_mode()
     buffer[3] = 0x00;                   // TX packet length LSB (If equal zero, default length)
     
     rf4463_set_cmd(RF4463_CMD_START_TX, buffer, 4);
+
+    rf4463_mode = RF4463_MODE_TX;
 }
 
 void rf4463_enter_rx_mode()
 {
+    if (rf4463_mode == RF4463_MODE_RX)
+    {
+        return;
+    }
+
     debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Entering RX mode...");
     debug_new_line();
 
@@ -632,14 +646,23 @@ void rf4463_enter_rx_mode()
     buffer[6] = 0x08;
     
     rf4463_set_cmd(RF4463_CMD_START_RX, buffer, 7);
+
+    rf4463_mode = RF4463_MODE_RX;
 }
 
 bool rf4463_enter_standby_mode()
 {
+    if (rf4463_mode == RF4463_MODE_STANDBY)
+    {
+        return;
+    }
+
     debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Entering standby mode...");
     debug_new_line();
 
     uint8_t data = 0x01;
+
+    rf4463_mode = RF4463_MODE_STANDBY;
 
     return rf4463_set_cmd(RF4463_CMD_CHANGE_STATE, &data, 1);
 }
