@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.13
+ * \version 0.2.17
  *
  * \defgroup eps_interface EPS Interface
  * \ingroup tasks
@@ -47,7 +47,7 @@
  * FREQUENCY =  1Hz
  */
 
-#define EPS_INTERFACE_TASK_PRIORITY          4
+#define EPS_INTERFACE_TASK_PRIORITY          5
 #define EPS_INTERFACE_TASK_PERIOD_MS         1000
 #define EPS_INTERFACE_TASK_PERIOD_TICKS      ( EPS_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
