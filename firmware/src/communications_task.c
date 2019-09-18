@@ -1,7 +1,7 @@
 /*
  * communications_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,13 +21,14 @@
  */
 
 /**
- * \file communications_task.c
- *
  * \brief Task that deals with the downlink and uplink communications
  *
  * \author Elder Tramontin
- *
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
+
+#include <stdbool.h>
+#include <string.h>
 
 #include "communications_task.h"
 #ifdef _DEBUG_AS_LINK
@@ -41,30 +42,53 @@
 #define PA_ENABLE()      BIT_SET(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 #define PA_DISABLE()     BIT_CLEAR(TTC_3V3_PA_EN_OUT, TTC_3V3_PA_EN_PIN)
 
+/**
+ * \brief Telecommands keys types.
+ */
+typedef enum
+{
+    KEY_ENTER_HIBERNATION = 0,      /**< Enter hibernation type. */
+    KEY_LEAVE_HIBERNATION,          /**< Leave hibernation type. */
+    KEY_CHARGE_RESET,               /**< Charge reset type. */
+    KEY_ENABLE_RUSH                 /**< Enable RUSH type. */
+} keys_e;
+
+/**
+ * \brief RUSH status.
+ */
+typedef enum
+{
+    RUSH_STATUS_READY = 0,          /**< Ready to execute an experiment. */
+    RUSH_STATUS_OUT_OF_RANGE,       /**< Out of range timeout. */
+    RUSH_STATUS_LOW_ENERGY,         /**< Not enough energy to execute an experiment. */
+    RUSH_STATUS_BUSY                /**< Already executing an experiment. */
+} rush_status_e;
+
 void send_periodic_data(void);
 void send_data(uint8_t *data, int16_t data_len);
 uint16_t try_to_receive(uint8_t *data);
-void send_requested_data(uint8_t *raw_package);
-void enter_in_shutdown(void);
+void send_requested_data(telecommand_t telecommand);
+void enter_in_hibernation(telecommand_t telecommand);
+void leave_hibernation(telecommand_t telecommand);
 void request_antenna_mutex(void);
 void answer_ping(telecommand_t telecommand);
 void update_last_telecommand_status(telecommand_t *last_telecommand);
-void send_reset_charge_command(void);
-void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len);
-void send_payload2_data(payload2_downlink_t *answer);
-
+void send_reset_charge_command(telecommand_t telecommand);
+void radioamateur_repeater(telecommand_t telecommand);
+void enable_rush(telecommand_t telecommand);
+bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
+void send_payload_brave_data(payload_brave_downlink_t *answer);
 
 void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
     uint16_t current_turn = 0, turns_to_wait;
-    uint8_t enable_repeater;
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
-    payload2_downlink_t read_pkt;
-    payload2_uplink_t write_pkt;
-    uint8_t i = 0;
+    payload_brave_downlink_t read_pkt;
+    payload_brave_uplink_t write_pkt;
+
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
@@ -83,57 +107,62 @@ void communications_task( void *pvParameters ) {
         operation_mode = read_current_operation_mode();
         /**< verify if some telecommand was received on radio */
         data_len = try_to_receive(data);
+        if (data_len >= 8) {
+            received_telecommand = decode_telecommand(data, data_len);
 
-        write_pkt.type = PAYLOAD2_CCSDS_TELECOMMAND;
-        for(i = 0; i < sizeof(write_pkt.data.bitstream_upload); i++)
-            write_pkt.data.bitstream_upload[i] = i;
-        xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
-
-        if(data_len > 7) {
-            received_telecommand = decode_telecommand(data);
-
-            switch (received_telecommand.request_action) {
-                case REQUEST_PING_TELECOMMAND:
+            switch (received_telecommand.id) {
+                case FLORIPASAT_PACKET_UPLINK_PING_REQUEST:
                     if (operation_mode == NORMAL_OPERATION_MODE) {
                         answer_ping(received_telecommand);
                     }
+
                     break;
-                case REQUEST_DATA_TELECOMMAND:
+                case FLORIPASAT_PACKET_UPLINK_DATA_REQUEST:
                     if (operation_mode == NORMAL_OPERATION_MODE) {
-                        send_requested_data(received_telecommand.arguments);
+                        send_requested_data(received_telecommand);
                     }
+
                     break;
-                case REQUEST_REPEAT_TELECOMMAND:
-                    if (enable_repeater == ENABLE_REPEATER_TRANSMISSION) {
-                        if (operation_mode == NORMAL_OPERATION_MODE) {
-                            radioamateur_repeater(&received_telecommand, &data_len);
-                        }
+                case FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION:
+                    enter_in_hibernation(received_telecommand);
+
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION:
+                    leave_hibernation(received_telecommand);
+
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_CHARGE_RESET:
+                    send_reset_charge_command(received_telecommand);
+
+                    break;
+                case FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE:
+                    if (operation_mode == NORMAL_OPERATION_MODE) {
+                        radioamateur_repeater(received_telecommand);
                     }
+
                     break;
-                case REQUEST_SHUTDOWN_TELECOMMAND:
-                    enter_in_shutdown();
-                    break;
-                case REQUEST_CHARGE_RESET_TELECOMMAND:
-                    send_reset_charge_command();
+                case FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE:
+                    enable_rush(received_telecommand);
+
                     break;
 #ifdef PAYLOAD_X
-                case REQUEST_CCSDS_TELECOMMAND:
-                    write_pkt.type = PAYLOAD2_CCSDS_TELECOMMAND;
-                    memcpy(write_pkt.data.ccsds_telecommand, received_telecommand.arguments, sizeof(write_pkt.data.ccsds_telecommand));
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND:
+                    write_pkt.type = PAYLOAD_BRAVE_CCSDS_TELECOMMAND;
+                    memcpy(write_pkt.data.ccsds_telecommand, received_telecommand.data, sizeof(write_pkt.data.ccsds_telecommand));
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
-                case REQUEST_BITSTREAM_UPLOAD:
-                    write_pkt.type = PAYLOAD2_BITSTREAM_UPLOAD;
-                    memcpy(write_pkt.data.bitstream_upload, received_telecommand.arguments, sizeof(write_pkt.data.bitstream_upload));
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD:
+                    write_pkt.type = PAYLOAD_BRAVE_BITSTREAM_UPLOAD;
+                    memcpy(write_pkt.data.bitstream_upload, received_telecommand.data, sizeof(write_pkt.data.bitstream_upload));
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
-                case REQUEST_BITSTREAM_SWAP:
-                    write_pkt.type = PAYLOAD2_BITSTREAM_SWAP;
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP:
+                    write_pkt.type = PAYLOAD_BRAVE_BITSTREAM_SWAP;
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
-                case REQUEST_BITSTREAM_STATUS:
-                    write_pkt.type = PAYLOAD2_BITSTREAM_STATUS_REQUEST;
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST:
+                    write_pkt.type = PAYLOAD_BRAVE_BITSTREAM_STATUS_REQUEST;
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
 #endif
                 default:
@@ -153,18 +182,15 @@ void communications_task( void *pvParameters ) {
             case ENERGY_L1_MODE:
             case ENERGY_L2_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
-                enable_repeater = ENABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L3_MODE:
                 turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
-                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
                 break;
 
             case ENERGY_L4_MODE:
             default:
                 turns_to_wait = 0xFFFF;
-                enable_repeater = DISABLE_REPEATER_TRANSMISSION;
             }
 
             if(++current_turn > turns_to_wait) {
@@ -182,9 +208,9 @@ void communications_task( void *pvParameters ) {
             vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
         }
 #ifdef PAYLOAD_X
-        if(enable_repeater == ENABLE_REPEATER_TRANSMISSION){
-            if(xQueueReceive(payload2_downlink_queue, &read_pkt, 0) == pdPASS){
-                send_payload2_data(&read_pkt);
+        if(energy_level == ENERGY_L1_MODE || energy_level == ENERGY_L2_MODE){
+            if(xQueueReceive(payload_brave_downlink_queue, &read_pkt, 0) == pdPASS){
+                send_payload_brave_data(&read_pkt);
             }
         }
 #endif
@@ -199,10 +225,27 @@ void send_periodic_data(void) {
 }
 #else
 void send_periodic_data(void) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
+    uint8_t pkt_pl[220];
+
+    // Packet ID code
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_TELEMETRY;
+
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++)
+    {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
 
    /*
     *  This flag aware the GS to ignore the other flags, since the content
@@ -211,7 +254,10 @@ void send_periodic_data(void) {
     */
     satellite_data.package_flags |= WHOLE_ORBIT_DATA_FLAG;
 
-    ngham_TxPktGen(&ngham_packet, (uint8_t *)&satellite_data, sizeof(satellite_data));
+    // Packet Data
+    memcpy(pkt_pl+8, (uint8_t *)&satellite_data, sizeof(satellite_data));
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(satellite_data)+8);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
@@ -220,6 +266,10 @@ void send_periodic_data(void) {
 #endif
 
 void send_data(uint8_t *data, int16_t data_len) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
@@ -259,30 +309,61 @@ uint16_t try_to_receive(uint8_t *data) {
     return data_len;
 }
 
-void send_requested_data(uint8_t *raw_package) {
+void send_requested_data(telecommand_t telecommand) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     request_data_packet_t rqt_packet;
     uint32_t read_position;
     uint16_t package_size = 0;
     uint8_t to_send_package[220];
+    uint8_t pkt_pl[160];
 
-    rqt_packet = decode_request_data_telecommand(raw_package);
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_DATA_REQUEST_ANSWER;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Data
+    rqt_packet = decode_request_data_telecommand(telecommand.data);
 
     read_position = calculate_read_position(rqt_packet);
 
-    if(rqt_packet.packages_count-- > 0)             /**< first packet to be sent -> send all fields of a frame */
-    {
+    if (rqt_packet.packages_count-- > 0) {  // first packet to be sent -> send all fields of a frame
         package_size = get_packet(to_send_package, ALL_FLAGS, read_position++);
-        if(package_size > 0) {
+
+        for(i=0; i<package_size; i++) {
+            pkt_pl[i+1+7+7] = to_send_package[i];
+        }
+
+        if (package_size > 0) {
             request_antenna_mutex();
-            send_data(to_send_package, package_size);
+            send_data(pkt_pl, 1+7+7+package_size);
         }
     }
 
     while(rqt_packet.packages_count-- > 0) {
         package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
-        if(package_size > 0) {
+
+        for(i=0; i<package_size; i++) {
+            pkt_pl[i+1+7+7] = to_send_package[i];
+        }
+
+        if (package_size > 0) {
             request_antenna_mutex();
-            send_data(to_send_package, package_size);
+            send_data(pkt_pl, 1+7+7+package_size);
         }
     }
 
@@ -290,64 +371,200 @@ void send_requested_data(uint8_t *raw_package) {
 }
 
 void answer_ping(telecommand_t telecommand) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
-    uint8_t answer_msg[58] = PING_MSG;
-    uint8_t i;
+    uint8_t pkt_pl[16];
 
-    for(i = 0; i < 6; i++) {
-        answer_msg[sizeof(PING_MSG)-1 + i] = telecommand.ID[i];
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PING_ANSWER;
+
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
     }
 
-    ngham_TxPktGen(&ngham_packet, answer_msg, sizeof(answer_msg));
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Ping request callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+8] = telecommand.src_callsign[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 15);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
     rf4463_rx_init();
 }
 
-void radioamateur_repeater(telecommand_t *telecommand, uint8_t *data_len){
+void radioamateur_repeater(telecommand_t telecommand) {
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[220];
     uint16_t ngham_pkt_str_len;
-    uint8_t msg[28];
-    uint8_t i = 0;
+    uint8_t pkt_pl[64];
 
-    for(i = 0; i<6; i++){
-        msg[i] = telecommand->ID[i];
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
     }
 
-    msg[6]= (uint8_t) ACTION_REPEAT_TELECOMMAND;
-    msg[7]= (uint8_t) (ACTION_REPEAT_TELECOMMAND >> 8);
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
 
-    for(i = 0; i<ARGUMENT_LENGTH; i++){
-        msg[8 + i] = telecommand->arguments[i];
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
     }
-    /*
-    for(i = 0; i<12; i++){
-        msg[16 + i] = telecommand->reserved[i];
+
+    // Destination callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7+7] = telecommand.data[i];
     }
-    */
-    ngham_TxPktGen(&ngham_packet, msg, *data_len);
+
+    // Message
+    uint16_t msg_len = telecommand.data_len-7;
+    if (msg_len > 38)
+    {
+        msg_len = 38;
+    }
+
+    for(i=0; i<msg_len; i++) {
+        pkt_pl[i+1+7+7+7] = telecommand.data[i+7];
+    }
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+7+msg_len);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
     rf4463_rx_init();
 }
 
-void enter_in_shutdown(void) {
-    uint8_t ttc_command;
+void enter_in_hibernation(telecommand_t telecommand) {
+    // Checking it the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len-2;
 
-    ttc_command = TTC_CMD_SHUTDOWN;
-    xQueueOverwrite(ttc_queue, &ttc_command);   /**< send shutdown command to beacon, via ttc task      */
-    xSemaphoreTake(flash_semaphore,
-                   FLASH_SEMAPHORE_WAIT_TIME);  /**< protect the flash from mutual access               */
-    update_operation_mode(SHUTDOWN_MODE);       /**< update the current operation mode in the flash mem */
+    memcpy(key, telecommand.data+2, 8);
+
+    if (!verify_key(key, key_len, KEY_ENTER_HIBERNATION))
+    {
+        return;     // Invalid key!
+    }
+
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t pkt_pl[20];
+
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_HIBERNATION_FEEDBACK;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Hibernation duration
+    pkt_pl[1+7+7]   = telecommand.data[0];
+    pkt_pl[1+7+7+1] = telecommand.data[1];
+
+    // Transmitting feedback
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+2);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+
+    // Executing the enter hibernation command
+    uint8_t ttc_command = TTC_CMD_HIBERNATION;
+    xQueueOverwrite(ttc_queue, &ttc_command);                       // send shutdown command to beacon, via ttc task
+
+    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
+    update_operation_mode(HIBERNATION_MODE);                        // update the current operation mode in the flash mem
+    set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
     xSemaphoreGive(flash_semaphore);
 }
 
-void send_reset_charge_command(void) {
+void leave_hibernation(telecommand_t telecommand)
+{
+    // Checking it the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len;
+
+    memcpy(key, telecommand.data, 8);
+
+    if (!verify_key(key, key_len, KEY_LEAVE_HIBERNATION))
+    {
+        return;     // Invalid key!
+    }
+
+    // Executing the leave hibernation command
+    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
+    update_operation_mode(NORMAL_OPERATION_MODE);                   // update the current operation mode in the flash mem
+    xSemaphoreGive(flash_semaphore);
+}
+
+void send_reset_charge_command(telecommand_t telecommand) {
+    // Checking if the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len;
+
+    memcpy(key, telecommand.data, 8);
+
+    if (!verify_key(key, key_len, KEY_CHARGE_RESET)) {
+        return;     // Invalid key!
+    }
+
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+    uint8_t pkt_pl[20];
+
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_CHARGE_RESET_FEEDBACK;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Transmitting feedback
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+
+    // Executing the charge reset command
     uint8_t eps_command;
     eps_command = EPS_CHARGE_RESET_CMD;
     xQueueOverwrite(eps_charge_queue, &eps_command);   /**< send reset charge command to eps, via eps task     */
@@ -369,7 +586,7 @@ void request_antenna_mutex(void) {
  * \param last_telecommand Last telecommand received
  */
 void update_last_telecommand_status( telecommand_t *last_telecommand ) {
-    uint8_t telecommand_status[19];
+    uint8_t telecommand_status[220];
     uint8_t radio_modem_status[5];
     uint8_t latched_radio_signal_strengh;
     uint8_t i = 0;
@@ -379,21 +596,133 @@ void update_last_telecommand_status( telecommand_t *last_telecommand ) {
     latched_radio_signal_strengh = radio_modem_status[4];
 
     /**< wrap the data in a packet to be stored, via store data task */
-    for(i=0; i<6; i++) {
-        telecommand_status[i] = last_telecommand->ID[i];
+    telecommand_status[0] = last_telecommand->id;
+    for(i=0; i<7; i++) {
+        telecommand_status[i+1] = last_telecommand->src_callsign[i];
     }
-    telecommand_status[i++] = (uint8_t)last_telecommand->request_action;
-    telecommand_status[i++] = (uint8_t)(last_telecommand->request_action >> 8);
-    for(i=8; i<16; i++) {
-        telecommand_status[i] = last_telecommand->arguments[i-8];
+    for(i=0; i<last_telecommand->data_len; i++) {
+        telecommand_status[i+1+7] = last_telecommand->data[i];
     }
-    telecommand_status[i++] = latched_radio_signal_strengh;
+    telecommand_status[1+7+last_telecommand->data_len] = latched_radio_signal_strengh;
 
     /**< send to the store data task */
     xQueueOverwrite(main_radio_queue, telecommand_status);
 }
 
-void send_payload2_data(payload2_downlink_t *answer) {
+void enable_rush(telecommand_t telecommand)
+{
+    // Checking it the command key is right
+    uint8_t key[8];
+    uint16_t key_len = telecommand.data_len-1;
+
+    memcpy(key, telecommand.data+1, 8);
+
+    if (!verify_key(key, key_len, KEY_ENABLE_RUSH))
+    {
+        return;     // Invalid key!
+    }
+
+    uint8_t pkt_pl[20];
+
+    // Packet ID
+    pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_RUSH_FEEDBACK;
+
+    // Source callsign
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    // Status
+    pkt_pl[1+7+7] = RUSH_STATUS_READY;
+
+    // Timeout value
+    pkt_pl[1+7+7+1] = telecommand.data[0];
+
+    // Transmitting feedback
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[220];
+    uint16_t ngham_pkt_str_len;
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+1+1);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+    rf4463_rx_init();
+
+    // Executing the telecommand
+    uint8_t cmd = telecommand.data[0];
+
+    if (read_current_energy_level() == ENERGY_L1_MODE)
+    {
+        if (cmd == 0)
+        {
+            xQueueReset(command_to_payload_rush_queue);
+            xQueueSendToFront(command_to_payload_rush_queue, &cmd, 0);
+            //answer = RUSH_DISABLED_MSG
+        }
+        else if (cmd > 30)
+        {
+            cmd = 10;
+
+            if (xQueueSendToBack(command_to_payload_rush_queue, &cmd, 0) == pdTRUE)
+            {
+                //answer = RUSH_EN_OUT_OF_RANGE_MSG;
+            }
+            else
+            {
+                //answer = RUSH_QUEUE_FULL_MSG;
+            }
+        }
+        else
+        {
+            if (xQueueSendToBack(command_to_payload_rush_queue, &cmd, 0) == pdTRUE)
+            {
+                //answer = RUSH_EN_OK_MSG;
+                //answer[end + 1] = cmd/10 + 0x30;
+                //answer[end + 2] = cmd%10 + 0x30;
+            }
+            else
+            {
+                //answer = RUSH_QUEUE_FULL_MSG;
+            }
+        }
+    }
+    else
+    {
+        //answer = RUSH_OUT_OF_BAT_MSG;
+    }
+}
+
+bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
+{
+    uint8_t key_enter_hibernation[] = "69jCwUyK";
+    uint8_t key_charge_reset[]      = "bVCd25Fh";
+    uint8_t key_enable_rush[]       = "peU9ZGH3";
+
+    switch(type)
+    {
+        case KEY_ENTER_HIBERNATION:
+            return memcmp(key, key_enter_hibernation, sizeof(key_enter_hibernation)-1) == 0 ? true : false;
+        case KEY_LEAVE_HIBERNATION:
+            return false;
+        case KEY_CHARGE_RESET:
+            return memcmp(key, key_charge_reset, sizeof(key_charge_reset)-1) == 0 ? true : false;
+        case KEY_ENABLE_RUSH:
+            return memcmp(key, key_enable_rush, sizeof(key_enable_rush)-1) == 0 ? true : false;
+        default:
+            return false;
+    }
+}
+
+void send_payload_brave_data(payload_brave_downlink_t *answer) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
@@ -401,10 +730,10 @@ void send_payload2_data(payload2_downlink_t *answer) {
 
     switch (answer->type)
     {
-    case PAYLOAD2_BITSTREAM_STATUS_REPLAY:
+    case PAYLOAD_BRAVE_BITSTREAM_STATUS_REPLAY:
         ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.bitstream_status_replay));
         break;
-    case PAYLOAD2_CCSDS_TELEMETRY:
+    case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
         ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.ccsds_telemetry));
         break;
     default:

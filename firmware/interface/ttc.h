@@ -1,7 +1,7 @@
 /*
  * ttc.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,9 @@
  */
 
  /**
- * \file ttc.h
- *
  * \brief Interface to deals with TT&C module
  *
  * \author Elder Tramontin
- *
  */
 
 #ifndef INTERFACE_TTC_H_
@@ -40,8 +37,8 @@
 /*
  * Commands
  */
-#define TTC_CMD_SHUTDOWN            0x11        /**< Warn the TT&C to enter in shutdown mode        */
-#define TTC_CMD_TX_MUTEX_REQUEST    0x22        /**< Request the use of downlink                    */
+#define TTC_CMD_HIBERNATION         0x11        /**< Warn the TTC to enter in hibernation mode */
+#define TTC_CMD_TX_MUTEX_REQUEST    0x22        /**< Request the use of downlink */
 
 #define TTC_ACK                     FSP_PKT_WITH_ACK
 #define TTC_NACK                    FSP_PKT_WITHOUT_ACK

@@ -1,7 +1,7 @@
 /*
  * msp_internal.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,10 @@
  */
 
  /**
- * \file msp_internal.h
- *
  * \brief Interface with internal components of the OBDH SoC
  *
  * \author Mario Baldini
- *
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
 
 #ifndef INCLUDE_MSP_INTERNAL_H_
@@ -43,6 +41,7 @@
 #define CURRENT_STATE_ADDR_FLASH            (uint8_t *)  SEGB_ADDR                      /**< flash memory address to store the current satellite state      */
 #define TIME_STATE_CHANGED_ADDR_FLASH       (uint32_t *)(CURRENT_STATE_ADDR_FLASH+4)    /**< flash memory address to store the time since last state change */
 #define ANTENNA_STATUS_ADDR_FLASH           (uint8_t *) (SEGA_ADDR)                     /**< flash memory address to store the antennas deployment state    */
+#define HIBERNATION_PERIOD_ADDR_FLASH       (uint32_t *)(SEGC_ADDR+8)                   /**< Flash memory address to store the desired hibernation period. */
 
 /**< Current sensing circuit definitions */
 #if HAL_VERSION == HAL_V2_0
@@ -206,6 +205,25 @@ uint32_t read_time_state_changed(void);
  */
 void update_operation_mode(uint8_t new_operation_mode);
 
+/**
+ * \brief Sets the hibernation period.
+ *
+ * Writes the desired hibernation period to the non-volatile memory.
+ *
+ * \param[in] min is the new hibernation period in minutes.
+ *
+ * \return None.
+ */
+void set_hibernation_period_min(uint16_t min);
+
+/**
+ * \brief Gets the current hibernation period.
+ *
+ * Reads the current hibernation period from the non-volatile memory.
+ *
+ * \return None.
+ */
+uint16_t get_hibernation_period_min(void);
 
 /**
  * \fn low_power_mode_sleep(void)

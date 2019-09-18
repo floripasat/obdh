@@ -1,7 +1,7 @@
 /*
  * housekeeping_task.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,13 +21,10 @@
  */
 
  /**
- * \file housekeeping_task.h
- *
  * \brief Task that do the housekeeping: update time counter,
  * read the supply voltage and current and manage the operation modes
  *
  * \author Elder Tramontin
- *
  */
 
 #ifndef SRC_HOUSEKEEPING_TASK_H_
@@ -45,7 +42,6 @@
 #define HOUSEKEEPING_TASK_PERIOD_TICKS      ( HOUSEKEEPING_TASK_PERIOD_MS / portTICK_PERIOD_MS )  /**< Housekeeping task period in ticks*/
 
 
-#define MINUTES_IN_A_DAY    1440    /**< 24 hours * 60 minutes = 1440 minutes */
 #define PERIODIC_RESET_TIME 43200   /**< 12 hours * 60 minutes * 60 seconds = 43200 minutes */
 
 /**

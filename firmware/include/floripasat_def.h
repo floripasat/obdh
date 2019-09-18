@@ -1,7 +1,7 @@
 /*
  * floripasat_def.h
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,18 +21,42 @@
  */
 
  /**
- * \file floripasat_def.h
- *
  * \brief Project definitions, structures and macros
  *
  * \author Elder Tramontin
- *
+ * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  */
 
 #ifndef FLORIPASATDEF_H_
 #define FLORIPASATDEF_H_
 
 #include <stdint.h>
+
+#define SATELLITE_CALLSIGN                                  "PY0EFS"    /**< Satellite callsign. */
+
+// Downlink packets
+#define FLORIPASAT_PACKET_DOWNLINK_TELEMETRY                0x10        /**< Downlink packet with telemetry data. */
+#define FLORIPASAT_PACKET_DOWNLINK_PING_ANSWER              0x11        /**< Ping answer. */
+#define FLORIPASAT_PACKET_DOWNLINK_DATA_REQUEST_ANSWER      0x12        /**< Data request answer. */
+#define FLORIPASAT_PACKET_DOWNLINK_HIBERNATION_FEEDBACK     0x13        /**< Hibernation feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_CHARGE_RESET_FEEDBACK    0x14        /**< Charge reset feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST        0x15        /**< Message Broadcast. */
+#define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS         0x16        /**< Payload X status. */
+#define FLORIPASAT_PACKET_DOWNLINK_RUSH_FEEDBACK            0x17        /**< RUSH enable feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY      0x18        /**< Payload X telemetry. */
+
+// Uplink packets
+#define FLORIPASAT_PACKET_UPLINK_PING_REQUEST               0x20        /**< Ping request. */
+#define FLORIPASAT_PACKET_UPLINK_DATA_REQUEST               0x21        /**< Data request. */
+#define FLORIPASAT_PACKET_UPLINK_ENTER_HIBERNATION          0x22        /**< Enter hibernation. */
+#define FLORIPASAT_PACKET_UPLINK_LEAVE_HIBERNATION          0x23        /**< Leave hibernation. */
+#define FLORIPASAT_PACKET_UPLINK_CHARGE_RESET               0x24        /**< Charge reset. */
+#define FLORIPASAT_PACKET_UPLINK_BROADCAST_MESSAGE          0x25        /**< Broadcast message. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST   0x26        /**< Payload X status request. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP             0x27        /**< Payload X swap. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD      0x28        /**< Payload data upload. */
+#define FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE                0x29        /**< RUSH enable. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND      0x30        /**< Payload X telecommand. */
 
 #define has_flag(x,y)   (x & y)
 
@@ -53,8 +77,8 @@
 #define  TEMPERATURES_FLAG          BIT8
 #define  TASK_SCHEDULER_FLAG        BIT9
 
-#define  PAYLOAD1_FLAG              BITA
-#define  PAYLOAD2_FLAG              BITB
+#define  PAYLOAD_RUSH_FLAG          BITA
+#define  PAYLOAD_BRAVE_FLAG         BITB
 
 /*
     *  This flag aware the GS to ignore the other flags, since the content
@@ -82,9 +106,10 @@ typedef struct {
 #define ARGUMENT_LENGTH 84
 
 typedef struct {
-    uint8_t ID[6];
-    uint16_t request_action; /**< the action (send data, shutdown..) */
-    uint8_t arguments[ARGUMENT_LENGTH];
+    uint8_t id;                 /**< Packet ID code. */
+    uint8_t src_callsign[7];    /**< Source callsign. */
+    uint8_t data[220];          /**< Packet data. */
+    uint16_t data_len;          /**< Packet data length in bytes. */
 } telecommand_t;
 
 #define PACKET_LENGTH   122  /**< according NGHAM packet sizes */
@@ -94,7 +119,7 @@ typedef struct {
     //obdh
     uint8_t obdh_uptime             [4];
     uint8_t obdh_status             [6];
-    uint8_t imu                     [24];
+    uint8_t imu                     [12];
     uint8_t obdh_misc               [6];
     uint8_t solar_panels_sensors    [12];
     uint8_t main_radio              [19];
@@ -105,8 +130,8 @@ typedef struct {
     uint8_t temperatures            [21];
     uint8_t energy_level            [1];
     //payloads
-    uint8_t payload1                [40];
-    uint8_t payload2                [7];
+    uint8_t payload_rush            [64];
+    uint8_t payload_brave           [7];
 } data_packet_t;
 
 
@@ -138,7 +163,7 @@ typedef struct {
             uint16_t segment_number;
         }bitstream_status_replay;
     }data;
-} payload2_downlink_t;
+} payload_brave_downlink_t;
 
 typedef struct {
     uint8_t type;
@@ -147,7 +172,7 @@ typedef struct {
         uint8_t ccsds_telecommand[82];
         uint8_t status_argument[2];
     }data;
-} payload2_uplink_t;
+} payload_brave_uplink_t;
 
 
 /**
@@ -163,9 +188,9 @@ typedef struct {
  * \brief valid operation modes of the satellite
  * \{
  */
-#define NORMAL_OPERATION_MODE       0x10    /**< Normal operation               */
-#define BOOT_MODE                   0x20    /**< While configuring the basic settings and buses  */
-#define SHUTDOWN_MODE               0x30    /**< 24-hours shutdown              */
+#define NORMAL_OPERATION_MODE       0x10    /**< Normal operation */
+#define BOOT_MODE                   0x20    /**< While configuring the basic settings and buses */
+#define HIBERNATION_MODE            0x30    /**< Hibernation (no RF transmissions) */
 #define ANTENNA_DEPLOYMENT_MODE     0x40    /**< While waiting to do the deployment (45 minutes) */
 //! \} End of operation_modes
 
@@ -180,28 +205,6 @@ typedef struct {
 #define ENERGY_L3_MODE              0x03    /**< Energy level 3 - Tx on , Beacon 20s, TLM 120s, Payload off */
 #define ENERGY_L4_MODE              0x04    /**< Energy level 4 - Tx off, Beacon 30s, TLM off , Payload off */
 //! \} End of energy_levels
-
-/**
- * \defgroup uplink_commands
- * \brief valid commands to be sent from the earth segment
- * \{
- */
-#define REQUEST_DATA_TELECOMMAND            0x7764    /**< uplink command to request whole data orbit - dw */
-#define REQUEST_SHUTDOWN_TELECOMMAND        0x6473    /**< uplink command to request a 24 hours shutdown - sd */
-#define REQUEST_CHARGE_RESET_TELECOMMAND    0x7263    /**< uplink command to request a battery charge reset - cr */
-#define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
-#define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
-#define REQUEST_CCSDS_TELECOMMAND           0x5854    /**< command to request telecommand to playloadx*/
-#define REQUEST_BITSTREAM_UPLOAD            0x5855    /**< command to request playloadx bitstream upload*/
-#define REQUEST_BITSTREAM_SWAP              0x4358    /**< command to request a swap version of payloadx bitstream*/
-#define REQUEST_BITSTREAM_STATUS            0x5853    /**< command to request the status of bitstream frames*/
-
-//! \} End of uplink_commands
-
-/**
- * \brief Downlink answer action for repeater telecommand
- */
-#define ACTION_REPEAT_TELECOMMAND           0x7262    /**< broadcast repeater answer - br */
 
 /**
  * \defgroup communications
@@ -231,10 +234,14 @@ typedef struct {
 
 //#define _DEBUG_AS_LINK  0               /**< to simulate the radio link through UART */
 
+#define MINUTES_BEFORE_DEPLOY_ANTENNAS  45
 
-
-#define PING_MSG "Hello from FloripaSat, telecommand received from "
-
+// RUSH telecommand replies
+#define RUSH_DISABLED_MSG           "RUSH experiment disabled"
+#define RUSH_EN_OK_MSG              "RUSH experiment enabled for : "
+#define RUSH_EN_OUT_OF_RANGE_MSG    "Out of range, RUSH experiment enabled for : 10 minutes"
+#define RUSH_OUT_OF_BAT_MSG         "RUSH experiment disabled: out of battery"
+#define RUSH_QUEUE_FULL_MSG         "RUSH command queue full"
 
 #define BOOTING_MSG     "FSAT booting...\n Firmware v 0.9 - 07/07/2017\n\n"
 #define CLOCK_INFO_MSG  " CLOCKS:\n  Master = 16MHz\n  Subsystem master = 16MHz\n  Auxiliary = 32768kHz \n\n"

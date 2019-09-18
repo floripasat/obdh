@@ -35,13 +35,12 @@
 #include "../include/floripasat_def.h"
 #include "../src/store_data_task.h"
 /**
- * \fn decode_telecommand
  * \brief This function translates a raw data into a telecommand structure
  * \param raw_package is the address of the start byte of the command data
  * \return a telecommand packet, in telecommand_t structure
  *
  */
-telecommand_t decode_telecommand(uint8_t *raw_package);
+telecommand_t decode_telecommand(uint8_t *raw_package, uint16_t len);
 
 /**
  * \fn decode_request_data_telecommand

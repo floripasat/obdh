@@ -31,45 +31,30 @@
 
 #include <link.h>
 
-telecommand_t  decode_telecommand(uint8_t *raw_package) {
+telecommand_t  decode_telecommand(uint8_t *raw_package, uint16_t len) {
     telecommand_t telecommand;
 
-    telecommand.ID[0] = raw_package[0];
-    telecommand.ID[1] = raw_package[1];
-    telecommand.ID[2] = raw_package[2];
-    telecommand.ID[3] = raw_package[3];
-    telecommand.ID[4] = raw_package[4];
-    telecommand.ID[5] = raw_package[5];
+    // ID code
+    telecommand.id = raw_package[0];
 
-    telecommand.request_action = ((uint16_t)raw_package[7]<<8) + (uint16_t)(raw_package[6]);
+    // Source callsign
+    telecommand.src_callsign[0] = raw_package[1];
+    telecommand.src_callsign[1] = raw_package[2];
+    telecommand.src_callsign[2] = raw_package[3];
+    telecommand.src_callsign[3] = raw_package[4];
+    telecommand.src_callsign[4] = raw_package[5];
+    telecommand.src_callsign[5] = raw_package[6];
+    telecommand.src_callsign[6] = raw_package[7];
 
-    for (int i =0; i < ARGUMENT_LENGTH; i++)
+    // Data
+    uint16_t i = 0;
+    for(i=0; i<len; i++)
     {
-        telecommand.arguments[i] = raw_package[i+8];
+        telecommand.data[i] = raw_package[i+8];
     }
-    /*
-    telecommand.arguments[0] = raw_package[8];
-    telecommand.arguments[1] = raw_package[9];
-    telecommand.arguments[2] = raw_package[10];
-    telecommand.arguments[3] = raw_package[11];
-    telecommand.arguments[4] = raw_package[12];
-    telecommand.arguments[5] = raw_package[13];
-    telecommand.arguments[6] = raw_package[14];
-    telecommand.arguments[7] = raw_package[15];
 
-    telecommand.reserved[0] = raw_package[16];
-    telecommand.reserved[1] = raw_package[17];
-    telecommand.reserved[2] = raw_package[18];
-    telecommand.reserved[3] = raw_package[19];
-    telecommand.reserved[4] = raw_package[20];
-    telecommand.reserved[5] = raw_package[21];
-    telecommand.reserved[6] = raw_package[22];
-    telecommand.reserved[7] = raw_package[23];
-    telecommand.reserved[8] = raw_package[24];
-    telecommand.reserved[9] = raw_package[25];
-    telecommand.reserved[10] = raw_package[26];
-    telecommand.reserved[11] = raw_package[27];
-    */
+    // Data length in bytes
+    telecommand.data_len = len-8;
 
     return telecommand;
 }

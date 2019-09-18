@@ -45,6 +45,7 @@
 #include "radio_config_Si4463.h"
 
 const uint8_t RF4463_CONFIGURATION_DATA[] = RADIO_CONFIGURATION_DATA_ARRAY;
+bool rf4463_wait_packet_sent();
 
 uint8_t rf4463_init()
 {

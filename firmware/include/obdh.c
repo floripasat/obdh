@@ -1,7 +1,7 @@
 /*
  * obdh.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina.
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,13 +21,11 @@
  */
 
  /**
- * \file obdh.c
- *
  * \brief Main functions of the OBDH module
  *
  * \author Elder Tramontin
- *
  */
+
 #include "obdh.h"
 
 void create_tasks( void ) {
@@ -43,17 +41,18 @@ void create_tasks( void ) {
     eps_queue                  = xQueueCreate( 5, sizeof( eps_package_t ) );
     ttc_queue                  = xQueueCreate( 1, sizeof( uint8_t ) );
     tx_queue                   = xQueueCreate( 1, sizeof( uint8_t ) );
-    payload1_queue             = xQueueCreate( 5, sizeof( satellite_data.payload1) );
-    payload2_queue             = xQueueCreate( 5, sizeof( satellite_data.payload2) );
+    payload_rush_queue         = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
+    payload_brave_queue        = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
     status_eps_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload1_queue      = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload2_queue      = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload_rush_queue  = xQueueCreate( 1, sizeof(uint8_t) );
+    command_to_payload_rush_queue = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
+    status_payload_brave_queue = xQueueCreate( 1, sizeof(uint8_t) );
     status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
     eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
 #ifdef PAYLOAD_X
-    payload2_uplink_queue       = xQueueCreate( 5, sizeof(payload2_uplink_t));
-    payload2_downlink_queue      = xQueueCreate( 5, sizeof(payload2_downlink_t));
+    payload_brave_uplink_queue       = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
+    payload_brave_downlink_queue      = xQueueCreate( 5, sizeof(payload_brave_downlink_t));
 #endif
 
     /**
@@ -76,10 +75,10 @@ void create_tasks( void ) {
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 #ifdef PAYLOAD_X
-    xTaskCreate( payload2_interface_task, "Payload2",3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD2_INTERFACE_TASK_PRIORITY, &payload2_interface_task_handle);
+    xTaskCreate( payload_brave_interface_task, "Payload2",3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
 #endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
-//    xTaskCreate( payload1_interface_task, "Payload1", configMINIMAL_STACK_SIZE, NULL, PAYLOAD1_INTERFACE_TASK_PRIORITY, &payload1_interface_task_handle );
+    xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
 #ifdef _DEBUG
     //xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
 #endif
@@ -180,9 +179,16 @@ void hibernate(void) {
             update_time_counter();
         }
 
-    } while (read_time_counter() < 45); /**< loop until reach 45 minutes */
+    } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); /**< loop until reach 45 minutes */
 
     stop_timer_b();                     /**< stop counting time over the timer B */
+}
+
+void reset_memory(void) {
+    flash_erase(SEGD_ADDR);
+    flash_erase(SEGC_ADDR);
+    flash_erase(SEGB_ADDR);
+    flash_erase(SEGA_ADDR);
 }
 
 void vApplicationTickHook( void ) {
