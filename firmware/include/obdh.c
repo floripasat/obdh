@@ -51,8 +51,8 @@ void create_tasks( void ) {
     status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
     eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
 #ifdef PAYLOAD_X
-    payload2_uplink_queue       = xQueueCreate( 5, sizeof(payload2_uplink_t));
-    payload2_downlink_queue      = xQueueCreate( 5, sizeof(payload2_downlink_t));
+    payload_brave_uplink_queue       = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
+    payload_brave_downlink_queue      = xQueueCreate( 5, sizeof(payload_brave_downlink_t));
 #endif
 
     /**
@@ -75,7 +75,7 @@ void create_tasks( void ) {
     xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
     xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 #ifdef PAYLOAD_X
-    xTaskCreate( payload2_interface_task, "Payload2",3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD2_INTERFACE_TASK_PRIORITY, &payload2_interface_task_handle);
+    xTaskCreate( payload_brave_interface_task, "Payload2",3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
 #endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
     xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );

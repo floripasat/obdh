@@ -77,6 +77,7 @@ void send_reset_charge_command(telecommand_t telecommand);
 void radioamateur_repeater(telecommand_t telecommand);
 void enable_rush(telecommand_t telecommand);
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
+void send_payload_brave_data(payload_brave_downlink_t *answer);
 
 void communications_task( void *pvParameters ) {
     TickType_t last_wake_time;
@@ -85,9 +86,9 @@ void communications_task( void *pvParameters ) {
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
-    payload2_downlink_t read_pkt;
-    payload2_uplink_t write_pkt;
-    uint8_t i = 0;
+    payload_brave_downlink_t read_pkt;
+    payload_brave_uplink_t write_pkt;
+
 
     uint8_t energy_level;
     uint8_t radio_status = 0;
@@ -140,34 +141,28 @@ void communications_task( void *pvParameters ) {
                     }
 
                     break;
-                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST:
-                    break;
-                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP:
-                    break;
-                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD:
-                    break;
                 case FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE:
                     enable_rush(received_telecommand);
 
                     break;
 #ifdef PAYLOAD_X
-                case REQUEST_CCSDS_TELECOMMAND:
-                    write_pkt.type = PAYLOAD2_CCSDS_TELECOMMAND;
-                    memcpy(write_pkt.data.ccsds_telecommand, received_telecommand.arguments, sizeof(write_pkt.data.ccsds_telecommand));
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND:
+                    write_pkt.type = PAYLOAD_BRAVE_CCSDS_TELECOMMAND;
+                    memcpy(write_pkt.data.ccsds_telecommand, received_telecommand.data, sizeof(write_pkt.data.ccsds_telecommand));
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
-                case REQUEST_BITSTREAM_UPLOAD:
-                    write_pkt.type = PAYLOAD2_BITSTREAM_UPLOAD;
-                    memcpy(write_pkt.data.bitstream_upload, received_telecommand.arguments, sizeof(write_pkt.data.bitstream_upload));
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD:
+                    write_pkt.type = PAYLOAD_BRAVE_BITSTREAM_UPLOAD;
+                    memcpy(write_pkt.data.bitstream_upload, received_telecommand.data, sizeof(write_pkt.data.bitstream_upload));
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
-                case REQUEST_BITSTREAM_SWAP:
-                    write_pkt.type = PAYLOAD2_BITSTREAM_SWAP;
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP:
+                    write_pkt.type = PAYLOAD_BRAVE_BITSTREAM_SWAP;
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
-                case REQUEST_BITSTREAM_STATUS:
-                    write_pkt.type = PAYLOAD2_BITSTREAM_STATUS_REQUEST;
-                    xQueueSendToBack(payload2_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
+                case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_STATUS_REQUEST:
+                    write_pkt.type = PAYLOAD_BRAVE_BITSTREAM_STATUS_REQUEST;
+                    xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
                     break;
 #endif
                 default:
@@ -213,9 +208,9 @@ void communications_task( void *pvParameters ) {
             vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
         }
 #ifdef PAYLOAD_X
-        if(enable_repeater == ENABLE_REPEATER_TRANSMISSION){
-            if(xQueueReceive(payload2_downlink_queue, &read_pkt, 0) == pdPASS){
-                send_payload2_data(&read_pkt);
+        if(energy_level == ENERGY_L1_MODE || energy_level == ENERGY_L2_MODE){
+            if(xQueueReceive(payload_brave_downlink_queue, &read_pkt, 0) == pdPASS){
+                send_payload_brave_data(&read_pkt);
             }
         }
 #endif
@@ -727,7 +722,7 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
     }
 }
 
-void send_payload2_data(payload2_downlink_t *answer) {
+void send_payload_brave_data(payload_brave_downlink_t *answer) {
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
@@ -735,10 +730,10 @@ void send_payload2_data(payload2_downlink_t *answer) {
 
     switch (answer->type)
     {
-    case PAYLOAD2_BITSTREAM_STATUS_REPLAY:
+    case PAYLOAD_BRAVE_BITSTREAM_STATUS_REPLAY:
         ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.bitstream_status_replay));
         break;
-    case PAYLOAD2_CCSDS_TELEMETRY:
+    case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
         ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.ccsds_telemetry));
         break;
     default:

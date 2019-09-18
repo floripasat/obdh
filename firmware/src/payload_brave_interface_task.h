@@ -29,8 +29,8 @@
  *
  */
 
-#ifndef SRC_PAYLOAD2_INTERFACE_TASK_H_
-#define SRC_PAYLOAD2_INTERFACE_TASK_H_
+#ifndef SRC_PAYLOAD_BRAVE_INTERFACE_TASK_H_
+#define SRC_PAYLOAD_BRAVE_INTERFACE_TASK_H_
 
 #define PAYLOAD_X
 
@@ -39,28 +39,28 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "task_queues.h"
-#include "../interface/payload2.h"
+#include "../interface/payload_brave.h"
 #include "../include/msp_internal.h"
 /*
  * PRIORITY =   5
  * FREQUENCY =  1Hz
  */
 
-#define PAYLOAD2_INTERFACE_TASK_PRIORITY          5
-#define PAYLOAD2_INTERFACE_TASK_PERIOD_MS         1000
-#define PAYLOAD2_INTERFACE_TASK_PERIOD_TICKS      ( PAYLOAD2_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
+#define PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY          5
+#define PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_MS         1000
+#define PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_TICKS      ( PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**
  * \var static xTaskHandle payload1_interface_task_handle
  * \brief variable which holds the task reference
  */
-static xTaskHandle payload2_interface_task_handle;
+static xTaskHandle payload_brave_interface_task_handle;
 
 /**
  * \fn void payload1_interface_task( void *pvParameters )
  * The task witch do communication with the payload1 module
  * \param pvParameters Not used
  */
-void payload2_interface_task( void *pvParameters );
+void payload_brave_interface_task( void *pvParameters );
 
 #endif /* SRC_PAYLOAD1_INTERFACE_TASK_H_ */

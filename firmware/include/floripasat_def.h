@@ -43,6 +43,7 @@
 #define FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST        0x15        /**< Message Broadcast. */
 #define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS         0x16        /**< Payload X status. */
 #define FLORIPASAT_PACKET_DOWNLINK_RUSH_FEEDBACK            0x17        /**< RUSH enable feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY      0x18        /**< Payload X telemetry. */
 
 // Uplink packets
 #define FLORIPASAT_PACKET_UPLINK_PING_REQUEST               0x20        /**< Ping request. */
@@ -55,6 +56,7 @@
 #define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP             0x27        /**< Payload X swap. */
 #define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD      0x28        /**< Payload data upload. */
 #define FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE                0x29        /**< RUSH enable. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND      0x30        /**< Payload X telecommand. */
 
 #define has_flag(x,y)   (x & y)
 
@@ -161,7 +163,7 @@ typedef struct {
             uint16_t segment_number;
         }bitstream_status_replay;
     }data;
-} payload2_downlink_t;
+} payload_brave_downlink_t;
 
 typedef struct {
     uint8_t type;
@@ -170,7 +172,7 @@ typedef struct {
         uint8_t ccsds_telecommand[82];
         uint8_t status_argument[2];
     }data;
-} payload2_uplink_t;
+} payload_brave_uplink_t;
 
 
 /**
@@ -205,31 +207,6 @@ typedef struct {
 //! \} End of energy_levels
 
 /**
-<<<<<<< HEAD
- * \defgroup uplink_commands
- * \brief valid commands to be sent from the earth segment
- * \{
- */
-#define REQUEST_DATA_TELECOMMAND            0x7764    /**< uplink command to request whole data orbit - dw */
-#define REQUEST_SHUTDOWN_TELECOMMAND        0x6473    /**< uplink command to request a 24 hours shutdown - sd */
-#define REQUEST_CHARGE_RESET_TELECOMMAND    0x7263    /**< uplink command to request a battery charge reset - cr */
-#define REQUEST_PING_TELECOMMAND            0x6770    /**< ping request - pg */
-#define REQUEST_REPEAT_TELECOMMAND          0x7072    /**< repeater request - rp */
-#define REQUEST_CCSDS_TELECOMMAND           0x5854    /**< command to request telecommand to playloadx*/
-#define REQUEST_BITSTREAM_UPLOAD            0x5855    /**< command to request playloadx bitstream upload*/
-#define REQUEST_BITSTREAM_SWAP              0x4358    /**< command to request a swap version of payloadx bitstream*/
-#define REQUEST_BITSTREAM_STATUS            0x5853    /**< command to request the status of bitstream frames*/
-
-//! \} End of uplink_commands
-
-/**
- * \brief Downlink answer action for repeater telecommand
- */
-#define ACTION_REPEAT_TELECOMMAND           0x7262    /**< broadcast repeater answer - br */
-
-/**
-=======
->>>>>>> master
  * \defgroup communications
  * \brief some team definition of values used in the communications
  * \{
