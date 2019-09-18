@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.16
+ * \version 0.3.0
  *
  * \addtogroup obdh
  */
@@ -160,7 +160,7 @@ void hibernate(void) {
         /*
          * Count 1 minute and store the value in a flash memory
          */
-        if(seconds_counter++ == 60) {
+        if (seconds_counter++ >= 60) {
             seconds_counter = 0;
             update_time_counter();
         }
