@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.3.0
+ * \version 0.3.1
  *
  * \addtogroup obdh
  */
@@ -143,31 +143,45 @@ void setup_hardware(void) {
 }
 
 void hibernate(void) {
+    if (read_time_counter() > MINUTES_BEFORE_DEPLOY_ANTENNAS) {
+        debug_print_event_from_module(DEBUG_INFO, "System", "Deployment hibernation already executed! Skipping...");
+        debug_new_line();
+
+        return;
+    }
+
+    debug_print_event_from_module(DEBUG_WARNING, "System", "Deployment hibernation never executed!");
+    debug_new_line();
+
+    debug_print_event_from_module(DEBUG_INFO, "System", "First deployment attempt in ");
+    debug_print_dec(MINUTES_BEFORE_DEPLOY_ANTENNAS);
+    debug_print_msg(" minute(s)...");
+    debug_new_line();
+
     uint8_t seconds_counter = 0;
 
-    start_timer_b();                    /**< configure and start counting time over the timer B */
-
     do {
-        /*
-         *  Reset Watchdog timers
-         */
+        // Reset Watchdog timers
         wdte_reset_counter();
         wdti_reset_counter();
 
-        low_power_mode_sleep();         /**< Enter in Low-power mode */
-        /**< Wake-up after a interrupt event */
+        __delay_cycles(16000000);       // 1000 ms
 
-        /*
-         * Count 1 minute and store the value in a flash memory
-         */
+        // Count 1 minute and store the value in a flash memory
         if (seconds_counter++ >= 60) {
             seconds_counter = 0;
             update_time_counter();
+
+            debug_print_event_from_module(DEBUG_INFO, "System", "First deployment attempt in ");
+            debug_print_dec(MINUTES_BEFORE_DEPLOY_ANTENNAS - read_time_counter());
+            debug_print_msg(" minute(s)...");
+            debug_new_line();
         }
 
-    } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); /**< loop until reach 45 minutes */
+    } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); // loop until reach 45 minutes
 
-    stop_timer_b();                     /**< stop counting time over the timer B */
+    debug_print_event_from_module(DEBUG_INFO, "System", "Deployment hibernation executed!");
+    debug_new_line();
 }
 
 void reset_memory(void) {
