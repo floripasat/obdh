@@ -32,27 +32,28 @@ void create_tasks( void ) {
     /**
      * Create queues to communicate between tasks
      */
-    obdh_status_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
-    imu_queue                  = xQueueCreate( 5, sizeof( satellite_data.imu ) );
-    obdh_misc_queue            = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
-    obdh_uptime_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
-    solar_panels_queue         = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
-    main_radio_queue           = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
-    eps_queue                  = xQueueCreate( 5, sizeof( eps_package_t ) );
-    ttc_queue                  = xQueueCreate( 1, sizeof( uint8_t ) );
-    tx_queue                   = xQueueCreate( 1, sizeof( uint8_t ) );
-    payload_rush_queue         = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
-    payload_brave_queue        = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
-    status_eps_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload_rush_queue  = xQueueCreate( 1, sizeof(uint8_t) );
-    command_to_payload_rush_queue = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
-    status_payload_brave_queue = xQueueCreate( 1, sizeof(uint8_t) );
-    status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
-    status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
+    obdh_status_queue               = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
+    imu_queue                       = xQueueCreate( 5, sizeof( satellite_data.imu ) );
+    obdh_misc_queue                 = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
+    obdh_uptime_queue               = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
+    solar_panels_queue              = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
+    main_radio_queue                = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
+    eps_queue                       = xQueueCreate( 5, sizeof( eps_package_t ) );
+    ttc_queue                       = xQueueCreate( 1, sizeof( uint8_t ) );
+    tx_queue                        = xQueueCreate( 1, sizeof( uint8_t ) );
+    payload_rush_queue              = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
+    payload_brave_queue             = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
+    status_eps_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload_rush_queue       = xQueueCreate( 1, sizeof(uint8_t) );
+    command_to_payload_rush_queue   = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
+    status_payload_brave_queue      = xQueueCreate( 1, sizeof(uint8_t) );
+    status_mem1_queue               = xQueueCreate( 1, sizeof(uint8_t) );
+    status_imu_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+    eps_charge_queue                = xQueueCreate( 1, sizeof(uint8_t) );
 #ifdef PAYLOAD_X
-    payload_brave_uplink_queue       = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
-    payload_brave_downlink_queue      = xQueueCreate( 5, sizeof(payload_brave_downlink_t));
+    payload_brave_uplink_queue      = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
+    payload_brave_downlink_queue    = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
+    payload_brave_queue             = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
 #endif
 
     /**

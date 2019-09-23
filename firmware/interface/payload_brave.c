@@ -38,8 +38,6 @@ void payload_brave_setup(void) {
 
 uint8_t payload_brave_read(payload_brave_downlink_t *pkt) {
 
-    uint8_t data[FSP_PKT_MAX_LENGTH];
-    uint8_t pkt_lenght;
     uint8_t payload_brave_status = PAYLOAD_BRAVE_OK;
 
     i2c_set_slave(PAYLOAD_BRAVE_BASE_ADDRESS, PAYLOAD_BRAVE_I2C_SLAVE_ADDRESS);  /**< set the slave address to be the EPS address */
@@ -85,7 +83,6 @@ uint8_t payload_brave_read(payload_brave_downlink_t *pkt) {
 uint8_t payload_brave_write(payload_brave_uplink_t *pkt) {
 
     uint8_t pkt_lenght = 0;
-    uint8_t Buffer[PAYLOAD_BRAVE_BITSTREAM_UPLOAD_LENGHT];
     uint8_t payload_brave_status = PAYLOAD_BRAVE_OK;
 
 
@@ -94,7 +91,6 @@ uint8_t payload_brave_write(payload_brave_uplink_t *pkt) {
     i2c_set_mode(PAYLOAD_BRAVE_BASE_ADDRESS, TRANSMIT_MODE);           /**< set to receive */
 
 
-    fsp_init(FSP_ADR_OBDH);
     switch(pkt->type){
     case PAYLOAD_BRAVE_CCSDS_TELECOMMAND:
         pkt_lenght = sizeof(pkt->data.ccsds_telecommand) +1; // +1 because sende the package type

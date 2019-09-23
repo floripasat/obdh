@@ -98,6 +98,7 @@ void payload_brave_interface_task( void *pvParameters ) {
 
                     if(payload_brave_status == PAYLOAD_BRAVE_OK) {
                         xQueueSendToBack(payload_brave_downlink_queue, &read_pkt, portMAX_DELAY);          /**< send data through queue  */
+                        xQueueSendToBack(payload_brave_queue, &read_pkt, portMAX_DELAY);          /**< send data through queue  */
                     }
 
                 }

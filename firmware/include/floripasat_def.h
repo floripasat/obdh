@@ -115,6 +115,29 @@ typedef struct {
 #define PACKET_LENGTH   122  /**< according NGHAM packet sizes */
 
 typedef struct {
+    uint8_t type;
+    union{
+        struct{
+            uint8_t segment[192];
+            uint8_t segment_number;
+        }ccsds_telemetry;
+        struct {
+            uint8_t status_segment[200];
+            uint16_t segment_number;
+        }bitstream_status_replay;
+    }data;
+} payload_brave_downlink_t;
+
+typedef struct {
+    uint8_t type;
+    union{
+        uint8_t bitstream_upload[84];
+        uint8_t ccsds_telecommand[82];
+        uint8_t status_argument[2];
+    }data;
+} payload_brave_uplink_t;
+
+typedef struct {
     uint16_t package_flags;
     //obdh
     uint8_t obdh_uptime             [4];
@@ -131,7 +154,7 @@ typedef struct {
     uint8_t energy_level            [1];
     //payloads
     uint8_t payload_rush            [64];
-    uint8_t payload_brave           [7];
+    payload_brave_downlink_t payload_brave;
 } data_packet_t;
 
 
@@ -150,29 +173,6 @@ typedef struct {
     beacon_packet_t data;           /**< valid data */
     uint8_t crc_result;             /**< 8-bit crc value of the data */
 } ttc_packet_t;
-
-typedef struct {
-    uint8_t type;
-    union{
-        struct{
-            uint8_t segment[192];
-            uint8_t segment_number;
-        }ccsds_telemetry;
-        struct {
-            uint8_t status_segment[218];
-            uint16_t segment_number;
-        }bitstream_status_replay;
-    }data;
-} payload_brave_downlink_t;
-
-typedef struct {
-    uint8_t type;
-    union{
-        uint8_t bitstream_upload[84];
-        uint8_t ccsds_telecommand[82];
-        uint8_t status_argument[2];
-    }data;
-} payload_brave_uplink_t;
 
 
 /**

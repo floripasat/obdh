@@ -208,7 +208,7 @@ void communications_task( void *pvParameters ) {
             vTaskDelayUntil( (TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS );
         }
 #ifdef PAYLOAD_X
-        if(energy_level == ENERGY_L1_MODE || energy_level == ENERGY_L2_MODE){
+        if(operation_mode == NORMAL_OPERATION_MODE){
             if(xQueueReceive(payload_brave_downlink_queue, &read_pkt, 0) == pdPASS){
                 send_payload_brave_data(&read_pkt);
             }
@@ -255,9 +255,9 @@ void send_periodic_data(void) {
     satellite_data.package_flags |= WHOLE_ORBIT_DATA_FLAG;
 
     // Packet Data
-    memcpy(pkt_pl+8, (uint8_t *)&satellite_data, sizeof(satellite_data));
+    memcpy(pkt_pl+8, (uint8_t *)&satellite_data, sizeof(satellite_data) - sizeof(satellite_data.payload_brave));
 
-    ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(satellite_data)+8);
+    ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(satellite_data) - sizeof(satellite_data.payload_brave) + 8);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
@@ -342,7 +342,7 @@ void send_requested_data(telecommand_t telecommand) {
     read_position = calculate_read_position(rqt_packet);
 
     if (rqt_packet.packages_count-- > 0) {  // first packet to be sent -> send all fields of a frame
-        package_size = get_packet(to_send_package, ALL_FLAGS, read_position++);
+        package_size = get_packet(to_send_package, ALL_FLAGS & (~PAYLOAD_BRAVE_FLAG), read_position++);
 
         for(i=0; i<package_size; i++) {
             pkt_pl[i+1+7+7] = to_send_package[i];
@@ -351,11 +351,25 @@ void send_requested_data(telecommand_t telecommand) {
         if (package_size > 0) {
             request_antenna_mutex();
             send_data(pkt_pl, 1+7+7+package_size);
+        }
+
+        if(rqt_packet.flags & PAYLOAD_BRAVE_FLAG)
+        {
+            package_size = get_packet(to_send_package, PAYLOAD_BRAVE_FLAG, read_position++);
+
+            for(i=0; i<package_size; i++) {
+                pkt_pl[i+1+7+7] = to_send_package[i];
+            }
+
+            if (package_size > 0) {
+                request_antenna_mutex();
+                send_data(pkt_pl, 1+7+7+package_size);
+            }
         }
     }
 
     while(rqt_packet.packages_count-- > 0) {
-        package_size = get_packet(to_send_package, rqt_packet.flags, read_position++);
+        package_size = get_packet(to_send_package, rqt_packet.flags & (~PAYLOAD_BRAVE_FLAG), read_position++);
 
         for(i=0; i<package_size; i++) {
             pkt_pl[i+1+7+7] = to_send_package[i];
@@ -364,6 +378,20 @@ void send_requested_data(telecommand_t telecommand) {
         if (package_size > 0) {
             request_antenna_mutex();
             send_data(pkt_pl, 1+7+7+package_size);
+        }
+
+        if(rqt_packet.flags & PAYLOAD_BRAVE_FLAG)
+        {
+            package_size = get_packet(to_send_package,PAYLOAD_BRAVE_FLAG, read_position++);
+
+            for(i=0; i<package_size; i++) {
+                pkt_pl[i+1+7+7] = to_send_package[i];
+            }
+
+            if (package_size > 0) {
+                request_antenna_mutex();
+                send_data(pkt_pl, 1+7+7+package_size);
+            }
         }
     }
 
@@ -722,19 +750,54 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
     }
 }
 
-void send_payload_brave_data(payload_brave_downlink_t *answer) {
+void send_payload_brave_data(payload_brave_downlink_t *answer)
+{
+    if (read_current_operation_mode() == HIBERNATION_MODE)
+    {
+        return;
+    }
+
     NGHam_TX_Packet ngham_packet;
     uint8_t ngham_pkt_str[266];
     uint16_t ngham_pkt_str_len;
 
+    uint8_t pkt_pl[220];
+
+
+
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++)
+    {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+   /*
+    *  This flag aware the GS to ignore the other flags, since the content
+    *  of the frame is the whole data, and may disagree with the indication
+    *  provided by the bit-flags.
+    */
+    // Packet Data
+    pkt_pl[8] = PAYLOAD_BRAVE_FLAG;
+    pkt_pl[9] = answer->type;
 
     switch (answer->type)
     {
     case PAYLOAD_BRAVE_BITSTREAM_STATUS_REPLAY:
-        ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.bitstream_status_replay));
+        // Packet ID code
+        pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS;
+
+        memcpy(pkt_pl+10, (uint8_t *)&satellite_data, sizeof(answer->data.bitstream_status_replay));
+        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 10);
         break;
     case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
-        ngham_TxPktGen(&ngham_packet, (uint8_t *)&answer->data, sizeof(answer->data.ccsds_telemetry));
+        // Packet ID code
+        pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY;
+
+        memcpy(pkt_pl+10, (uint8_t *)&satellite_data, sizeof(answer->data.ccsds_telemetry));
+        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 10);
         break;
     default:
         return;
