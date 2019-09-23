@@ -789,14 +789,14 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
         // Packet ID code
         pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS;
 
-        memcpy(pkt_pl+10, (uint8_t *)&satellite_data, sizeof(answer->data.bitstream_status_replay));
+        memcpy(pkt_pl+10, answer->data.bitstream_status_replay, sizeof(answer->data.bitstream_status_replay));
         ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 10);
         break;
     case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
         // Packet ID code
         pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY;
 
-        memcpy(pkt_pl+10, (uint8_t *)&satellite_data, sizeof(answer->data.ccsds_telemetry));
+        memcpy(pkt_pl+10, answer->data.ccsds_telemetry, sizeof(answer->data.ccsds_telemetry));
         ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 10);
         break;
     default:
