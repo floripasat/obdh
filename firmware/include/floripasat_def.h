@@ -56,7 +56,7 @@
 #define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP             0x27        /**< Payload X swap. */
 #define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD      0x28        /**< Payload data upload. */
 #define FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE                0x29        /**< RUSH enable. */
-#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND      0x30        /**< Payload X telecommand. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND      0x2A        /**< Payload X telecommand. */
 
 #define has_flag(x,y)   (x & y)
 
