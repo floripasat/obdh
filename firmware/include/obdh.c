@@ -20,44 +20,43 @@
  *
  */
 
-/**
+ /**
  * \brief Main functions of the OBDH module
  *
  * \author Elder Tramontin
- *
- * \version 0.3.1
- *
- * \addtogroup obdh
  */
-
-#include "../interface/debug/debug.h"
 
 #include "obdh.h"
 
 void create_tasks( void ) {
-    /*
+    /**
      * Create queues to communicate between tasks
      */
-    obdh_status_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
-    imu_queue                  = xQueueCreate( 5, sizeof( satellite_data.imu ) );
-    obdh_misc_queue            = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
-    obdh_uptime_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
-    solar_panels_queue         = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
-    main_radio_queue           = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
-    eps_queue                  = xQueueCreate( 5, sizeof( eps_package_t ) );
-    ttc_queue                  = xQueueCreate( 1, sizeof( uint8_t ) );
-    tx_queue                   = xQueueCreate( 1, sizeof( uint8_t ) );
-    payload_rush_queue         = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
-    payload_brave_queue        = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
-    status_eps_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload_rush_queue  = xQueueCreate( 1, sizeof(uint8_t) );
-    command_to_payload_rush_queue = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
-    status_payload_brave_queue = xQueueCreate( 1, sizeof(uint8_t) );
-    status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
-    status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
+    obdh_status_queue               = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
+    imu_queue                       = xQueueCreate( 5, sizeof( satellite_data.imu ) );
+    obdh_misc_queue                 = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
+    obdh_uptime_queue               = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
+    solar_panels_queue              = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
+    main_radio_queue                = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
+    eps_queue                       = xQueueCreate( 5, sizeof( eps_package_t ) );
+    ttc_queue                       = xQueueCreate( 1, sizeof( uint8_t ) );
+    tx_queue                        = xQueueCreate( 1, sizeof( uint8_t ) );
+    payload_rush_queue              = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
+    payload_brave_queue             = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
+    status_eps_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload_rush_queue       = xQueueCreate( 1, sizeof(uint8_t) );
+    command_to_payload_rush_queue   = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
+    status_payload_brave_queue      = xQueueCreate( 1, sizeof(uint8_t) );
+    status_mem1_queue               = xQueueCreate( 1, sizeof(uint8_t) );
+    status_imu_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+    eps_charge_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+#ifdef PAYLOAD_X
+    payload_brave_uplink_queue      = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
+    payload_brave_downlink_queue    = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
+    payload_brave_queue             = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
+#endif
 
-    /*
+    /**
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
      */
     spi1_semaphore   = xSemaphoreCreateMutex();
@@ -65,123 +64,125 @@ void create_tasks( void ) {
     fsp_semaphore    = xSemaphoreCreateMutex();
     flash_semaphore  = xSemaphoreCreateMutex();
 
-    /*
+    /**
      * Create each task: links with a routine, allocates the requested task
      * stack size, sets the priority, passes parameters and get a handler
      */
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
-    xTaskCreate( communications_task, "Communications", 6 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
+    xTaskCreate( communications_task, "Communications", 7 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( store_data_task, "StoreData", 11 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
     xTaskCreate( ttc_interface_task, "TT&C", 4 * configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
-    xTaskCreate( eps_interface_task, "EPS", 512, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
-//    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
+    xTaskCreate( eps_interface_task, "EPS", configMINIMAL_STACK_SIZE, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
+    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
+#ifdef PAYLOAD_X
+    xTaskCreate( payload_brave_interface_task, "Payload2",3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
+#endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
-//    xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
+    xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
+#ifdef _DEBUG
+    //xTaskCreate( debug_task, "DEBUG", 4 * configMINIMAL_STACK_SIZE, NULL, DEBUG_TASK_PRIORITY, &debug_task_handle);
+#endif
 }
 
 void gpio_setup() {
     //TODO: set the configuration of every pins. //MAGNETORQUER   //SD
-    debug_print_event_from_module(DEBUG_INFO, "GPIO", "Initializing status LED...");
-    debug_new_line();
-    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            // Led pin setup
+    BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            /**< Led pin setup */
 
-    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            // disable memory
+
+    BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            /**< disable memory */
     BIT_SET(uSDCard_CE_DIR, uSDCard_CE_PIN);
 
     rf4463_gpio_init();
 }
 
-void setup_hardware(void) {
+void setup_hardware( void ) {
+    uint8_t test_result;
+
     taskDISABLE_INTERRUPTS();
 
     gpio_reset();
 
-    // Configure and reset the watchdog timers
+    /**
+     *  Configure and reset the watchdog timers
+     */
     wdti_setup(WATCHDOG, WD_16_SEC);
     wdte_setup();
     wdte_reset_counter();
 
-    // Setup clocks
-    uint8_t test_result = clocks_setup();
+    test_result = clocks_setup();   /**< Setup clocks                                                       */
 
-    // Debug interface and boot messages
-    debug_init();
+    uart0_setup(9600);              /**< Setup UART                                                         */
 
-    if (test_result == TEST_SUCESS) {
-        debug_print_event_from_module(DEBUG_INFO, "System", "Clock configuration: Master = 16 MHz, Subsystem Master = 16 MHz, Auxiliary = 32768 kHz");
-        debug_new_line();
+    /*
+     * Print some booting messages
+     */
+    debug(BOOTING_MSG);
+    debug(UART_INFO_MSG);
+    if(test_result == TEST_SUCESS) {
+        debug(CLOCK_INFO_MSG);
     }
     else {
-        debug_print_event_from_module(DEBUG_ERROR, "System", "Error during clock configuration!");
-        debug_new_line();
+        debug(CLOCK_FAIL_MSG);
     }
 
-    // Setup I2C interfaces 0, 1 and 2
+    /*
+     * Setup I2C interfaces 0, 1 and 2
+     */
     i2c_setup(0);
     i2c_setup(1);
     i2c_setup(2);
 
-    // Setup SPI interfaces 0 and 1
+    debug(I2C_INFO_MSG);            /**< Setup I2C                                                          */
+
+    /*
+     * Setup SPI interfaces 0 and 1
+     */
     spi_setup(0);
     spi_setup(1);
 
-    // Setup ADC
-    adc_setup();
+    debug(SPI_INF_MSG);             /**< Setup SPI                                                          */
 
-    // Setup software SPI
-    sspi_setup();
+    adc_setup();                    /**< Setup ADC                                                          */
 
-    // Setup all GPIO pins according each function
-    gpio_setup();
+    debug(ADC_INFO_MSG);
 
-    update_reset_value();           // Read the previous value, increment it and store again
-    restore_time_counter();         // Read the time counter after a reset and restore it value to RAM
+    sspi_setup();                   /**< Setup software SPI                                                 */
 
-    debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!");
-    debug_new_line();
+    gpio_setup();                   /**< Setup all GPIO pins according each function                        */
+
+    update_reset_value();           /**< Read the previous value, increment it and store again              */
+    restore_time_counter();         /**< Read the time counter after a reset and restore it value to RAM    */
+
+    debug("\n --- Boot completed ---\n");
 }
 
 void hibernate(void) {
-    if (read_time_counter() > MINUTES_BEFORE_DEPLOY_ANTENNAS) {
-        debug_print_event_from_module(DEBUG_INFO, "System", "Deployment hibernation already executed! Skipping...");
-        debug_new_line();
-
-        return;
-    }
-
-    debug_print_event_from_module(DEBUG_WARNING, "System", "Deployment hibernation never executed!");
-    debug_new_line();
-
-    debug_print_event_from_module(DEBUG_INFO, "System", "First deployment attempt in ");
-    debug_print_dec(MINUTES_BEFORE_DEPLOY_ANTENNAS);
-    debug_print_msg(" minute(s)...");
-    debug_new_line();
-
     uint8_t seconds_counter = 0;
 
+    start_timer_b();                    /**< configure and start counting time over the timer B */
+
     do {
-        // Reset Watchdog timers
+        /*
+         *  Reset Watchdog timers
+         */
         wdte_reset_counter();
         wdti_reset_counter();
 
-        __delay_cycles(16000000);       // 1000 ms
+        low_power_mode_sleep();         /**< Enter in Low-power mode */
+        /**< Wake-up after a interrupt event */
 
-        // Count 1 minute and store the value in a flash memory
-        if (seconds_counter++ >= 60) {
+        /*
+         * Count 1 minute and store the value in a flash memory
+         */
+        if(seconds_counter++ == 60) {
             seconds_counter = 0;
             update_time_counter();
-
-            debug_print_event_from_module(DEBUG_INFO, "System", "First deployment attempt in ");
-            debug_print_dec(MINUTES_BEFORE_DEPLOY_ANTENNAS - read_time_counter());
-            debug_print_msg(" minute(s)...");
-            debug_new_line();
         }
 
-    } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); // loop until reach 45 minutes
+    } while (read_time_counter() < MINUTES_BEFORE_DEPLOY_ANTENNAS); /**< loop until reach 45 minutes */
 
-    debug_print_event_from_module(DEBUG_INFO, "System", "Deployment hibernation executed!");
-    debug_new_line();
+    stop_timer_b();                     /**< stop counting time over the timer B */
 }
 
 void reset_memory(void) {
@@ -270,4 +271,4 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName ) {
 }
 /*-----------------------------------------------------------*/
 
-//! \} End of obdh group
+

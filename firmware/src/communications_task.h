@@ -24,12 +24,6 @@
  * \brief Task that deals with the downlink and uplink communications
  *
  * \author Elder Tramontin
- *
- * \version 0.2.11
- *
- * \defgroup communications_task Communications
- * \ingroup tasks
- * \{
  */
 
 #ifndef SRC_COMMUNICATIONS_TASK_H_
@@ -45,6 +39,8 @@
 #include "../rf4463/rf4463.h"
 #include "../rf4463/rf4463_registers.h"
 #include "../libs/ngham/ngham.h"
+#include "../interface/payload_brave.h"
+#include "payload_brave_interface_task.h"
 
 /*
  * PRIORITY =   5
@@ -71,5 +67,3 @@ static xTaskHandle communications_task_handle;
 void communications_task( void *pvParameters );
 
 #endif /* SRC_COMMUNICATIONS_TASK_H_ */
-
-//! \} End of communication_tasks group
