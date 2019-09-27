@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.11
+ * \version 0.3.2
  *
  * \addtogroup communication_task
  * \{
@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include "../interface/debug/debug.h"
+#include "../config.h"
 
 #include "communications_task.h"
 #ifdef _DEBUG_AS_LINK
@@ -275,7 +276,13 @@ void send_periodic_data(void) {
     ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(satellite_data)+8);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 }
 #endif
@@ -293,7 +300,12 @@ void send_data(uint8_t *data, int16_t data_len) {
         ngham_TxPktGen(&ngham_packet, data, data_len);
         ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
         rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
 
 //        data_len -= 220;
 //    }
@@ -415,7 +427,13 @@ void answer_ping(telecommand_t telecommand) {
     ngham_TxPktGen(&ngham_packet, pkt_pl, 15);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 }
 
@@ -464,7 +482,13 @@ void radioamateur_repeater(telecommand_t telecommand) {
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+7+msg_len);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 }
 
@@ -509,7 +533,13 @@ void enter_in_hibernation(telecommand_t telecommand) {
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+2);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 
     // Executing the enter hibernation command
@@ -577,7 +607,13 @@ void send_reset_charge_command(telecommand_t telecommand) {
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 
     // Executing the charge reset command
@@ -670,7 +706,13 @@ void enable_rush(telecommand_t telecommand)
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+1+1);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 
     // Executing the telecommand
