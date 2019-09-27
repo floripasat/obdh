@@ -1,41 +1,41 @@
 /*
  * rf4463.c
  * 
- * Copyright (C) 2017, Federal University of Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  * 
- * This file is part of FloripaSat-Beacon.
+ * This file is part of FloripaSat-OBDH.
  * 
- * FloripaSat-Beacon is free software: you can redistribute it and/or modify
+ * FloripaSat-OBDH is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * FloripaSat-Beacon is distributed in the hope that it will be useful,
+ * FloripaSat-OBDH is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with FloripaSat-Beacon. If not, see <http://www.gnu.org/licenses/>.
+ * along with FloripaSat-OBDH. If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 
 /**
- * \file rf4463f30.c
- * 
  * \brief NiceRF RF4463 driver implementation.
  * 
  * This library suits for RF4463PRO and RF4463F30 in FIFO mode.
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 1.0-dev
+ * \version 0.2.18
  * 
  * \date 01/06/2017
  * 
  * \addtogroup rf4463
  * \{
  */
+
+#include "../interface/debug/debug.h"
 
 #include "rf4463.h"
 #include "../hal/obdh_hal.h"
@@ -45,19 +45,23 @@
 #include "radio_config_Si4463.h"
 
 const uint8_t RF4463_CONFIGURATION_DATA[] = RADIO_CONFIGURATION_DATA_ARRAY;
-bool rf4463_wait_packet_sent();
+
+uint8_t rf4463_mode = 0xFF;
 
 uint8_t rf4463_init()
 {
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Initializing device...");
+    debug_new_line();
+
     // Reset the RF4463
     rf4463_power_on_reset();
-    
+
     // Registers configuration
     rf4463_reg_config();
-    
+
     // Set max. TX power
     rf4463_set_tx_power(127);
-    
+
     // Check if the RF4463 is working
     if (rf4463_check_device())
     {
@@ -87,6 +91,9 @@ void rf4463_slave_disable(void) {
 
 void rf4463_gpio_init()
 {
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Initializing GPIO pins...");
+    debug_new_line();
+
     BIT_SET(TTC_RESETn_MAIN_DIR, TTC_RESETn_MAIN_PIN);
     BIT_CLEAR(TTC_GPIO2_MAIN_DIR, TTC_GPIO2_MAIN_PIN);
 
@@ -99,15 +106,18 @@ void rf4463_gpio_init()
 
 void rf4463_reg_config()
 {
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Loading registers values...");
+    debug_new_line();
+
     // Set RF parameter like frequency, data rate, etc.
     rf4463_set_config(RF4463_CONFIGURATION_DATA, sizeof(RF4463_CONFIGURATION_DATA));
-    
+
     uint8_t buf[2];
-    
+
     // Frequency adjust (Tested manually)
     buf[0] = RF4463_XO_TUNE_REG_VALUE;
     rf4463_set_properties(RF4463_PROPERTY_GLOBAL_XO_TUNE, buf, 1);
-    
+
     // TX/RX shares 128 bytes FIFO
     buf[0] = 0x10;
     rf4463_set_properties(RF4463_PROPERTY_GLOBAL_CONFIG, buf, 1);
@@ -116,13 +126,16 @@ void rf4463_reg_config()
 
 void rf4463_power_on_reset()
 {
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Power-on reset...");
+    debug_new_line();
+
     uint8_t buffer[8] = {RF_POWER_UP};
-    
+
     rf4463_shutdown();
     __delay_cycles(DELAY_100_MS_IN_CYCLES);
     rf4463_power_up();
     __delay_cycles(2 * DELAY_10_MS_IN_CYCLES);           // Wait for RF4463 stabilization
-    
+
     // Send power-up command
     rf4463_slave_enable();
     rf4463_spi_write(buffer, 7);
@@ -133,17 +146,32 @@ void rf4463_power_on_reset()
 
 bool rf4463_tx_packet(uint8_t *data, uint8_t len)
 {
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Trying to transmit a packet...");
+    debug_new_line();
+
     // Setting packet size
     rf4463_set_properties(RF4463_PROPERTY_PKT_FIELD_1_LENGTH_7_0, &len, 1);
-    
+
     rf4463_fifo_reset();        // Clear FIFO
     rf4463_write_tx_fifo(data, len);
     rf4463_clear_interrupts();
-    
+
     uint16_t tx_timer = RF4463_TX_TIMEOUT;
-    
+
     rf4463_enter_tx_mode();
-    
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Transmitting a packet: ");
+    uint8_t i = 0;
+    for(i=0; i<len; i++)
+    {
+        debug_print_hex(data[i]);
+        if (i < len-1)
+        {
+            debug_print_msg(",");
+        }
+    }
+    debug_new_line();
+
     while(tx_timer--)
     {
         if (rf4463_wait_packet_sent())         // Wait packet sent interruption
@@ -153,10 +181,10 @@ bool rf4463_tx_packet(uint8_t *data, uint8_t len)
 
         __delay_cycles(DELAY_100_uS_IN_CYCLES);
     }
-    
+
     // If the packet transmission takes longer than expected, resets the radio.
 //    rf4463_init();
-    
+
     return false;
 }
 
@@ -166,7 +194,10 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
     {
         return rf4463_tx_packet(packet, (uint8_t)(len));
     }
-    
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Trying to transmit a long packet...");
+    debug_new_line();
+
     // Setting packet size
     uint8_t buf[2];
     buf[0] = (uint8_t)(len);
@@ -185,10 +216,21 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
     
     uint8_t fifo_buffer[RF4463_TX_FIFO_ALMOST_EMPTY_THRESHOLD];
     uint16_t tx_timer = RF4463_TX_TIMEOUT;
-    uint8_t i = 0;
-    
+    uint16_t i = 0;
+
     rf4463_enter_tx_mode();
-    
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Transmitting data: ");
+    for(i=0; i<len; i++)
+    {
+        debug_print_hex(packet[i]);
+        if (i < len-1)
+        {
+            debug_print_msg(",");
+        }
+    }
+    debug_new_line();
+
     while(tx_timer--)
     {
         if (rf4463_wait_gpio1())
@@ -204,7 +246,7 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
 
                 rf4463_write_tx_fifo(fifo_buffer, bytes_to_transfer);
                 tx_timer = RF4463_TX_TIMEOUT;
-                
+
                 while(tx_timer--)
                 {
                     if (rf4463_wait_packet_sent())         // Wait packet sent interruption
@@ -229,31 +271,31 @@ bool rf4463_tx_long_packet(uint8_t *packet, uint16_t len)
         }
         __delay_cycles(160); //10us
     }
-    
+
     // If the packet transmission takes longer than expected, resets the radio.
 //    rf4463_init();
-    
+
     return false;
 }
 
 uint8_t rf4463_rx_packet(uint8_t *rx_buf, uint8_t read_len)
 {
-    uint8_t rx_len = rf4463_read_rx_fifo(rx_buf, read_len);   // Read data from the FIFO
-    rf4463_fifo_reset();                            // Clear FIFO
-    
+    uint8_t rx_len = rf4463_read_rx_fifo(rx_buf, read_len);     // Read data from the FIFO
+    rf4463_fifo_reset();                                        // Clear FIFO
+
     return rx_len;
 }
 
 bool rf4463_rx_init()
 {
     uint8_t length = 50;
-    
-    rf4463_set_properties(RF4463_PROPERTY_PKT_FIELD_2_LENGTH_7_0, &length, 1);      // Reload RX FIFO size
-    rf4463_fifo_reset();        // Clear FIFO
+
+    rf4463_set_properties(RF4463_PROPERTY_PKT_FIELD_2_LENGTH_7_0, &length, 1);  // Reload RX FIFO size
+    rf4463_fifo_reset();                                                        // Clear FIFO
     rf4463_set_rx_interrupt();
     rf4463_clear_interrupts();
     rf4463_enter_rx_mode();
-    
+
     return true;
 }
 
@@ -261,15 +303,25 @@ bool rf4463_check_device()
 {
     uint8_t buffer[10];
     uint16_t part_info;
-    
+
     if (!rf4463_get_cmd(RF4463_CMD_PART_INFO, buffer, 9))
     {
+        debug_print_event_from_module(DEBUG_ERROR, RF4463_MODULE_NAME, "Error reading the device ID!");
+        debug_new_line();
+
         return false;
     }
-    
+
     part_info = (buffer[2] << 8) | buffer[3];
     if (part_info != RF4463_PART_INFO)
     {
+        debug_print_event_from_module(DEBUG_ERROR, RF4463_MODULE_NAME, "Error checking the device ID! (read=");
+        debug_print_hex(part_info);
+        debug_print_msg(", expected=");
+        debug_print_hex(RF4463_PART_INFO);
+        debug_print_msg(")");
+        debug_new_line();
+
         return false;
     }
     else
@@ -329,15 +381,20 @@ bool rf4463_set_tx_power(uint8_t pwr)
 {
     if (pwr > 127)      // Max. value is 127
     {
-        return false;
+        pwr = 127;
     }
-    
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Configuring TX power to ");
+    debug_print_hex(pwr);
+    debug_print_msg("...");
+    debug_new_line();
+
     uint8_t buffer[5];
     buffer[0] = 0x08;
     buffer[1] = pwr;
     buffer[2] = 0x00;
     buffer[3] = 0x3D;
-    
+
     return rf4463_set_properties(RF4463_PROPERTY_PA_MODE, buffer, 4);
 }
 
@@ -417,6 +474,11 @@ void rf4463_set_config(const uint8_t *parameters, uint16_t para_len)
 
 bool rf4463_set_preamble_len(uint8_t len)
 {
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Configuring preamble length to ");
+    debug_print_dec(len);
+    debug_print_msg("...");
+    debug_new_line();
+
     return rf4463_set_properties(RF4463_PROPERTY_PREAMBLE_TX_LENGTH, &len, 1);
 }
 
@@ -424,13 +486,28 @@ bool rf4463_set_sync_word(uint8_t *sync_word, uint8_t len)
 {
     if ((len == 0) || (len > 3))
     {
+        debug_print_event_from_module(DEBUG_ERROR, RF4463_MODULE_NAME, "Error configuring sync word! Length greater than 4 bytes!");
+        debug_new_line();
+
         return false;
     }
-    
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Configuring sync word as ");
+    uint8_t i = 0;
+    for(i=0; i<len; i++)
+    {
+        debug_print_hex(sync_word[i]);
+        if (i < len-1)
+        {
+            debug_print_msg(",");
+        }
+    }
+    debug_new_line();
+
     uint8_t buffer[6];
     buffer[0] = len - 1;
     memcpy(buffer + 1,sync_word, len);
-    
+
     return rf4463_set_properties(RF4463_PROPERTY_SYNC_CONFIG, buffer, len);
 }
 
@@ -500,7 +577,7 @@ void rf4463_write_tx_fifo(uint8_t *data, uint8_t len)
 {
     uint8_t buffer[RF4463_TX_FIFO_LEN];
     memcpy(buffer, data, len);
-    
+
     rf4463_set_cmd(RF4463_CMD_TX_FIFO_WRITE, buffer, len);
 }
 
@@ -510,7 +587,6 @@ uint8_t rf4463_read_rx_fifo(uint8_t *data, uint8_t read_len)
     {
         return 0;
     }
-    
 
     rf4463_slave_enable();
     rf4463_spi_transfer(RF4463_CMD_RX_FIFO_READ);
@@ -529,6 +605,14 @@ void rf4463_fifo_reset()
 
 void rf4463_enter_tx_mode()
 {
+    if (rf4463_mode == RF4463_MODE_TX)
+    {
+        return;
+    }
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Entering TX mode...");
+    debug_new_line();
+
     uint8_t buffer[5];
     
     buffer[0] = RF4463_FREQ_CHANNEL;
@@ -537,10 +621,20 @@ void rf4463_enter_tx_mode()
     buffer[3] = 0x00;                   // TX packet length LSB (If equal zero, default length)
     
     rf4463_set_cmd(RF4463_CMD_START_TX, buffer, 4);
+
+    rf4463_mode = RF4463_MODE_TX;
 }
 
 void rf4463_enter_rx_mode()
 {
+    if (rf4463_mode == RF4463_MODE_RX)
+    {
+        return;
+    }
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Entering RX mode...");
+    debug_new_line();
+
     uint8_t buffer[8];
     
     buffer[0] = RF4463_FREQ_CHANNEL;
@@ -552,12 +646,24 @@ void rf4463_enter_rx_mode()
     buffer[6] = 0x08;
     
     rf4463_set_cmd(RF4463_CMD_START_RX, buffer, 7);
+
+    rf4463_mode = RF4463_MODE_RX;
 }
 
 bool rf4463_enter_standby_mode()
 {
+    if (rf4463_mode == RF4463_MODE_STANDBY)
+    {
+        return;
+    }
+
+    debug_print_event_from_module(DEBUG_INFO, RF4463_MODULE_NAME, "Entering standby mode...");
+    debug_new_line();
+
     uint8_t data = 0x01;
-    
+
+    rf4463_mode = RF4463_MODE_STANDBY;
+
     return rf4463_set_cmd(RF4463_CMD_CHANGE_STATE, &data, 1);
 }
 
