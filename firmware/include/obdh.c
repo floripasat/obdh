@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.3.5
+ * \version 0.3.11
  *
  * \addtogroup obdh
  */
@@ -57,9 +57,9 @@ void create_tasks(void) {
     status_imu_queue                = xQueueCreate( 1, sizeof(uint8_t) );
     eps_charge_queue                = xQueueCreate( 1, sizeof(uint8_t) );
 #ifdef PAYLOAD_X
-    payload_brave_uplink_queue      = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
-    payload_brave_downlink_queue    = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
-    payload_brave_queue             = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
+    payload_brave_uplink_queue      = xQueueCreate( 1, sizeof(payload_brave_uplink_t));
+    payload_brave_downlink_queue    = xQueueCreate( 1, sizeof(payload_brave_downlink_t));
+    payload_brave_queue             = xQueueCreate( 1, sizeof(payload_brave_downlink_t));
 #endif
 
     /*
@@ -78,12 +78,12 @@ void create_tasks(void) {
     xTaskCreate( communications_task, "Communications", 7 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( store_data_task, "StoreData", 11 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
-    xTaskCreate( ttc_interface_task, "TT&C", 700, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
+    xTaskCreate( ttc_interface_task, "TT&C", 800, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
     xTaskCreate( eps_interface_task, "EPS", 512, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
 //    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 
 #ifdef PAYLOAD_X
-    xTaskCreate( payload_brave_interface_task, "Payload2", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
+    xTaskCreate( payload_brave_interface_task, "Payload2", 3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
 #endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
 //    xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
