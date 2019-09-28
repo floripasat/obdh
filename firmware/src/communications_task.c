@@ -867,8 +867,7 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
     *  provided by the bit-flags.
     */
     // Packet Data
-    pkt_pl[8] = PAYLOAD_BRAVE_FLAG;
-    pkt_pl[9] = answer->type;
+    pkt_pl[8] = answer->type;
 
     switch (answer->type)
     {
@@ -876,15 +875,15 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
         // Packet ID code
         pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS;
 
-        memcpy(pkt_pl+10, answer->data.bitstream_status_replay, sizeof(answer->data.bitstream_status_replay));
-        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 10);
+        memcpy(pkt_pl+9, (void *) answer->data.bitstream_status_replay.status_segment, sizeof(answer->data.bitstream_status_replay));
+        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 9);
         break;
     case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
         // Packet ID code
         pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY;
 
-        memcpy(pkt_pl+10, answer->data.ccsds_telemetry, sizeof(answer->data.ccsds_telemetry));
-        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 10);
+        memcpy(pkt_pl+9, (void *)answer->data.ccsds_telemetry.segment, sizeof(answer->data.ccsds_telemetry));
+        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 9);
         break;
     default:
         return;

@@ -40,6 +40,8 @@ void payload_brave_interface_task( void *pvParameters ) {
     uint8_t payload_brave_status = PAYLOAD_BRAVE_POWER_OFF;
     uint8_t energy_level;
 
+    payload_brave_setup();
+
     while(1) {
         //TODO: TASK ROUTINE
         energy_level = read_current_energy_level();
@@ -52,7 +54,7 @@ void payload_brave_interface_task( void *pvParameters ) {
             //}
             break;
 
-        case ENERGY_L2_MODE:
+        case ENERGY_L2_MODE:    break;
         case ENERGY_L3_MODE:
         case ENERGY_L4_MODE:
         default:
@@ -64,7 +66,8 @@ void payload_brave_interface_task( void *pvParameters ) {
                 break;
         }
 
-//        if(payload_brave_status == PAYLOAD_BRAVE_POWER_ON) {
+        if(payload_brave_status == PAYLOAD_BRAVE_POWER_ON) {
+            payload_brave_power_on();
             if(xSemaphoreTake(fsp_semaphore, FSP_SEMAPHORE_WAIT_TIME) == pdPASS) {    /**< try to get the mutex */
                 if (xSemaphoreTake( i2c0_semaphore, I2C_SEMAPHORE_WAIT_TIME ) == pdPASS) {    /**< try to get the mutex */
                     if(xQueueReceive(payload_brave_uplink_queue, &write_pkt, 0) == pdPASS) {
@@ -105,7 +108,10 @@ void payload_brave_interface_task( void *pvParameters ) {
 
                 xSemaphoreGive(fsp_semaphore);              //release the mutex
             }
-//        }
+        }else
+        {
+            payload_brave_power_down();
+        }
 
         if ( (last_wake_time + PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_TICKS) < xTaskGetTickCount() ) {
             last_wake_time = xTaskGetTickCount();
