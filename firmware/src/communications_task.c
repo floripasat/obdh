@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.3.5
+ * \version 0.3.7
  *
  * \addtogroup communication_task
  * \{
@@ -877,6 +877,7 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
 
         memcpy(pkt_pl+9, (void *) answer->data.bitstream_status_replay.status_segment, sizeof(answer->data.bitstream_status_replay));
         ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 9);
+
         break;
     case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
         // Packet ID code
@@ -884,6 +885,7 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
 
         memcpy(pkt_pl+9, (void *)answer->data.ccsds_telemetry.segment, sizeof(answer->data.ccsds_telemetry));
         ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 9);
+
         break;
     default:
         return;
