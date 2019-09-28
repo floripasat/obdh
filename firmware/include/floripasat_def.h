@@ -43,6 +43,7 @@
 #define FLORIPASAT_PACKET_DOWNLINK_MESSAGE_BROADCAST        0x15        /**< Message Broadcast. */
 #define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS         0x16        /**< Payload X status. */
 #define FLORIPASAT_PACKET_DOWNLINK_RUSH_FEEDBACK            0x17        /**< RUSH enable feedback. */
+#define FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY      0x18        /**< Payload X telemetry. */
 
 // Uplink packets
 #define FLORIPASAT_PACKET_UPLINK_PING_REQUEST               0x20        /**< Ping request. */
@@ -55,6 +56,7 @@
 #define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_SWAP             0x27        /**< Payload X swap. */
 #define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_DATA_UPLOAD      0x28        /**< Payload data upload. */
 #define FLORIPASAT_PACKET_UPLINK_RUSH_ENABLE                0x29        /**< RUSH enable. */
+#define FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND      0x2A        /**< Payload X telecommand. */
 
 #define has_flag(x,y)   (x & y)
 
@@ -101,6 +103,8 @@ typedef struct {
     int32_t packages_offset;/**< number of packages to offset from origin */
 } request_data_packet_t;
 
+#define ARGUMENT_LENGTH 84
+
 typedef struct {
     uint8_t id;                 /**< Packet ID code. */
     uint8_t src_callsign[7];    /**< Source callsign. */
@@ -108,7 +112,30 @@ typedef struct {
     uint16_t data_len;          /**< Packet data length in bytes. */
 } telecommand_t;
 
-#define PACKET_LENGTH   58  /**< according NGHAM packet sizes */
+#define PACKET_LENGTH   122  /**< according NGHAM packet sizes */
+
+typedef struct {
+    uint8_t type;
+    union{
+        struct{
+            uint8_t segment[192];
+            uint8_t segment_number;
+        }ccsds_telemetry;
+        struct {
+            uint8_t status_segment[200];
+            uint16_t segment_number;
+        }bitstream_status_replay;
+    }data;
+} payload_brave_downlink_t;
+
+typedef struct {
+    uint8_t type;
+    union{
+        uint8_t bitstream_upload[84];
+        uint8_t ccsds_telecommand[82];
+        uint8_t status_argument[2];
+    }data;
+} payload_brave_uplink_t;
 
 typedef struct {
     uint16_t package_flags;
@@ -127,7 +154,7 @@ typedef struct {
     uint8_t energy_level            [1];
     //payloads
     uint8_t payload_rush            [64];
-    uint8_t payload_brave           [7];
+    payload_brave_downlink_t payload_brave;
 } data_packet_t;
 
 

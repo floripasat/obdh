@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.11
+ * \version 0.3.5
  *
  * \defgroup communications_task Communications
  * \ingroup tasks
@@ -45,6 +45,8 @@
 #include "../rf4463/rf4463.h"
 #include "../rf4463/rf4463_registers.h"
 #include "../libs/ngham/ngham.h"
+#include "../interface/payload_brave.h"
+#include "payload_brave_interface_task.h"
 
 /*
  * PRIORITY =   5

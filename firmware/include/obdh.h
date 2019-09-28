@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.2
+ * \version 0.3.5
  *
  * \defgroup obdh OBDH
  * \ingroup include
@@ -55,6 +55,7 @@
 #include "../src/eps_interface_task.h"
 #include "../src/housekeeping_task.h"
 #include "../src/imu_interface_task.h"
+#include "../src/payload_brave_interface_task.h"
 #include "../src/payload_rush_interface_task.h"
 #include "../src/store_data_task.h"
 #include "../src/solar_panels_interface_task.h"

@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.3.1
+ * \version 0.3.5
  *
  * \addtogroup obdh
  */
@@ -34,28 +34,33 @@
 
 #include "obdh.h"
 
-void create_tasks( void ) {
+void create_tasks(void) {
     /*
      * Create queues to communicate between tasks
      */
-    obdh_status_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
-    imu_queue                  = xQueueCreate( 5, sizeof( satellite_data.imu ) );
-    obdh_misc_queue            = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
-    obdh_uptime_queue          = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
-    solar_panels_queue         = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
-    main_radio_queue           = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
-    eps_queue                  = xQueueCreate( 5, sizeof( eps_package_t ) );
-    ttc_queue                  = xQueueCreate( 1, sizeof( uint8_t ) );
-    tx_queue                   = xQueueCreate( 1, sizeof( uint8_t ) );
-    payload_rush_queue         = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
-    payload_brave_queue        = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
-    status_eps_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    status_payload_rush_queue  = xQueueCreate( 1, sizeof(uint8_t) );
-    command_to_payload_rush_queue = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
-    status_payload_brave_queue = xQueueCreate( 1, sizeof(uint8_t) );
-    status_mem1_queue          = xQueueCreate( 1, sizeof(uint8_t) );
-    status_imu_queue           = xQueueCreate( 1, sizeof(uint8_t) );
-    eps_charge_queue           = xQueueCreate( 1, sizeof(uint8_t) );
+    obdh_status_queue               = xQueueCreate( 5, sizeof( satellite_data.obdh_status ) );
+    imu_queue                       = xQueueCreate( 5, sizeof( satellite_data.imu ) );
+    obdh_misc_queue                 = xQueueCreate( 5, sizeof( satellite_data.obdh_misc ) );
+    obdh_uptime_queue               = xQueueCreate( 5, sizeof( satellite_data.obdh_uptime ) );
+    solar_panels_queue              = xQueueCreate( 5, sizeof( satellite_data.solar_panels_sensors ) );
+    main_radio_queue                = xQueueCreate( 1, sizeof( satellite_data.main_radio ) );
+    eps_queue                       = xQueueCreate( 5, sizeof( eps_package_t ) );
+    ttc_queue                       = xQueueCreate( 1, sizeof( uint8_t ) );
+    tx_queue                        = xQueueCreate( 1, sizeof( uint8_t ) );
+    payload_rush_queue              = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
+    payload_brave_queue             = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
+    status_eps_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+    status_payload_rush_queue       = xQueueCreate( 1, sizeof(uint8_t) );
+    command_to_payload_rush_queue   = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
+    status_payload_brave_queue      = xQueueCreate( 1, sizeof(uint8_t) );
+    status_mem1_queue               = xQueueCreate( 1, sizeof(uint8_t) );
+    status_imu_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+    eps_charge_queue                = xQueueCreate( 1, sizeof(uint8_t) );
+#ifdef PAYLOAD_X
+    payload_brave_uplink_queue      = xQueueCreate( 5, sizeof(payload_brave_uplink_t));
+    payload_brave_downlink_queue    = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
+    payload_brave_queue             = xQueueCreate( 6, sizeof(payload_brave_downlink_t));
+#endif
 
     /*
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
@@ -70,12 +75,16 @@ void create_tasks( void ) {
      * stack size, sets the priority, passes parameters and get a handler
      */
     xTaskCreate( wdt_task, "WDT", configMINIMAL_STACK_SIZE, NULL, WDT_TASK_PRIORITY, &wdt_task_handle );
-    xTaskCreate( communications_task, "Communications", 6 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
+    xTaskCreate( communications_task, "Communications", 7 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( store_data_task, "StoreData", 11 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
-    xTaskCreate( ttc_interface_task, "TT&C", 4 * configMINIMAL_STACK_SIZE, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
+    xTaskCreate( ttc_interface_task, "TT&C", 700, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
     xTaskCreate( eps_interface_task, "EPS", 512, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
 //    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
+
+#ifdef PAYLOAD_X
+    xTaskCreate( payload_brave_interface_task, "Payload2", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
+#endif
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
 //    xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
 }
@@ -85,6 +94,7 @@ void gpio_setup() {
     debug_print_event_from_module(DEBUG_INFO, "GPIO", "Initializing status LED...");
     debug_new_line();
     BIT_SET(LED_SYSTEM_DIR, LED_SYSTEM_PIN);            // Led pin setup
+
 
     BIT_SET(uSDCard_CE_OUT, uSDCard_CE_PIN);            // disable memory
     BIT_SET(uSDCard_CE_DIR, uSDCard_CE_PIN);
@@ -185,6 +195,9 @@ void hibernate(void) {
 }
 
 void reset_memory(void) {
+    debug_print_event_from_module(DEBUG_INFO, "System", "Erasing flash memories...");
+    debug_new_line();
+
     flash_erase(SEGD_ADDR);
     flash_erase(SEGC_ADDR);
     flash_erase(SEGB_ADDR);

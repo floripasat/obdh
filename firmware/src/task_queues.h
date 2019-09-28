@@ -46,7 +46,7 @@
 //#define     TRANSCEIVER_QUEUE_WAIT_TIME             (100 / portTICK_PERIOD_MS)
 //#define     EPS_QUEUE_WAIT_TIME                     (100 / portTICK_PERIOD_MS)
 //#define     PAYLOAD1_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
-//#define     PAYLOAD2_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
+//#define     PAYLOAD_BRAVE_QUEUE_WAIT_TIME                (100 / portTICK_PERIOD_MS)
 
 #define     I2C_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
 #define     SPI_SEMAPHORE_WAIT_TIME                 (100 / portTICK_PERIOD_MS)
@@ -68,6 +68,7 @@ volatile xQueueHandle payload_brave_queue;
 
 volatile xQueueHandle eps_charge_queue;
 volatile xQueueHandle status_eps_queue, status_payload_rush_queue, status_payload_brave_queue, status_imu_queue, status_mem1_queue;
+volatile xQueueHandle payload_brave_uplink_queue, payload_brave_downlink_queue;
 //TODO: mem2, antenna status_queue
 
 volatile xSemaphoreHandle i2c0_semaphore;

@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.17
+ * \version 0.3.9
  *
  * \defgroup eps_interface EPS Interface
  * \ingroup tasks
@@ -48,7 +48,7 @@
  */
 
 #define EPS_INTERFACE_TASK_PRIORITY          5
-#define EPS_INTERFACE_TASK_PERIOD_MS         1000
+#define EPS_INTERFACE_TASK_PERIOD_MS         5000
 #define EPS_INTERFACE_TASK_PERIOD_TICKS      ( EPS_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
 /**

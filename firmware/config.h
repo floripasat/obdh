@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.1
+ * \version 0.3.2
  * 
  * \date 03/07/2019
  *
@@ -39,6 +39,8 @@
 #define OBDH_EXECUTE_DEPLOYMENT_ROUTINE         1
 
 #define OBDH_DEBUG_MESSAGES                     1
+
+#define OBDH_TX_ENABLED                         1
 
 #endif // CONFIG_H_
 
