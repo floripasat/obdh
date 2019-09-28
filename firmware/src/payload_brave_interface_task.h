@@ -20,13 +20,12 @@
  *
  */
 
- /**
- * \file payload1_interface_task.h
- *
+/**
  * \brief Task that deals with the payload 1
  *
  * \author Akkauam Pallaoro
  *
+ * \version 0.3.10
  */
 
 #ifndef SRC_PAYLOAD_BRAVE_INTERFACE_TASK_H_
@@ -46,7 +45,7 @@
  * FREQUENCY =  1Hz
  */
 
-#define PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY          5
+#define PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY          2
 #define PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_MS         1000
 #define PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_TICKS      ( PAYLOAD_BRAVE_INTERFACE_TASK_PERIOD_MS / portTICK_PERIOD_MS )
 
