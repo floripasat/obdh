@@ -615,10 +615,11 @@ void enter_in_hibernation(telecommand_t telecommand) {
     uint8_t ttc_command = TTC_CMD_HIBERNATION;
     xQueueOverwrite(ttc_queue, &ttc_command);                       // send shutdown command to beacon, via ttc task
 
-    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
-    update_operation_mode(HIBERNATION_MODE);                        // update the current operation mode in the flash mem
-    set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
-    xSemaphoreGive(flash_semaphore);
+    if (xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME) == pdPASS) {     // protect the flash from mutual access
+        update_operation_mode(HIBERNATION_MODE);                        // update the current operation mode in the flash mem
+        set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
+        xSemaphoreGive(flash_semaphore);
+    }
 }
 
 void leave_hibernation(telecommand_t telecommand)
@@ -635,9 +636,10 @@ void leave_hibernation(telecommand_t telecommand)
     }
 
     // Executing the leave hibernation command
-    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
-    update_operation_mode(NORMAL_OPERATION_MODE);                   // update the current operation mode in the flash mem
-    xSemaphoreGive(flash_semaphore);
+    if (xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME) == pdPASS) {// protect the flash from mutual access
+        update_operation_mode(NORMAL_OPERATION_MODE);                   // update the current operation mode in the flash mem
+        xSemaphoreGive(flash_semaphore);
+    }
 }
 
 void send_reset_charge_command(telecommand_t telecommand) {
