@@ -25,12 +25,13 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.3.11
+ * \version 0.3.14
  *
  * \addtogroup obdh
  */
 
 #include "../interface/debug/debug.h"
+#include "../interface/isis_antenna.h"
 
 #include "obdh.h"
 
@@ -147,6 +148,12 @@ void setup_hardware(void) {
 
     update_reset_value();           // Read the previous value, increment it and store again
     restore_time_counter();         // Read the time counter after a reset and restore it value to RAM
+
+    uint16_t temp_val = read_antenna_temperature();
+    debug_print_event_from_module(DEBUG_INFO, "System", "Antenna module temperature = ");
+    debug_print_dec(temp_val);
+    debug_print_msg("\n\r");
+    debug_new_line();
 
     debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!");
     debug_new_line();
