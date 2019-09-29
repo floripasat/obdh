@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.3.7
+ * \version 0.3.12
  *
  * \addtogroup communication_task
  * \{
@@ -229,6 +229,9 @@ void communications_task(void *pvParameters) {
 
             switch(energy_level) {
                 case ENERGY_L1_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+
+                    break;
                 case ENERGY_L2_MODE:
                     turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
 
@@ -238,6 +241,9 @@ void communications_task(void *pvParameters) {
 
                     break;
                 case ENERGY_L4_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 4;
+
+                    break;
                 default:
                     turns_to_wait = 0xFFFF;
             }
