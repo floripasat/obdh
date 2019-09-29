@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.3.7
+ * \version 0.3.13
  *
  * \addtogroup communication_task
  * \{
@@ -229,6 +229,9 @@ void communications_task(void *pvParameters) {
 
             switch(energy_level) {
                 case ENERGY_L1_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+
+                    break;
                 case ENERGY_L2_MODE:
                     turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
 
@@ -238,6 +241,9 @@ void communications_task(void *pvParameters) {
 
                     break;
                 case ENERGY_L4_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 4;
+
+                    break;
                 default:
                     turns_to_wait = 0xFFFF;
             }
@@ -819,6 +825,7 @@ void enable_rush(telecommand_t telecommand)
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
 {
     uint8_t key_enter_hibernation[] = "69jCwUyK";
+    uint8_t key_leave_hibernation[] = "MbaY2fNG";
     uint8_t key_charge_reset[]      = "bVCd25Fh";
     uint8_t key_enable_rush[]       = "peU9ZGH3";
 
@@ -827,7 +834,7 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
         case KEY_ENTER_HIBERNATION:
             return memcmp(key, key_enter_hibernation, sizeof(key_enter_hibernation)-1) == 0 ? true : false;
         case KEY_LEAVE_HIBERNATION:
-            return false;
+            return memcmp(key, key_leave_hibernation, sizeof(key_leave_hibernation)-1) == 0 ? true : false;
         case KEY_CHARGE_RESET:
             return memcmp(key, key_charge_reset, sizeof(key_charge_reset)-1) == 0 ? true : false;
         case KEY_ENABLE_RUSH:
