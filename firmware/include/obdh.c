@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.3.14
+ * \version 1.0.2
  *
  * \addtogroup obdh
  */
@@ -49,19 +49,18 @@ void create_tasks(void) {
     ttc_queue                       = xQueueCreate( 1, sizeof( uint8_t ) );
     tx_queue                        = xQueueCreate( 1, sizeof( uint8_t ) );
     payload_rush_queue              = xQueueCreate( 5, sizeof( satellite_data.payload_rush) );
-    payload_brave_queue             = xQueueCreate( 5, sizeof( satellite_data.payload_brave) );
     status_eps_queue                = xQueueCreate( 1, sizeof(uint8_t) );
     status_payload_rush_queue       = xQueueCreate( 1, sizeof(uint8_t) );
     command_to_payload_rush_queue   = xQueueCreate( 5, sizeof(uint8_t) ); // definir tamanho dessa queue
-    status_payload_brave_queue      = xQueueCreate( 1, sizeof(uint8_t) );
     status_mem1_queue               = xQueueCreate( 1, sizeof(uint8_t) );
     status_imu_queue                = xQueueCreate( 1, sizeof(uint8_t) );
     eps_charge_queue                = xQueueCreate( 1, sizeof(uint8_t) );
-#ifdef PAYLOAD_X
+#if OBDH_PAYLOAD_X_ENABLED == 1
+    status_payload_brave_queue      = xQueueCreate( 1, sizeof(uint8_t) );
     payload_brave_uplink_queue      = xQueueCreate( 1, sizeof(payload_brave_uplink_t));
     payload_brave_downlink_queue    = xQueueCreate( 1, sizeof(payload_brave_downlink_t));
     payload_brave_queue             = xQueueCreate( 1, sizeof(payload_brave_downlink_t));
-#endif
+#endif // OBDH_PAYLOAD_X_ENABLED
 
     /*
      * Create the semaphores to synchronize the use of shared resources (mutual exclusion)
@@ -83,9 +82,9 @@ void create_tasks(void) {
     xTaskCreate( eps_interface_task, "EPS", 512, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
 //    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 
-#ifdef PAYLOAD_X
+#ifdef OBDH_PAYLOAD_X_ENABLED == 1
     xTaskCreate( payload_brave_interface_task, "Payload2", 3 * configMINIMAL_STACK_SIZE, NULL, PAYLOAD_BRAVE_INTERFACE_TASK_PRIORITY, &payload_brave_interface_task_handle);
-#endif
+#endif // OBDH_PAYLOAD_X_ENABLED
 //    xTaskCreate( solar_panels_interface_task, "SolarPanels", configMINIMAL_STACK_SIZE, NULL, SOLAR_PANELS_INTERFACE_TASK_PRIORITY, &solar_panels_interface_task_handle);
 //    xTaskCreate( payload_rush_interface_task, "PayloadRush", configMINIMAL_STACK_SIZE, NULL, PAYLOAD_RUSH_INTERFACE_TASK_PRIORITY, &payload_rush_interface_task_handle );
 }
@@ -152,7 +151,6 @@ void setup_hardware(void) {
     uint16_t temp_val = read_antenna_temperature();
     debug_print_event_from_module(DEBUG_INFO, "System", "Antenna module temperature = ");
     debug_print_dec(temp_val);
-    debug_print_msg("\n\r");
     debug_new_line();
 
     debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!");

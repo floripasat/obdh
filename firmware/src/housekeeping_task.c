@@ -27,7 +27,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.13
+ * \version 1.0.2
  *
  * \addtogroup housekeeping_task
  * \{
@@ -113,9 +113,11 @@ void housekeeping_task(void *pvParameters) {
         if (xQueuePeek(status_payload_rush_queue, &temp_status_flags, 0) == pdPASS) {
             status_flags |= temp_status_flags << 1;
         }
+#if OBDH_PAYLOAD_X_ENABLED == 1
         if (xQueuePeek(status_payload_brave_queue, &temp_status_flags, 0) == pdPASS) {
             status_flags |= temp_status_flags << 2;
         }
+#endif // OBDH_PAYLOAD_X_ENABLED
         if (xQueuePeek(status_mem1_queue, &temp_status_flags, 0) == pdPASS) {
             status_flags |= temp_status_flags << 3;
         }

@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 1.0.1
+ * \version 1.0.2
  *
  * \addtogroup communication_task
  * \{
@@ -85,7 +85,11 @@ void send_reset_charge_command(telecommand_t telecommand);
 void radioamateur_repeater(telecommand_t telecommand);
 void enable_rush(telecommand_t telecommand);
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
+
+#if OBDH_PAYLOAD_X_ENABLED == 1
 void send_payload_brave_data(payload_brave_downlink_t *answer);
+#endif // OBDH_PAYLOAD_X_ENABLED
+
 void unknown_telecommand(telecommand_t telecommand);
 
 void communications_task(void *pvParameters) {
@@ -98,8 +102,11 @@ void communications_task(void *pvParameters) {
     uint8_t data[128];
     telecommand_t received_telecommand;
     uint8_t operation_mode;
+
+#if OBDH_PAYLOAD_X_ENABLED == 1
     payload_brave_downlink_t read_pkt;
     payload_brave_uplink_t write_pkt;
+#endif // OBDH_PAYLOAD_X_ENABLED
 
 
     uint8_t energy_level;
@@ -177,7 +184,7 @@ void communications_task(void *pvParameters) {
                     enable_rush(received_telecommand);
 
                     break;
-#ifdef PAYLOAD_X
+#if OBDH_PAYLOAD_X_ENABLED == 1
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND:
                     write_pkt.type = PAYLOAD_BRAVE_CCSDS_TELECOMMAND;
                     memcpy(write_pkt.data.ccsds_telecommand, received_telecommand.data, sizeof(write_pkt.data.ccsds_telecommand));
@@ -208,7 +215,7 @@ void communications_task(void *pvParameters) {
                     xQueueSendToBack(payload_brave_uplink_queue, (uint8_t*)&write_pkt, portMAX_DELAY);
 
                     break;
-#endif
+#endif // OBDH_PAYLOAD_X_ENABLED
                 default:
                     debug_print_event_from_module(DEBUG_WARNING, "Tasks", "Unknown telecommand received! Nothing to do!");
                     debug_new_line();
@@ -262,13 +269,13 @@ void communications_task(void *pvParameters) {
         else {
             vTaskDelayUntil((TickType_t *) &last_wake_time, COMMUNICATIONS_TASK_PERIOD_TICKS);
         }
-#ifdef PAYLOAD_X
+#if OBDH_PAYLOAD_X_ENABLED == 1
         if (operation_mode == NORMAL_OPERATION_MODE) {
             if (xQueueReceive(payload_brave_downlink_queue, &read_pkt, 0) == pdPASS) {
                 send_payload_brave_data(&read_pkt);
             }
         }
-#endif
+#endif // OBDH_PAYLOAD_X_ENABLED
     }
 
     vTaskDelete(NULL);
@@ -851,6 +858,7 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
     }
 }
 
+#if OBDH_PAYLOAD_X_ENABLED == 1
 void send_payload_brave_data(payload_brave_downlink_t *answer)
 {
     if (read_current_operation_mode() == HIBERNATION_MODE)
@@ -916,6 +924,7 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
 
     rf4463_rx_init();
 }
+#endif // OBDH_PAYLOAD_X_ENABLED
 
 void unknown_telecommand(telecommand_t telecommand)
 {

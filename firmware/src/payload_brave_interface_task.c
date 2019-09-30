@@ -31,6 +31,7 @@
 
 #include "payload_brave_interface_task.h"
 
+#if OBDH_PAYLOADX_ENABLED == 1
 void payload_brave_interface_task( void *pvParameters ) {
     TickType_t last_wake_time;
     last_wake_time = xTaskGetTickCount();
@@ -123,3 +124,4 @@ void payload_brave_interface_task( void *pvParameters ) {
 
     vTaskDelete( NULL );
 }
+#endif // OBDH_PAYLOADX_ENABLED

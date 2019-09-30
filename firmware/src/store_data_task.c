@@ -1,7 +1,7 @@
 /*
  * store_data_task.c
  *
- * Copyright (C) 2017, Universidade Federal de Santa Catarina
+ * Copyright (C) 2017-2019, Universidade Federal de Santa Catarina
  *
  * This file is part of FloripaSat-OBDH.
  *
@@ -21,12 +21,11 @@
  */
 
  /**
- * \file store_data_task.c
- *
  * \brief Task that deals with the non-volatile memory module
  *
  * \author Elder Tramontin
  *
+ * \version 1.0.2
  */
 
 #include "store_data_task.h"
@@ -147,9 +146,11 @@ data_packet_t read_and_pack_data( void ) {
         packet.package_flags |= PAYLOAD_RUSH_FLAG;
     }
 
+#if OBDH_PAYLOAD_X_ENABLED == 1
     if(xQueueReceive(payload_brave_queue, (void *) &packet.payload_brave, DATA_QUEUE_WAIT_TIME) == pdPASS) {
         packet.package_flags |= PAYLOAD_BRAVE_FLAG;
     }
+#endif // OBDH_PAYLOAD_X_ENABLED
 
     satellite_data = packet;
 
