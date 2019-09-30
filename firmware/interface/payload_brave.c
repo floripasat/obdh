@@ -32,9 +32,6 @@
 #include "payload_brave.h"
 #include "../util/fsp/fsp.h"
 
-void payload_brave_setup(void) {
-
-}
 
 uint8_t payload_brave_read(payload_brave_downlink_t *pkt) {
 

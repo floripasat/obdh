@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.3.7
+ * \version 0.3.13
  *
  * \addtogroup communication_task
  * \{
@@ -229,6 +229,9 @@ void communications_task(void *pvParameters) {
 
             switch(energy_level) {
                 case ENERGY_L1_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
+
+                    break;
                 case ENERGY_L2_MODE:
                     turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS;
 
@@ -238,6 +241,9 @@ void communications_task(void *pvParameters) {
 
                     break;
                 case ENERGY_L4_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 4;
+
+                    break;
                 default:
                     turns_to_wait = 0xFFFF;
             }
@@ -609,10 +615,11 @@ void enter_in_hibernation(telecommand_t telecommand) {
     uint8_t ttc_command = TTC_CMD_HIBERNATION;
     xQueueOverwrite(ttc_queue, &ttc_command);                       // send shutdown command to beacon, via ttc task
 
-    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
-    update_operation_mode(HIBERNATION_MODE);                        // update the current operation mode in the flash mem
-    set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
-    xSemaphoreGive(flash_semaphore);
+    if (xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME) == pdPASS) {     // protect the flash from mutual access
+        update_operation_mode(HIBERNATION_MODE);                        // update the current operation mode in the flash mem
+        set_hibernation_period_min(((uint16_t)telecommand.data[0] << 8) | telecommand.data[1]);
+        xSemaphoreGive(flash_semaphore);
+    }
 }
 
 void leave_hibernation(telecommand_t telecommand)
@@ -629,9 +636,10 @@ void leave_hibernation(telecommand_t telecommand)
     }
 
     // Executing the leave hibernation command
-    xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME);     // protect the flash from mutual access
-    update_operation_mode(NORMAL_OPERATION_MODE);                   // update the current operation mode in the flash mem
-    xSemaphoreGive(flash_semaphore);
+    if (xSemaphoreTake(flash_semaphore, FLASH_SEMAPHORE_WAIT_TIME) == pdPASS) {// protect the flash from mutual access
+        update_operation_mode(NORMAL_OPERATION_MODE);                   // update the current operation mode in the flash mem
+        xSemaphoreGive(flash_semaphore);
+    }
 }
 
 void send_reset_charge_command(telecommand_t telecommand) {
@@ -819,6 +827,7 @@ void enable_rush(telecommand_t telecommand)
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
 {
     uint8_t key_enter_hibernation[] = "69jCwUyK";
+    uint8_t key_leave_hibernation[] = "MbaY2fNG";
     uint8_t key_charge_reset[]      = "bVCd25Fh";
     uint8_t key_enable_rush[]       = "peU9ZGH3";
 
@@ -827,7 +836,7 @@ bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
         case KEY_ENTER_HIBERNATION:
             return memcmp(key, key_enter_hibernation, sizeof(key_enter_hibernation)-1) == 0 ? true : false;
         case KEY_LEAVE_HIBERNATION:
-            return false;
+            return memcmp(key, key_leave_hibernation, sizeof(key_leave_hibernation)-1) == 0 ? true : false;
         case KEY_CHARGE_RESET:
             return memcmp(key, key_charge_reset, sizeof(key_charge_reset)-1) == 0 ? true : false;
         case KEY_ENABLE_RUSH:
@@ -867,8 +876,7 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
     *  provided by the bit-flags.
     */
     // Packet Data
-    pkt_pl[8] = PAYLOAD_BRAVE_FLAG;
-    pkt_pl[9] = answer->type;
+    pkt_pl[8] = answer->type;
 
     switch (answer->type)
     {
@@ -876,15 +884,17 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
         // Packet ID code
         pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_STATUS;
 
-        memcpy(pkt_pl+10, (void *) &answer->data.bitstream_status_replay, sizeof(answer->data.bitstream_status_replay));
-        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 10);
+        memcpy(pkt_pl+9, (void *) answer->data.bitstream_status_replay.status_segment, sizeof(answer->data.bitstream_status_replay));
+        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.bitstream_status_replay) + 9);
+
         break;
     case PAYLOAD_BRAVE_CCSDS_TELEMETRY:
         // Packet ID code
         pkt_pl[0] = FLORIPASAT_PACKET_DOWNLINK_PAYLOAD_X_TELEMETRY;
 
-        memcpy(pkt_pl+10, (void *) &answer->data.ccsds_telemetry, sizeof(answer->data.ccsds_telemetry));
-        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 10);
+        memcpy(pkt_pl+9, (void *)answer->data.ccsds_telemetry.segment, sizeof(answer->data.ccsds_telemetry));
+        ngham_TxPktGen(&ngham_packet, pkt_pl, sizeof(answer->data.ccsds_telemetry) + 9);
+
         break;
     default:
         return;

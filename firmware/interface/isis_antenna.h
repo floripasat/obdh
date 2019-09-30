@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.7
+ * \version 0.3.14
  *
  * \defgroup isis_antenna ISIS Antenna
  * \{
@@ -83,6 +83,7 @@ void disarm_antenna(void);
 void start_sequential_deploy(uint8_t seconds);
 void start_independet_deploy(uint8_t antenna, uint8_t seconds, uint8_t override);
 uint16_t read_deployment_status(void);
+uint16_t read_antenna_temperature();
 
 #endif /* INCLUDE_ISIS_ANTENNA_H_ */
 

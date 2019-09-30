@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 0.2.7
+ * \version 0.3.14
  *
  * \addtogroup isis_antenna
  * \{
@@ -208,6 +208,22 @@ uint16_t read_deployment_status(void) {
     i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
 
     return status;
+}
+
+uint16_t read_antenna_temperature()
+{
+    i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
+    i2c_send(ANTENNA_BASE_ADDRESS, 0xB7, START_STOP);
+
+    delay_s(1);
+
+    i2c_set_mode(ANTENNA_BASE_ADDRESS, RECEIVE_MODE);
+    uint16_t temp = 0xAAAA;
+    i2c_receive_burst(ANTENNA_BASE_ADDRESS, (uint8_t *) &temp, 2, START_STOP);
+
+    i2c_set_mode(ANTENNA_BASE_ADDRESS, TRANSMIT_MODE);
+
+    return temp;
 }
 
 //! \} End of isis_antenna group

@@ -69,4 +69,20 @@ uint8_t payload_brave_read();
 
 uint8_t payload_brave_write();
 
+
+static inline void payload_brave_power_on()
+{
+    BIT_SET(P5OUT, BIT2);
+}
+
+static inline void payload_brave_power_down()
+{
+    BIT_CLEAR(P5OUT, BIT2);
+}
+
+static inline void payload_brave_setup()
+{
+    payload_brave_power_on();
+    BIT_SET(P5DIR, BIT2);
+}
 #endif /* PAYLOAD_BRAVE_INTERFACE_H_ */
