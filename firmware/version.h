@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  * 
- * \version 0.3.14
+ * \version 1.0.0
  * 
  * \date 08/02/2019
  * 
@@ -36,9 +36,9 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define FIRMWARE_VERSION        "0.3.14"
+#define FIRMWARE_VERSION        "1.0.0"
 
-#define FIRMWARE_STATUS         "Testing"
+#define FIRMWARE_STATUS         "Production"
 
 #define FIRMWARE_AUTHOR_NAME    "SpaceLab - UFSC"
 #define FIRMWARE_AUTHOR_EMAIL   "spacelab-ufsc@gmail.com"
