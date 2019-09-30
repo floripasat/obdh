@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.3.13
+ * \version 1.0.1
  *
  * \addtogroup communication_task
  * \{
@@ -317,7 +317,6 @@ void send_periodic_data(void) {
 
 #if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    rf4463_rx_init();
 #else
     debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
     debug_new_line();
@@ -349,6 +348,7 @@ void send_data(uint8_t *data, int16_t data_len) {
 
 //        data_len -= 220;
 //    }
+    rf4463_rx_init();
 }
 
 uint16_t try_to_receive(uint8_t *data) {
@@ -497,7 +497,6 @@ void answer_ping(telecommand_t telecommand) {
 
 #if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    rf4463_rx_init();
 #else
     debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
     debug_new_line();
@@ -777,8 +776,12 @@ void enable_rush(telecommand_t telecommand)
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+1+1);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    rf4463_rx_init();
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
 
     // Executing the telecommand
     uint8_t cmd = telecommand.data[0];
@@ -822,6 +825,8 @@ void enable_rush(telecommand_t telecommand)
     {
         //answer = RUSH_OUT_OF_BAT_MSG;
     }
+
+    rf4463_rx_init();
 }
 
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
@@ -902,7 +907,13 @@ void send_payload_brave_data(payload_brave_downlink_t *answer)
 
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
+#if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
     rf4463_rx_init();
 }
 
@@ -943,7 +954,6 @@ void unknown_telecommand(telecommand_t telecommand)
 
 #if OBDH_TX_ENABLED == 1
     rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
-    rf4463_rx_init();
 #else
     debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
     debug_new_line();
