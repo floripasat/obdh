@@ -26,7 +26,7 @@
  * \author Mario Baldini
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 0.2.6
+ * \version 1.0.3
  *
  * \addtogroup msp_internal
  */
@@ -151,7 +151,8 @@ uint8_t read_current_state(void) {
         operation_mode = NORMAL_OPERATION_MODE;
     }
     if ( ( energy_level != ENERGY_L1_MODE ) && ( energy_level != ENERGY_L2_MODE ) &&
-         ( energy_level != ENERGY_L3_MODE ) && ( energy_level != ENERGY_L4_MODE ) ) {
+         ( energy_level != ENERGY_L3_MODE ) && ( energy_level != ENERGY_L4_MODE ) &&
+         ( energy_level != ENERGY_L5_MODE )) {
         energy_level = ENERGY_L3_MODE;
     }
 

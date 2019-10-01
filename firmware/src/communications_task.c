@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 1.0.2
+ * \version 1.0.3
  *
  * \addtogroup communication_task
  * \{
@@ -85,6 +85,7 @@ void send_reset_charge_command(telecommand_t telecommand);
 void radioamateur_repeater(telecommand_t telecommand);
 void enable_rush(telecommand_t telecommand);
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type);
+void pu5gma_message(telecommand_t telecommand);
 
 #if OBDH_PAYLOAD_X_ENABLED == 1
 void send_payload_brave_data(payload_brave_downlink_t *answer);
@@ -184,6 +185,10 @@ void communications_task(void *pvParameters) {
                     enable_rush(received_telecommand);
 
                     break;
+                case 0x2F:
+                    pu5gma_message(received_telecommand);
+
+                    break;
 #if OBDH_PAYLOAD_X_ENABLED == 1
                 case FLORIPASAT_PACKET_UPLINK_PAYLOAD_X_TELECOMMAND:
                     write_pkt.type = PAYLOAD_BRAVE_CCSDS_TELECOMMAND;
@@ -248,6 +253,10 @@ void communications_task(void *pvParameters) {
 
                     break;
                 case ENERGY_L4_MODE:
+                    turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 2;
+
+                    break;
+                case ENERGY_L5_MODE:
                     turns_to_wait = PERIODIC_DOWNLINK_INTERVAL_TURNS * 4;
 
                     break;
@@ -933,9 +942,9 @@ void unknown_telecommand(telecommand_t telecommand)
     }
 
     NGHam_TX_Packet ngham_packet;
-    uint8_t ngham_pkt_str[220];
+    uint8_t ngham_pkt_str[95];
     uint16_t ngham_pkt_str_len;
-    uint8_t pkt_pl[16];
+    uint8_t pkt_pl[35];
 
     // Packet ID
     pkt_pl[0] = 0x1F;
@@ -959,6 +968,54 @@ void unknown_telecommand(telecommand_t telecommand)
     }
 
     ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+sizeof(ays)-1);
+    ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
+
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+#if OBDH_TX_ENABLED == 1
+    rf4463_tx_long_packet(ngham_pkt_str + (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE), ngham_pkt_str_len - (NGH_SYNC_SIZE + NGH_PREAMBLE_SIZE));
+#else
+    debug_print_event_from_module(DEBUG_WARNING, "Communication task", "TRANSMISSION DISABLED!");
+    debug_new_line();
+#endif // OBDH_TX_ENABLED
+
+    rf4463_rx_init();
+}
+
+void pu5gma_message(telecommand_t telecommand)
+{
+    if (read_current_operation_mode() == HIBERNATION_MODE) {
+        return;
+    }
+
+    NGHam_TX_Packet ngham_packet;
+    uint8_t ngham_pkt_str[95];
+    uint16_t ngham_pkt_str_len;
+    uint8_t pkt_pl[35];
+
+    // Packet ID
+    pkt_pl[0] = 0x1E;
+
+    uint16_t i = 0;
+    for(i=0; i<(7-(sizeof(SATELLITE_CALLSIGN)-1)); i++) {
+        pkt_pl[i+1] = '0';     // Fill with 0s when the callsign length is less than 7 characters
+    }
+
+    // Source callsign
+    memcpy(pkt_pl+1+i, SATELLITE_CALLSIGN, sizeof(SATELLITE_CALLSIGN)-1);
+
+    // Requester callsign
+    for(i=0; i<7; i++) {
+        pkt_pl[i+1+7] = telecommand.src_callsign[i];
+    }
+
+    uint8_t pwh[] = "PU5GMA was here";
+    for(i=0; sizeof(pwh)-1; i++) {
+        pkt_pl[i+1+7+7] = pwh[i];
+    }
+
+    ngham_TxPktGen(&ngham_packet, pkt_pl, 1+7+7+sizeof(pwh)-1);
     ngham_Encode(&ngham_packet, ngham_pkt_str, &ngham_pkt_str_len);
 
 #if OBDH_TX_ENABLED == 1

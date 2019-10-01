@@ -203,7 +203,8 @@ typedef struct {
 #define ENERGY_L1_MODE              0x01    /**< Energy level 1 - Tx on , Beacon 10s, TLM 60s , Payload on  */
 #define ENERGY_L2_MODE              0x02    /**< Energy level 2 - Tx on , Beacon 10s, TLM 60s , Payload off */
 #define ENERGY_L3_MODE              0x03    /**< Energy level 3 - Tx on , Beacon 20s, TLM 120s, Payload off */
-#define ENERGY_L4_MODE              0x04    /**< Energy level 4 - Tx off, Beacon 30s, TLM off , Payload off */
+#define ENERGY_L4_MODE              0x04    /**< Energy level 4 - Tx on,  Beacon 30s, TLM 120s, Payload off */
+#define ENERGY_L5_MODE              0x05    /**< Energy level 5 - Tx on,  Beacon 30s, TLM 240s, Payload off */
 //! \} End of energy_levels
 
 /**
