@@ -25,7 +25,7 @@
  *
  * \author Elder Tramontin
  *
- * \version 1.0.2
+ * \version 1.0.4
  *
  * \addtogroup obdh
  */
@@ -78,7 +78,7 @@ void create_tasks(void) {
     xTaskCreate( communications_task, "Communications", 7 * configMINIMAL_STACK_SIZE, NULL, COMMUNICATIONS_TASK_PRIORITY, &communications_task_handle );
     xTaskCreate( store_data_task, "StoreData", 11 * configMINIMAL_STACK_SIZE, NULL , STORE_DATA_TASK_PRIORITY, &store_data_task_handle);
     xTaskCreate( housekeeping_task, "Housekeeping", configMINIMAL_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIORITY, &housekeeping_task_handle);
-    xTaskCreate( ttc_interface_task, "TT&C", 800, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
+    xTaskCreate( ttc_interface_task, "TT&C", 1500, NULL, TTC_INTERFACE_TASK_PRIORITY, &ttc_interface_task_handle );
     xTaskCreate( eps_interface_task, "EPS", 512, NULL, EPS_INTERFACE_TASK_PRIORITY, &eps_interface_task_handle );
 //    xTaskCreate( imu_interface_task, "IMU", configMINIMAL_STACK_SIZE, NULL, IMU_INTERFACE_TASK_PRIORITY, &imu_interface_task_handle);
 
@@ -148,11 +148,12 @@ void setup_hardware(void) {
     update_reset_value();           // Read the previous value, increment it and store again
     restore_time_counter();         // Read the time counter after a reset and restore it value to RAM
 
+/*
     uint16_t temp_val = read_antenna_temperature();
     debug_print_event_from_module(DEBUG_INFO, "System", "Antenna module temperature = ");
     debug_print_dec(temp_val);
     debug_new_line();
-
+*/
     debug_print_event_from_module(DEBUG_INFO, "System", "Boot completed!");
     debug_new_line();
 }
