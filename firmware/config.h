@@ -25,7 +25,7 @@
  * 
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 1.0.2
+ * \version 1.0.6
  * 
  * \date 03/07/2019
  *
@@ -43,6 +43,11 @@
 #define OBDH_TX_ENABLED                         1
 
 #define OBDH_PAYLOAD_X_ENABLED                  0
+
+#define OBDH_TELECOMMAND_ENTER_HIBERNATION_KEY  "69jCwUyK"
+#define OBDH_TELECOMMAND_LEAVE_HIBERNATION_KEY  "MbaY2fNG"
+#define OBDH_TELECOMMAND_CHARGE_RESET_KEY       "bVCd25Fh"
+#define OBDH_TELECOMMAND_ENABLE_RUSH_KEY        "peU9ZGH3"
 
 #endif // CONFIG_H_
 

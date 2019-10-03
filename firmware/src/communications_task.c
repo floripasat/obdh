@@ -26,7 +26,7 @@
  * \author Elder Tramontin
  * \author Gabriel Mariano Marcelino <gabriel.mm8@gmail.com>
  *
- * \version 1.0.3
+ * \version 1.0.6
  *
  * \addtogroup communication_task
  * \{
@@ -847,10 +847,10 @@ void enable_rush(telecommand_t telecommand)
 
 bool verify_key(uint8_t *key, uint16_t key_len, uint8_t type)
 {
-    uint8_t key_enter_hibernation[] = "69jCwUyK";
-    uint8_t key_leave_hibernation[] = "MbaY2fNG";
-    uint8_t key_charge_reset[]      = "bVCd25Fh";
-    uint8_t key_enable_rush[]       = "peU9ZGH3";
+    uint8_t key_enter_hibernation[] = OBDH_TELECOMMAND_ENTER_HIBERNATION_KEY;
+    uint8_t key_leave_hibernation[] = OBDH_TELECOMMAND_LEAVE_HIBERNATION_KEY;
+    uint8_t key_charge_reset[]      = OBDH_TELECOMMAND_CHARGE_RESET_KEY;
+    uint8_t key_enable_rush[]       = OBDH_TELECOMMAND_ENABLE_RUSH_KEY;
 
     switch(type)
     {
