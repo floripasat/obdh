@@ -12,7 +12,7 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 * The MCU used in this module is the [MSP430F6659](http://www.ti.com/product/MSP430F6659);
 * The tracking IC used is [MPU9250](https://www.invensense.com/products/motion-tracking/9-axis/mpu-9250/), which contains a 9-axis sensors (3-axis each): a gyroscope, an accelerometer and a compass;
 * For space-ground communications, is used the radio transceiver [CC1125](http://www.ti.com/product/CC1125);
-* Detailed information can be found [here](https://github.com/floripasat/obdh/hardware/).
+* Detailed information can be found [here](hardware/).
 
 ## Software
 
@@ -20,7 +20,7 @@ The main goal of On Board Data Handling, a.k.a. OBDH, is manage all the cubesat 
 * All software was developed in the [Code Composer Studio IDE](http://www.ti.com/tool/ccstudio).
 * Tested in compiler TI v16.9.1 LTS (CCS v7.1 7.1.0.00015).
 * Uses FreeRTOS, a RTOS for embedded systems. [FreeRTOS page](http://freertos.org/);
-* Detailed information can be found [here](https://github.com/floripasat/obdh/firmware/).
+* Detailed information can be found [here](firmware/).
 <!-- * Doxygen documentation [here](http://fsat-server.duckdns.org:8000/obdh/). nao foi feito ainda -->
 
 ### Toolchain setup
