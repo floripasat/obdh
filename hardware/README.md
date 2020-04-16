@@ -1,5 +1,6 @@
 # FloripaSat - On Board Data Handling - Hardware
 <hr>
+
 ## Topology
 
   ![Topology](https://github.com/floripasat/obdh/blob/dev/hardware/img/obdh-hw-topology.png)
